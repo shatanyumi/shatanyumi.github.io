@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <meta name="author" content="shuisong">
+
+
+
+
+
+<title>computer killer 1 | Bencorn</title>
+
+
+
+    <link rel="icon" href="/favicon.ico">
+
+
+
+
+    <!-- stylesheets list from _config.yml -->
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+
+
+
+    <!-- scripts list from _config.yml -->
+    
+    <script src="/js/script.js"></script>
+    
+    <script src="/js/tocbot.min.js"></script>
+    
+
+
+
+    
+    
+        
+    
+
+
+<meta name="generator" content="Hexo 5.2.0"></head>
+<body>
+    <div class="wrapper">
+        <header>
+    <nav class="navbar">
+        <div class="container">
+            <div class="navbar-header header-logo"><a href="/">Shuisong&#39;s Blog</a></div>
+            <div class="menu navbar-right">
+                
+                    <a class="menu-item" href="/archives">Posts</a>
+                
+                    <a class="menu-item" href="/category">Categories</a>
+                
+                    <a class="menu-item" href="/tag">Tags</a>
+                
+                    <a class="menu-item" href="/about">About</a>
+                
+                <input id="switch_default" type="checkbox" class="switch_default">
+                <label for="switch_default" class="toggleBtn"></label>
+            </div>
+        </div>
+    </nav>
+
+    
+    <nav class="navbar-mobile" id="nav-mobile">
+        <div class="container">
+            <div class="navbar-header">
+                <div>
+                    <a href="/">Shuisong&#39;s Blog</a><a id="mobile-toggle-theme">·&nbsp;Light</a>
+                </div>
+                <div class="menu-toggle" onclick="mobileBtn()">&#9776; Menu</div>
+            </div>
+            <div class="menu" id="mobile-menu">
+                
+                    <a class="menu-item" href="/archives">Posts</a>
+                
+                    <a class="menu-item" href="/category">Categories</a>
+                
+                    <a class="menu-item" href="/tag">Tags</a>
+                
+                    <a class="menu-item" href="/about">About</a>
+                
+            </div>
+        </div>
+    </nav>
+
+</header>
+<script>
+    var mobileBtn = function f() {
+        var toggleMenu = document.getElementsByClassName("menu-toggle")[0];
+        var mobileMenu = document.getElementById("mobile-menu");
+        if(toggleMenu.classList.contains("active")){
+           toggleMenu.classList.remove("active")
+            mobileMenu.classList.remove("active")
+        }else{
+            toggleMenu.classList.add("active")
+            mobileMenu.classList.add("active")
+        }
+    }
+</script>
+        <div class="main">
+            <div class="container">
+    
+    
+        <div class="post-toc">
+    <div class="tocbot-list">
+    </div>
+    <div class="tocbot-list-menu">
+        <a class="tocbot-toc-expand" onclick="expand_toc()">Expand all</a>
+        <a onclick="go_top()">Back to top</a>
+        <a onclick="go_bottom()">Go to bottom</a>
+    </div>
+</div>
+
+<script>
+    document.ready(
+        function () {
+            tocbot.init({
+                tocSelector: '.tocbot-list',
+                contentSelector: '.post-content',
+                headingSelector: 'h1, h2, h3, h4, h5',
+                collapseDepth: 1,
+                orderedList: false,
+                scrollSmooth: true,
+            })
+        }
+    )
+
+    function expand_toc() {
+        var b = document.querySelector(".tocbot-toc-expand");
+        tocbot.init({
+            tocSelector: '.tocbot-list',
+            contentSelector: '.post-content',
+            headingSelector: 'h1, h2, h3, h4, h5',
+            collapseDepth: 6,
+            orderedList: false,
+            scrollSmooth: true,
+        });
+        b.setAttribute("onclick", "collapse_toc()");
+        b.innerHTML = "Collapse all"
+    }
+
+    function collapse_toc() {
+        var b = document.querySelector(".tocbot-toc-expand");
+        tocbot.init({
+            tocSelector: '.tocbot-list',
+            contentSelector: '.post-content',
+            headingSelector: 'h1, h2, h3, h4, h5',
+            collapseDepth: 1,
+            orderedList: false,
+            scrollSmooth: true,
+        });
+        b.setAttribute("onclick", "expand_toc()");
+        b.innerHTML = "Expand all"
+    }
+
+    function go_top() {
+        window.scrollTo(0, 0);
+    }
+
+    function go_bottom() {
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+
+</script>
+    
+
+    
+    <article class="post-wrap">
+        <header class="post-header">
+            <h1 class="post-title">computer killer 1</h1>
+            
+                <div class="post-meta">
+                    
+                        Author: <a itemprop="author" rel="author" href="/">shuisong</a>
+                    
+
+                    
+                        <span class="post-time">
+                        Date: <a href="#">十一月 9, 2020&nbsp;&nbsp;19:03:26</a>
+                        </span>
+                    
+                    
+                        <span class="post-category">
+                    Category:
+                            
+                                <a href="/categories/%E7%94%9F%E6%B4%BB/">生活</a>
+                            
+                        </span>
+                    
+                </div>
+            
+        </header>
+
+        <div class="post-content">
+            <p>天气真不错阿～是个折腾的电脑的好日子。（电脑：请做点儿个善良的人），看《mapReduce》的时候看到一个叫NUMA架构的东西，就顺藤摸瓜折腾了一小会儿，记录一下步骤和内容，折腾折腾～～参照了这篇<a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/62795773" title="知乎文章">知乎文章</a>，我对多CPU挺赞成的，不过这个东西可能会对操作系统会带来不小的挑战</p>
+<h4 id="载一些工具"><a href="#载一些工具" class="headerlink" title="载一些工具"></a>载一些工具</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sudo apt install numactl</span><br><span class="line">sudo apt install hwloc</span><br></pre></td></tr></table></figure>
+<p>numactl 貌似是一个手工调优的工具，具体见<a target="_blank" rel="noopener" href="https://www.cnblogs.com/machangwei-8/p/10402644.html" title="这里">这里</a> ，然后hwloc是查看CPU拓扑的工具</p>
+<h4 id="dellG3-信息"><a href="#dellG3-信息" class="headerlink" title="dellG3 信息"></a>dellG3 信息</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">numactl --hardware</span><br></pre></td></tr></table></figure>
+<p><img src="https://hss-imgcloud.oss-cn-beijing.aliyuncs.com/img/2020/11/0920201109190512.png"></p>
+<p>可以看到我的电脑是支持numa，ubuntu系统里边儿，不知道对不对劲（感觉不对劲hh）</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">lstopo --of png &gt; computer.png</span><br></pre></td></tr></table></figure>
+<p><img src="https://hss-imgcloud.oss-cn-beijing.aliyuncs.com/img/2020/11/0920201109190532.png"></p>
+<p>然后这张图片儿要是早知道，当时学计组的时候就每这么难受了，说白了还是当时的自己主动性不够！<br>可以在这张图片儿里边儿看到，和CSAPP里边儿讲的一模一样，x86_64系统分了三级缓存，L3是8M、L2 256KB、L1分InstructionCache和DataCache分别32K，然后有4个core，每个core支持超线程，上边儿红色12G是内存（我是8+4虚拟化以后组织到一起了）；接着是PCI总线，测试打印的时候接入总线的有一个小鼠标（USB2.0），然后蓝牙和电源，电脑里边儿分别是1T硬盘和256的固态（磁盘容量x0.93计算），然后还有一张显卡</p>
+<h4 id="NUMA架构"><a href="#NUMA架构" class="headerlink" title="NUMA架构"></a>NUMA架构</h4><p>NUMA架构里边儿，会存在多个CPU，内存的访问时间和距离就有关系，所以存在一个潜在的性能问题；是为了解决多 CPU 系统下共享 BUS 带来的性能问题。<br>这样的前提就不能将CPU看作黑盒了，CPU之间甚至可以级联，例linux里边儿会proccer分成node，而内存则是根据离node最近的位置分配，分配过后不会被其他node使用（这里全是OS在做）</p>
+<p>除了NUMA架构以外，还有一些其他的架构，看论文太浪费时间了（因为是在折腾所以就随意luo），看的<a target="_blank" rel="noopener" href="https://www.jianshu.com/p/81233f3c2c14" title="博客">博客</a>，靠看了以后还是用不来，乌拉乌拉～～</p>
+<p>折腾结束。。。。快洛</p>
+
+        </div>
+
+        
+            <section class="post-copyright">
+                
+                    <p class="copyright-item">
+                        <span>Author:</span>
+                        <span>shuisong</span>
+                    </p>
+                
+                
+                    <p class="copyright-item">
+                        <span>Permalink:</span>
+                        <span><a href="https://blog.bencorn.com/2020/11/09/computer-killer-1/">https://blog.bencorn.com/2020/11/09/computer-killer-1/</a></span>
+                    </p>
+                
+                
+                    <p class="copyright-item">
+                        <span>License:</span>
+                        <span>Copyright (c) 2019 <a target="_blank" rel="noopener" href="http://creativecommons.org/licenses/by-nc/4.0/">CC-BY-NC-4.0</a> LICENSE</span>
+                    </p>
+                
+                
+                     <p class="copyright-item">
+                         <span>Slogan:</span>
+                         <span>Do you believe in <strong>DESTINY</strong>?</span>
+                     </p>
+                
+
+            </section>
+        
+        <section class="post-tags">
+            <div>
+                <span>Tag(s):</span>
+                <span class="tag">
+                    
+                    
+                        <a href="/tags/%E7%94%9F%E6%B4%BB/"># 生活</a>
+                    
+                        
+                </span>
+            </div>
+            <div>
+                <a href="javascript:window.history.back();">back</a>
+                <span>· </span>
+                <a href="/">home</a>
+            </div>
+        </section>
+        <section class="post-nav">
+            
+            
+            <a class="next" rel="next" href="/2020/11/09/std-sort/">std::sort()</a>
+            
+        </section>
+
+
+    </article>
+</div>
+
+        </div>
+        <footer id="footer" class="footer">
+    <div class="copyright">
+        <span>© shuisong | Powered by <a href="https://hexo.io" target="_blank">Hexo</a> & <a href="https://github.com/Siricee/hexo-theme-Chic" target="_blank">Chic</a></span>
+    </div>
+</footer>
+
+    </div>
+</body>
+</html>
