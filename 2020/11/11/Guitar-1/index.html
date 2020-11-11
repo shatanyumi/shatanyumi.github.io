@@ -12,7 +12,7 @@
 
 
 
-<title>computer killer 1 | Bencorn</title>
+<title>Guitar 1 | Bencorn</title>
 
 
 
@@ -173,7 +173,7 @@
     
     <article class="post-wrap">
         <header class="post-header">
-            <h1 class="post-title">computer killer 1</h1>
+            <h1 class="post-title">Guitar 1</h1>
             
                 <div class="post-meta">
                     
@@ -182,14 +182,14 @@
 
                     
                         <span class="post-time">
-                        Date: <a href="#">十一月 9, 2020&nbsp;&nbsp;19:03:26</a>
+                        Date: <a href="#">十一月 11, 2020&nbsp;&nbsp;21:22:11</a>
                         </span>
                     
                     
                         <span class="post-category">
                     Category:
                             
-                                <a href="/categories/%E7%94%9F%E6%B4%BB/">生活</a>
+                                <a href="/categories/guitar/">guitar</a>
                             
                         </span>
                     
@@ -198,18 +198,46 @@
         </header>
 
         <div class="post-content">
-            <p>天气真不错阿～是个折腾的电脑的好日子。（电脑：请做点儿个善良的人），看《mapReduce》的时候看到一个叫NUMA架构的东西，就顺藤摸瓜折腾了一小会儿，记录一下步骤和内容，折腾折腾～～参照了这篇<a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/62795773" title="知乎文章">知乎文章</a>，我对多CPU挺赞成的，不过这个东西可能会对操作系统会带来不小的挑战</p>
-<h4 id="载一些工具"><a href="#载一些工具" class="headerlink" title="载一些工具"></a>载一些工具</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sudo apt install numactl</span><br><span class="line">sudo apt install hwloc</span><br></pre></td></tr></table></figure>
-<p>numactl 貌似是一个手工调优的工具，具体见<a target="_blank" rel="noopener" href="https://www.cnblogs.com/machangwei-8/p/10402644.html" title="这里">这里</a> ，然后hwloc是查看CPU拓扑的工具</p>
-<h4 id="dellG3-信息"><a href="#dellG3-信息" class="headerlink" title="dellG3 信息"></a>dellG3 信息</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">numactl --hardware</span><br></pre></td></tr></table></figure>
-<p><img src="https://hss-imgcloud.oss-cn-beijing.aliyuncs.com/img/2020/11/0920201109190512.png"></p>
-<p>可以看到我的电脑是支持numa，ubuntu系统里边儿，不知道对不对劲（感觉不对劲hh）</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">lstopo --of png &gt; computer.png</span><br></pre></td></tr></table></figure>
-<p><img src="https://hss-imgcloud.oss-cn-beijing.aliyuncs.com/img/2020/11/0920201109190532.png"></p>
-<p>然后这张图片儿要是早知道，当时学计组的时候就每这么难受了，说白了还是当时的自己主动性不够！<br>可以在这张图片儿里边儿看到，和CSAPP里边儿讲的一模一样，x86_64系统分了三级缓存，L3是8M、L2 256KB、L1分InstructionCache和DataCache分别32K，然后有4个core，每个core支持超线程，上边儿红色12G是内存（我是8+4虚拟化以后组织到一起了）；接着是PCI总线，测试打印的时候接入总线的有一个小鼠标（USB2.0），然后蓝牙和电源，电脑里边儿分别是1T硬盘和256的固态（磁盘容量x0.93计算），然后还有一张显卡</p>
-<h4 id="NUMA架构"><a href="#NUMA架构" class="headerlink" title="NUMA架构"></a>NUMA架构</h4><p>NUMA架构里边儿，会存在多个CPU，内存的访问时间和距离就有关系，所以存在一个潜在的性能问题；是为了解决多 CPU 系统下共享 BUS 带来的性能问题。<br>这样的前提就不能将CPU看作黑盒了，CPU之间甚至可以级联，例linux里边儿会proccer分成node，而内存则是根据离node最近的位置分配，分配过后不会被其他node使用（这里全是OS在做）</p>
-<p>除了NUMA架构以外，还有一些其他的架构，看论文太浪费时间了（因为是在折腾所以就随意luo），看的<a target="_blank" rel="noopener" href="https://www.jianshu.com/p/81233f3c2c14" title="博客">博客</a>，靠看了以后还是用不来，乌拉乌拉～～</p>
-<p>折腾结束。。。。快洛</p>
+            <p>今天正式开始第一次吉他课程的学习，左手太笨了得多加练习，学习内容做一个总结和记录，方便儿后边儿的练习。</p>
+<h3 id="Summary"><a href="#Summary" class="headerlink" title="Summary"></a>Summary</h3><p>​    主要是分为了三个板块，左手基本功、右手基本功、乐理知识，首先是熟悉吉他，完了以后是基本的持琴姿势，接下来是左右手基本功和乐理知识</p>
+<h3 id="认识吉他、持琴姿势"><a href="#认识吉他、持琴姿势" class="headerlink" title="认识吉他、持琴姿势"></a>认识吉他、持琴姿势</h3><pre><code>####     1、认识吉他</code></pre>
+<p>​            琴头、琴枕、琴弦、面板、侧板、背板</p>
+<h4 id="2、持琴姿势"><a href="#2、持琴姿势" class="headerlink" title="2、持琴姿势"></a>2、持琴姿势</h4><p>​            鄙人坐着，翘起右脚，右手、腿、胸三点支撑一下，放松。右手体验到重力下垂感，左手呈现U型，然后大拇指和食指保持距离，大拇指进行定位，手指垂    直按弦，小拇指可以稍微偏一点儿</p>
+<center>
+    <img src ="https://hss-imgcloud.oss-cn-beijing.aliyuncs.com/img/2020/11/1120201111222447.jpg" width="400" align="margin-left">
+    <img src ="https://hss-imgcloud.oss-cn-beijing.aliyuncs.com/img/2020/11/1120201111222511.jpg" width="400" align="margin-right">
+</center>
+
+
+
+<h3 id="右手基本功"><a href="#右手基本功" class="headerlink" title="右手基本功"></a>右手基本功</h3><h4 id="1、大拇指：4、5、6"><a href="#1、大拇指：4、5、6" class="headerlink" title="1、大拇指：4、5、6"></a>1、大拇指：4、5、6</h4><h4 id="2、食指无：3、2、1"><a href="#2、食指无：3、2、1" class="headerlink" title="2、食指无：3、2、1"></a>2、食指无：3、2、1</h4><h4 id="要点：掌心半握，指关节发力，尽量拨响，匀速"><a href="#要点：掌心半握，指关节发力，尽量拨响，匀速" class="headerlink" title="*要点：掌心半握，指关节发力，尽量拨响，匀速"></a>*要点：掌心半握，指关节发力，尽量拨响，匀速</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">练习：节拍器 60-110 </span><br><span class="line">	1、T321</span><br><span class="line">	2、T32123</span><br><span class="line">	3、T3231323</span><br><span class="line">	4、T3（21）3（21）3（21）3 &#x2F;&#x2F;（21表示同时拨）</span><br><span class="line">要求：匀速、双音同时、音量平均、重复3遍无误</span><br></pre></td></tr></table></figure>
+
+<img src = "https://hss-imgcloud.oss-cn-beijing.aliyuncs.com/img/2020/11/1120201111225816.jpg" width="600">
+
+
+
+<h3 id="左手基本功"><a href="#左手基本功" class="headerlink" title="左手基本功"></a>左手基本功</h3><h3 id="1、大拇指定位"><a href="#1、大拇指定位" class="headerlink" title="1、大拇指定位"></a>1、大拇指定位</h3><h4 id="2、手腕下沉"><a href="#2、手腕下沉" class="headerlink" title="2、手腕下沉"></a>2、手腕下沉</h4><h4 id="3、手指垂直独立按弦"><a href="#3、手指垂直独立按弦" class="headerlink" title="3、手指垂直独立按弦"></a>3、手指垂直独立按弦</h4><h4 id="4、尽量接近品丝按弦"><a href="#4、尽量接近品丝按弦" class="headerlink" title="4、尽量接近品丝按弦"></a>4、尽量接近品丝按弦</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">练习：60-90 爬格子（半音阶练习），音阶的最小单位：半音</span><br><span class="line">	1、纵向</span><br><span class="line">	2、横向</span><br><span class="line">要求：匀速、保留指、左右手同步、大拇指定位</span><br></pre></td></tr></table></figure>
+
+<img src="https://hss-imgcloud.oss-cn-beijing.aliyuncs.com/img/2020/11/1120201111225908.jpg" width="600">
+
+
+
+<h3 id="乐理知识"><a href="#乐理知识" class="headerlink" title="乐理知识"></a>乐理知识</h3><p><img src="https://hss-imgcloud.oss-cn-beijing.aliyuncs.com/img/2020/11/1120201111224920.jpeg"></p>
+<h4 id="先是认识一下钢琴琴键体系，然后认识基本音级：1（C）-2（D）-3（E）-4（F）-5（G）-6（A）-7（B），一个品是半音级别，要好好熟悉并记住位置"><a href="#先是认识一下钢琴琴键体系，然后认识基本音级：1（C）-2（D）-3（E）-4（F）-5（G）-6（A）-7（B），一个品是半音级别，要好好熟悉并记住位置" class="headerlink" title="先是认识一下钢琴琴键体系，然后认识基本音级：1（C） 2（D） 3（E） 4（F） 5（G） 6（A） 7（B），一个品是半音级别，要好好熟悉并记住位置"></a>先是认识一下钢琴琴键体系，然后认识基本音级：1（C） 2（D） 3（E） 4（F） 5（G） 6（A） 7（B），一个品是半音级别，要好好熟悉并记住位置</h4><center>
+    <img src ="https://hss-imgcloud.oss-cn-beijing.aliyuncs.com/img/2020/11/1120201111225700.jpg" width="500">
+    <img src ="https://hss-imgcloud.oss-cn-beijing.aliyuncs.com/img/2020/11/1120201111225516.jpg" width="500">
+</center>
+
+
+
+
+
+
+
+
+
+
+
 
         </div>
 
@@ -224,7 +252,7 @@
                 
                     <p class="copyright-item">
                         <span>Permalink:</span>
-                        <span><a href="https://blog.bencorn.com/2020/11/09/computer-killer-1/">https://blog.bencorn.com/2020/11/09/computer-killer-1/</a></span>
+                        <span><a href="https://blog.bencorn.com/2020/11/11/Guitar-1/">https://blog.bencorn.com/2020/11/11/Guitar-1/</a></span>
                     </p>
                 
                 
@@ -248,7 +276,7 @@
                 <span class="tag">
                     
                     
-                        <a href="/tags/%E7%94%9F%E6%B4%BB/"># 生活</a>
+                        <a href="/tags/guitar/"># guitar</a>
                     
                         
                 </span>
@@ -261,10 +289,8 @@
         </section>
         <section class="post-nav">
             
-                <a class="prev" rel="prev" href="/2020/11/11/Guitar-1/">Guitar 1</a>
             
-            
-            <a class="next" rel="next" href="/2020/11/09/std-sort/">std::sort()</a>
+            <a class="next" rel="next" href="/2020/11/09/computer-killer-1/">computer killer 1</a>
             
         </section>
 
