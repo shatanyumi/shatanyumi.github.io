@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <meta name="author" content="shuisong">
+
+
+
+
+
+<title>k8s 1 | Bencorn</title>
+
+
+
+    <link rel="icon" href="/favicon.ico">
+
+
+
+
+    <!-- stylesheets list from _config.yml -->
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+
+
+
+    <!-- scripts list from _config.yml -->
+    
+    <script src="/js/script.js"></script>
+    
+    <script src="/js/tocbot.min.js"></script>
+    
+
+
+
+    
+    
+        
+    
+
+
+<meta name="generator" content="Hexo 5.2.0"></head>
+<body>
+    <div class="wrapper">
+        <header>
+    <nav class="navbar">
+        <div class="container">
+            <div class="navbar-header header-logo"><a href="/">Shuisong&#39;s Blog</a></div>
+            <div class="menu navbar-right">
+                
+                    <a class="menu-item" href="/archives">Posts</a>
+                
+                    <a class="menu-item" href="/category">Categories</a>
+                
+                    <a class="menu-item" href="/tag">Tags</a>
+                
+                    <a class="menu-item" href="/about">About</a>
+                
+                <input id="switch_default" type="checkbox" class="switch_default">
+                <label for="switch_default" class="toggleBtn"></label>
+            </div>
+        </div>
+    </nav>
+
+    
+    <nav class="navbar-mobile" id="nav-mobile">
+        <div class="container">
+            <div class="navbar-header">
+                <div>
+                    <a href="/">Shuisong&#39;s Blog</a><a id="mobile-toggle-theme">·&nbsp;Light</a>
+                </div>
+                <div class="menu-toggle" onclick="mobileBtn()">&#9776; Menu</div>
+            </div>
+            <div class="menu" id="mobile-menu">
+                
+                    <a class="menu-item" href="/archives">Posts</a>
+                
+                    <a class="menu-item" href="/category">Categories</a>
+                
+                    <a class="menu-item" href="/tag">Tags</a>
+                
+                    <a class="menu-item" href="/about">About</a>
+                
+            </div>
+        </div>
+    </nav>
+
+</header>
+<script>
+    var mobileBtn = function f() {
+        var toggleMenu = document.getElementsByClassName("menu-toggle")[0];
+        var mobileMenu = document.getElementById("mobile-menu");
+        if(toggleMenu.classList.contains("active")){
+           toggleMenu.classList.remove("active")
+            mobileMenu.classList.remove("active")
+        }else{
+            toggleMenu.classList.add("active")
+            mobileMenu.classList.add("active")
+        }
+    }
+</script>
+        <div class="main">
+            <div class="container">
+    
+    
+        <div class="post-toc">
+    <div class="tocbot-list">
+    </div>
+    <div class="tocbot-list-menu">
+        <a class="tocbot-toc-expand" onclick="expand_toc()">Expand all</a>
+        <a onclick="go_top()">Back to top</a>
+        <a onclick="go_bottom()">Go to bottom</a>
+    </div>
+</div>
+
+<script>
+    document.ready(
+        function () {
+            tocbot.init({
+                tocSelector: '.tocbot-list',
+                contentSelector: '.post-content',
+                headingSelector: 'h1, h2, h3, h4, h5',
+                collapseDepth: 1,
+                orderedList: false,
+                scrollSmooth: true,
+            })
+        }
+    )
+
+    function expand_toc() {
+        var b = document.querySelector(".tocbot-toc-expand");
+        tocbot.init({
+            tocSelector: '.tocbot-list',
+            contentSelector: '.post-content',
+            headingSelector: 'h1, h2, h3, h4, h5',
+            collapseDepth: 6,
+            orderedList: false,
+            scrollSmooth: true,
+        });
+        b.setAttribute("onclick", "collapse_toc()");
+        b.innerHTML = "Collapse all"
+    }
+
+    function collapse_toc() {
+        var b = document.querySelector(".tocbot-toc-expand");
+        tocbot.init({
+            tocSelector: '.tocbot-list',
+            contentSelector: '.post-content',
+            headingSelector: 'h1, h2, h3, h4, h5',
+            collapseDepth: 1,
+            orderedList: false,
+            scrollSmooth: true,
+        });
+        b.setAttribute("onclick", "expand_toc()");
+        b.innerHTML = "Expand all"
+    }
+
+    function go_top() {
+        window.scrollTo(0, 0);
+    }
+
+    function go_bottom() {
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+
+</script>
+    
+
+    
+    <article class="post-wrap">
+        <header class="post-header">
+            <h1 class="post-title">k8s 1</h1>
+            
+                <div class="post-meta">
+                    
+                        Author: <a itemprop="author" rel="author" href="/">shuisong</a>
+                    
+
+                    
+                        <span class="post-time">
+                        Date: <a href="#">三月 19, 2021&nbsp;&nbsp;23:28:34</a>
+                        </span>
+                    
+                    
+                        <span class="post-category">
+                    Category:
+                            
+                                <a href="/categories/k8s/">k8s</a>
+                            
+                        </span>
+                    
+                </div>
+            
+        </header>
+
+        <div class="post-content">
+            <p>​    学习网站：<a target="_blank" rel="noopener" href="https://kubernetes.io/zh/docs/tutorials/">https://kubernetes.io/zh/docs/tutorials/</a></p>
+<p>​    源码网站：<a target="_blank" rel="noopener" href="https://github.com/kubernetes/kubernetes">https://github.com/kubernetes/kubernetes</a></p>
+<p>​    很早就听wyy说 k8s 这个玩意儿，虽然早早就买了书，可是没学！DevOps、计算现在都需要这个技能，哭晕在工位，赶紧学习吧趁mt给了时间。</p>
+<h4 id="学习环境搭建"><a href="#学习环境搭建" class="headerlink" title="学习环境搭建"></a>学习环境搭建</h4><p>​    参考文档：<a target="_blank" rel="noopener" href="https://kubernetes.io/zh/docs/tasks/tools/">https://kubernetes.io/zh/docs/tasks/tools/</a></p>
+<p>​    环境：Ubuntu 20.04，8G，2CPU</p>
+<p>​    学习环境是 docker+k8s 来组建，因为我起了一个 VirtualBox 的虚拟机，索性采用的 Docker，因此就需要安装好 Docker。下边儿的步骤在WSL中也是兼容的，用docker的话，如果用其他的方法没试过。</p>
+<h5 id="1、kubectl安装"><a href="#1、kubectl安装" class="headerlink" title="1、kubectl安装"></a>1、kubectl安装</h5><p>​    kubectl 命令安装，一个命令工具</p>
+<p>​    参考文档：<a target="_blank" rel="noopener" href="https://kubernetes.io/zh/docs/reference/kubectl/">https://kubernetes.io/zh/docs/reference/kubectl/</a></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">snap install kubectl --classic</span><br><span class="line"><span class="comment"># 版本显示来检测是否安装成功</span></span><br><span class="line">kubectl version --client</span><br></pre></td></tr></table></figure>
+
+<h5 id="2、docker安装"><a href="#2、docker安装" class="headerlink" title="2、docker安装"></a>2、docker安装</h5><p>​    参考文档：<a target="_blank" rel="noopener" href="https://docs.docker.com/engine/install/">https://docs.docker.com/engine/install/</a></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 预先卸载已有的旧版</span></span><br><span class="line">sudo apt-get remove docker docker-engine docker.io containerd runc</span><br><span class="line"><span class="comment"># 通过apt安装，如果速度很慢，proxy吧</span></span><br><span class="line">sudo apt-get update</span><br><span class="line">sudo apt-get install \</span><br><span class="line">   apt-transport-https \</span><br><span class="line">   ca-certificates \</span><br><span class="line">   curl \</span><br><span class="line">   gnupg \</span><br><span class="line">   lsb-release</span><br><span class="line"><span class="comment"># 添加docker‘s official GPG key</span></span><br><span class="line">curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg</span><br><span class="line"><span class="comment"># 建立stable repository</span></span><br><span class="line"><span class="built_in">echo</span> \</span><br><span class="line"> <span class="string">&quot;deb [arch=amd64 signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu \</span></span><br><span class="line"><span class="string"> <span class="subst">$(lsb_release -cs)</span> stable&quot;</span> | sudo tee /etc/apt/sources.list.d/docker.list &gt; /dev/null</span><br><span class="line"> <span class="comment"># 安装docker engine</span></span><br><span class="line"> sudo apt-get update</span><br><span class="line"> sudo apt-get install docker-ce docker-ce-cli containerd.io</span><br><span class="line"> <span class="comment"># 验证docker安装好了</span></span><br><span class="line"> sudo docker run hello-world</span><br></pre></td></tr></table></figure>
+
+<h5 id="3、minikube安装"><a href="#3、minikube安装" class="headerlink" title="3、minikube安装"></a>3、minikube安装</h5><p>​    minikube 相当于本地版的集群启动器，快速在本地搭建集群来玩</p>
+<p>​    参加文档：<a target="_blank" rel="noopener" href="https://minikube.sigs.k8s.io/docs/start/">https://minikube.sigs.k8s.io/docs/start/</a></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64</span><br><span class="line">sudo install minikube-linux-amd64 /usr/<span class="built_in">local</span>/bin/minikube</span><br><span class="line"><span class="comment"># 版本显示来检测是否安装成功</span></span><br><span class="line">minikube version</span><br></pre></td></tr></table></figure>
+
+<h5 id="4、集群启动"><a href="#4、集群启动" class="headerlink" title="4、集群启动"></a>4、集群启动</h5><p>​    minikube 启动集群</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 设置docker为默认的集群的drive </span></span><br><span class="line"><span class="comment"># minikube config set driver docker</span></span><br><span class="line"><span class="comment"># 直接用docker启动（默认情况是VirtualBox，system是debain）</span></span><br><span class="line">minikube start --driver=docker</span><br><span class="line"><span class="comment"># 添加usermode，virtualbox 环境下必须非root执行上一条命令才可以，因此</span></span><br><span class="line"><span class="comment"># 先运行一下下边儿这条，才运行上边儿一条命令一次，成功部署</span></span><br><span class="line">sudo usermod -aG docker <span class="variable">$USER</span> &amp;&amp; newgrp docker</span><br><span class="line"><span class="comment"># 查看</span></span><br><span class="line">docker ps</span><br><span class="line"><span class="comment"># 查看minikube状态</span></span><br><span class="line">minikube status</span><br></pre></td></tr></table></figure>
+
+<p>​    到此处完成了基本环境的搭建，接下来是集群管理</p>
+<h4 id="集群管理"><a href="#集群管理" class="headerlink" title="集群管理"></a>集群管理</h4><h5 id="1、minikube小鸡管理"><a href="#1、minikube小鸡管理" class="headerlink" title="1、minikube小鸡管理"></a>1、minikube小鸡管理</h5><p>​    现在我们有一个 one node 的小鸡，先尝试安装的 kubectl 交互</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 查看集群的信息</span></span><br><span class="line">kubectl get po -A</span><br><span class="line"><span class="comment"># 显示信息如下</span></span><br><span class="line"><span class="comment"># NAMESPACE     NAME                               READY   STATUS    RESTARTS   AGE</span></span><br><span class="line"><span class="comment"># kube-system   coredns-74ff55c5b-29456            1/1     Running   0          4m</span></span><br><span class="line"><span class="comment"># kube-system   etcd-minikube                      1/1     Running   0          4m9s</span></span><br><span class="line"><span class="comment"># kube-system   kube-apiserver-minikube            1/1     Running   0          4m9s</span></span><br><span class="line"><span class="comment"># kube-system   kube-controller-manager-minikube   1/1     Running   0          4m9s</span></span><br><span class="line"><span class="comment"># kube-system   kube-proxy-5hb2w                   1/1     Running   0          4m</span></span><br><span class="line"><span class="comment"># kube-system   kube-scheduler-minikube            1/1     Running   0          4m9s</span></span><br><span class="line"><span class="comment"># kube-system   storage-provisioner                1/1     Running   0          4m15s</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>​    我们可以看到，在 minikube 起的集群中，有一些最基本的服务，name下边儿，这些个会在后边儿第三个大标题下提到，暂时不讲，因为我一开始就去看namespace、name下边儿的一大堆东西，好家伙直接晕掉，先不慌；基本状态就跟字段意思一样，很好懂</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># web ui界面启动，dashboard</span></span><br><span class="line"><span class="comment"># 根据提示直接访问就可以看到</span></span><br><span class="line">minikube dashboard</span><br></pre></td></tr></table></figure>
+
+<h5 id="2、部署简单任务"><a href="#2、部署简单任务" class="headerlink" title="2、部署简单任务"></a>2、部署简单任务</h5><p>​    部署一个简单的任务到8080端口</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 部署</span></span><br><span class="line">kubectl create deployment hello-minikube --image=k8s.gcr.io/echoserver:1.4</span><br><span class="line">kubectl expose deployment hello-minikube --<span class="built_in">type</span>=NodePort --port=8080</span><br><span class="line"><span class="comment"># 查看服务</span></span><br><span class="line">kubectl get services hello-minikube</span><br><span class="line"><span class="comment"># 如果想要查看web页面，没有默认浏览器或者ssh进去的话可能会报错，或者说找不到HOST_BROWSER</span></span><br></pre></td></tr></table></figure>
+
+<h5 id="3、kubectl命令"><a href="#3、kubectl命令" class="headerlink" title="3、kubectl命令"></a>3、kubectl命令</h5><p>​    简单总结几个目前已经用到的命令</p>
+<p>​    参考文档：<a target="_blank" rel="noopener" href="https://kubernetes.io/zh/docs/reference/kubectl/">https://kubernetes.io/zh/docs/reference/kubectl/</a></p>
+<ul>
+<li><p>基本语法：kubectl [command] [TYPE] [NAME] [flags]</p>
+<ul>
+<li><code>command</code>: Specifies the operation that you want to perform on one or more resources</li>
+<li><code>TYPE</code>: Specifies the resource type</li>
+<li><code>NAME</code>: Specifies the name of the resource</li>
+<li><code>flags</code>: Specifies optional flags</li>
+</ul>
+<p>小试牛刀：</p>
+</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 直接查看命令，或者 kubectl [command] --help </span></span><br><span class="line">kubectl <span class="built_in">help</span></span><br><span class="line"><span class="comment"># 查看所以 node 信息</span></span><br><span class="line">kubectl get nodes -o wide</span><br><span class="line"><span class="comment"># 查看所以 pod 信息</span></span><br><span class="line">kubectl get pods -o wide</span><br></pre></td></tr></table></figure>
+
+<h4 id="基础知识"><a href="#基础知识" class="headerlink" title="基础知识"></a>基础知识</h4><p>​    菜鸡的我表示没看基本概念，直接看操作并且操作过后很懵，肯定大家都一样赶紧想知道很多东西，却无从下手；官方文档的入门搭建好环境过后，下一个就是概念，因此边操作边学习基础概念或许效率会更高，冲！</p>
+<p>​    参考文档：<a target="_blank" rel="noopener" href="https://kubernetes.io/zh/docs/concepts/">https://kubernetes.io/zh/docs/concepts/</a></p>
+<h5 id="1、部署的演变"><a href="#1、部署的演变" class="headerlink" title="1、部署的演变"></a>1、部署的演变</h5><p>​    <img src="https://hss-imgcloud.oss-cn-beijing.aliyuncs.com/img/2021/03/1920210319233036.svg" alt="部署演进"></p>
+<p>​                                                                                     图.部署的演变</p>
+<ul>
+<li>传统部署：App 直接部署于 OS 层上，无法为每个 App 划分资源边界，可能会导致某个 App 占有资源过多，存在资源分配问题</li>
+<li>虚拟化部署：单个物理机 CPU 运行多个 VM，每个 VM 是一个单独的 OS，实现了一定程度上的隔离、资源节约和成本降低</li>
+<li>容器部署：容器类似于 VM，具有被放宽的隔离属性，可以在容器之间共享 OS，因此被认为是轻量级的</li>
+</ul>
+<h5 id="2、k8s组件"><a href="#2、k8s组件" class="headerlink" title="2、k8s组件"></a>2、k8s组件</h5><p>​    <img src="https://hss-imgcloud.oss-cn-beijing.aliyuncs.com/img/2021/03/1920210319233033.svg" alt="Kubernetes 组件"></p>
+<ul>
+<li>Control Plane Component：全局决策，运行在master上<ul>
+<li>kube-apiserver：控制面前端，Restful API</li>
+<li>etcd：兼具一致性和高可用性的键值数据库</li>
+<li>kube-scheduler：监视新创建的、未指定运行pods的node，选择pod在上边儿运行</li>
+<li>kube-controller-manager：主节点上的控制进程</li>
+<li>cloud-control-manmager：</li>
+</ul>
+</li>
+<li>Node Component：运行在每个node上<ul>
+<li>kubelet：An agent that runs on each <a target="_blank" rel="noopener" href="https://kubernetes.io/docs/concepts/architecture/nodes/">node</a> in the cluster. It makes sure that <a target="_blank" rel="noopener" href="https://kubernetes.io/docs/concepts/containers/">containers</a> are running in a <a target="_blank" rel="noopener" href="https://kubernetes.io/docs/concepts/workloads/pods/">Pod</a></li>
+<li>kube-proxy：kube-proxy is a network proxy that runs on each <a target="_blank" rel="noopener" href="https://kubernetes.io/docs/concepts/architecture/nodes/">node</a> in your cluster, implementing part of the Kubernetes <a target="_blank" rel="noopener" href="https://kubernetes.io/docs/concepts/services-networking/service/">Service</a> concept.</li>
+</ul>
+</li>
+<li>Container runtime：这个地方我觉得很难，附上一篇文档吧，后边儿会单独再学习<ul>
+<li>参考文档：<a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/102171749">https://zhuanlan.zhihu.com/p/102171749</a></li>
+</ul>
+</li>
+<li>其他组件</li>
+</ul>
+<h5 id="3、k8s对象"><a href="#3、k8s对象" class="headerlink" title="3、k8s对象"></a>3、k8s对象</h5><p>​    参考文档：<a target="_blank" rel="noopener" href="https://kubernetes.io/zh/docs/concepts/overview/working-with-objects/">https://kubernetes.io/zh/docs/concepts/overview/working-with-objects/</a></p>
+
+        </div>
+
+        
+            <section class="post-copyright">
+                
+                    <p class="copyright-item">
+                        <span>Author:</span>
+                        <span>shuisong</span>
+                    </p>
+                
+                
+                    <p class="copyright-item">
+                        <span>Permalink:</span>
+                        <span><a href="https://blog.bencorn.com/2021/03/19/k8s-1/">https://blog.bencorn.com/2021/03/19/k8s-1/</a></span>
+                    </p>
+                
+                
+                    <p class="copyright-item">
+                        <span>License:</span>
+                        <span>Copyright (c) 2019 <a target="_blank" rel="noopener" href="http://creativecommons.org/licenses/by-nc/4.0/">CC-BY-NC-4.0</a> LICENSE</span>
+                    </p>
+                
+                
+                     <p class="copyright-item">
+                         <span>Slogan:</span>
+                         <span>Do you believe in <strong>DESTINY</strong>?</span>
+                     </p>
+                
+
+            </section>
+        
+        <section class="post-tags">
+            <div>
+                <span>Tag(s):</span>
+                <span class="tag">
+                    
+                    
+                        <a href="/tags/k8s/"># k8s</a>
+                    
+                        
+                </span>
+            </div>
+            <div>
+                <a href="javascript:window.history.back();">back</a>
+                <span>· </span>
+                <a href="/">home</a>
+            </div>
+        </section>
+        <section class="post-nav">
+            
+                <a class="prev" rel="prev" href="/2021/03/19/k8s-2/">k8s 2</a>
+            
+            
+            <a class="next" rel="next" href="/2021/02/03/%E5%A0%95%E8%90%BD%E9%B8%AD/">堕落鸭</a>
+            
+        </section>
+
+
+    </article>
+</div>
+
+        </div>
+        <footer id="footer" class="footer">
+    <div class="copyright">
+        <span>© shuisong | Powered by <a href="https://hexo.io" target="_blank">Hexo</a> & <a href="https://github.com/Siricee/hexo-theme-Chic" target="_blank">Chic</a></span>
+    </div>
+</footer>
+
+    </div>
+</body>
+</html>
