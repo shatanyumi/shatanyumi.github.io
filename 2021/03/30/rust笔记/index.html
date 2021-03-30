@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <meta name="author" content="shuisong">
+
+
+
+
+
+<title>rust笔记 | Bencorn</title>
+
+
+
+    <link rel="icon" href="/favicon.ico">
+
+
+
+
+    <!-- stylesheets list from _config.yml -->
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+
+
+
+    <!-- scripts list from _config.yml -->
+    
+    <script src="/js/script.js"></script>
+    
+    <script src="/js/tocbot.min.js"></script>
+    
+
+
+
+    
+    
+        
+    
+
+
+<meta name="generator" content="Hexo 5.2.0"></head>
+<body>
+    <div class="wrapper">
+        <header>
+    <nav class="navbar">
+        <div class="container">
+            <div class="navbar-header header-logo"><a href="/">Shuisong&#39;s Blog</a></div>
+            <div class="menu navbar-right">
+                
+                    <a class="menu-item" href="/archives">Posts</a>
+                
+                    <a class="menu-item" href="/category">Categories</a>
+                
+                    <a class="menu-item" href="/tag">Tags</a>
+                
+                    <a class="menu-item" href="/about">About</a>
+                
+                <input id="switch_default" type="checkbox" class="switch_default">
+                <label for="switch_default" class="toggleBtn"></label>
+            </div>
+        </div>
+    </nav>
+
+    
+    <nav class="navbar-mobile" id="nav-mobile">
+        <div class="container">
+            <div class="navbar-header">
+                <div>
+                    <a href="/">Shuisong&#39;s Blog</a><a id="mobile-toggle-theme">·&nbsp;Light</a>
+                </div>
+                <div class="menu-toggle" onclick="mobileBtn()">&#9776; Menu</div>
+            </div>
+            <div class="menu" id="mobile-menu">
+                
+                    <a class="menu-item" href="/archives">Posts</a>
+                
+                    <a class="menu-item" href="/category">Categories</a>
+                
+                    <a class="menu-item" href="/tag">Tags</a>
+                
+                    <a class="menu-item" href="/about">About</a>
+                
+            </div>
+        </div>
+    </nav>
+
+</header>
+<script>
+    var mobileBtn = function f() {
+        var toggleMenu = document.getElementsByClassName("menu-toggle")[0];
+        var mobileMenu = document.getElementById("mobile-menu");
+        if(toggleMenu.classList.contains("active")){
+           toggleMenu.classList.remove("active")
+            mobileMenu.classList.remove("active")
+        }else{
+            toggleMenu.classList.add("active")
+            mobileMenu.classList.add("active")
+        }
+    }
+</script>
+        <div class="main">
+            <div class="container">
+    
+    
+        <div class="post-toc">
+    <div class="tocbot-list">
+    </div>
+    <div class="tocbot-list-menu">
+        <a class="tocbot-toc-expand" onclick="expand_toc()">Expand all</a>
+        <a onclick="go_top()">Back to top</a>
+        <a onclick="go_bottom()">Go to bottom</a>
+    </div>
+</div>
+
+<script>
+    document.ready(
+        function () {
+            tocbot.init({
+                tocSelector: '.tocbot-list',
+                contentSelector: '.post-content',
+                headingSelector: 'h1, h2, h3, h4, h5',
+                collapseDepth: 1,
+                orderedList: false,
+                scrollSmooth: true,
+            })
+        }
+    )
+
+    function expand_toc() {
+        var b = document.querySelector(".tocbot-toc-expand");
+        tocbot.init({
+            tocSelector: '.tocbot-list',
+            contentSelector: '.post-content',
+            headingSelector: 'h1, h2, h3, h4, h5',
+            collapseDepth: 6,
+            orderedList: false,
+            scrollSmooth: true,
+        });
+        b.setAttribute("onclick", "collapse_toc()");
+        b.innerHTML = "Collapse all"
+    }
+
+    function collapse_toc() {
+        var b = document.querySelector(".tocbot-toc-expand");
+        tocbot.init({
+            tocSelector: '.tocbot-list',
+            contentSelector: '.post-content',
+            headingSelector: 'h1, h2, h3, h4, h5',
+            collapseDepth: 1,
+            orderedList: false,
+            scrollSmooth: true,
+        });
+        b.setAttribute("onclick", "expand_toc()");
+        b.innerHTML = "Expand all"
+    }
+
+    function go_top() {
+        window.scrollTo(0, 0);
+    }
+
+    function go_bottom() {
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+
+</script>
+    
+
+    
+    <article class="post-wrap">
+        <header class="post-header">
+            <h1 class="post-title">rust笔记</h1>
+            
+                <div class="post-meta">
+                    
+                        Author: <a itemprop="author" rel="author" href="/">shuisong</a>
+                    
+
+                    
+                        <span class="post-time">
+                        Date: <a href="#">三月 30, 2021&nbsp;&nbsp;23:00:36</a>
+                        </span>
+                    
+                    
+                        <span class="post-category">
+                    Category:
+                            
+                                <a href="/categories/rust/">rust</a>
+                            
+                        </span>
+                    
+                </div>
+            
+        </header>
+
+        <div class="post-content">
+            <h3 id="Rust-学习笔记（updating）"><a href="#Rust-学习笔记（updating）" class="headerlink" title="Rust 学习笔记（updating）"></a>Rust 学习笔记（updating）</h3><p>​    mt 让学习 rust，后边儿会用 rust 来写很多东西，抓紧时间学习吧，直接从官方文档下手，rush ！</p>
+<p>​    参考文档：<a target="_blank" rel="noopener" href="https://kaisery.github.io/trpl-zh-cn/title-page.html">https://kaisery.github.io/trpl-zh-cn/title-page.html</a></p>
+<p>​    学习环境：MacOS 10.15 X86_64</p>
+<h4 id="Chapter-1-Getting-Started"><a href="#Chapter-1-Getting-Started" class="headerlink" title="Chapter 1-Getting Started"></a>Chapter 1-Getting Started</h4><p>​    第一张主要讲如何创建一个简单项目，hello world 开始</p>
+<h5 id="1、rust-环境搭建"><a href="#1、rust-环境搭建" class="headerlink" title="1、rust 环境搭建"></a>1、rust 环境搭建</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Unix like OS</span></span><br><span class="line">curl --proto <span class="string">&#x27;=https&#x27;</span> --tlsv1.2 https://sh.rustup.rs -sSf | sh</span><br><span class="line">cargo --version</span><br><span class="line"><span class="comment"># 如果安装成功，无法执行版本检查，按照提示source 一下 PATH</span></span><br></pre></td></tr></table></figure>
+
+<h5 id="2、Hello-world"><a href="#2、Hello-world" class="headerlink" title="2、Hello world"></a>2、Hello world</h5><p>​    搭建好基本目录，再创建好程序，.rs是扩展名，程序中间如果有多个单词用下滑线隔开如：hello_world.rs 而不是 helloworld.rs</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">mkdir ~/projects</span><br><span class="line"><span class="built_in">cd</span> ~/projects</span><br><span class="line">mkdir hello_world</span><br><span class="line"><span class="built_in">cd</span> hello_world</span><br><span class="line">touch main.rs</span><br></pre></td></tr></table></figure>
+
+<p>​    编辑 main.rs 文件</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">	<span class="function"><span class="keyword">fn</span> <span class="title">main</span></span>() &#123;</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;Hello, world!&quot;</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>​    <code>说明：fn main() &#123;&#125; 是程序的最先执行的，（）内可以带参数，也可以有返回参数；强调良好的格式可以通过 rustfmt filename.rs；println！调用的是宏，println 调用函数</code></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">rustc main.rs</span><br><span class="line">./main</span><br><span class="line">ls</span><br></pre></td></tr></table></figure>
+
+<h5 id="3、Cargo"><a href="#3、Cargo" class="headerlink" title="3、Cargo"></a>3、Cargo</h5><p>​    Cargo is Rust’s build system and package manager。使用 Cargo 创建项目并运行尝试：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">cargo --version</span><br><span class="line">cargo new hello_cargo</span><br><span class="line"><span class="built_in">cd</span> hello_cargo</span><br><span class="line">ls</span><br><span class="line">ls -a</span><br><span class="line"><span class="comment"># 编译并产生可执行文件</span></span><br><span class="line">cargo build</span><br><span class="line">./target/debug/hello_cargo</span><br><span class="line"><span class="comment"># 编译的基础上执行可执行文件</span></span><br><span class="line">cargo run</span><br><span class="line"><span class="comment"># 确保编译但不产生可执行文件</span></span><br><span class="line">cargo check</span><br></pre></td></tr></table></figure>
+
+<p>​    创建了一个 Cargo 项目，同时会初始化一个 git 仓库；Cargo.toml 文件是 library 文件，src 包含程序代码，build 过后生成文件在target 里边儿</p>
+<p>​    当项目快要发布的时候，可以进行编译优化，但是编译的速度较慢</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cargo build --release</span><br></pre></td></tr></table></figure>
+
+<h4 id="Chapter-2-Programming-a-Guessing-Game"><a href="#Chapter-2-Programming-a-Guessing-Game" class="headerlink" title="Chapter 2-Programming a Guessing Game"></a>Chapter 2-Programming a Guessing Game</h4><p>​    程序产生一个1到100的数字，然后让输入个数字去猜，程序给出提示是大了还是小了，如果猜对会给出恭喜信息</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cargo new guessing_game</span><br></pre></td></tr></table></figure>
+
+<p>​    编辑 main.rs 代码第一部分，完成基本的变量和io学习，如下：</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/// standard io </span></span><br><span class="line"><span class="keyword">use</span> std::io;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">fn</span> <span class="title">main</span></span>() &#123;</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;Guess the number!&quot;</span>);</span><br><span class="line"></span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;Please input your guess.&quot;</span>);</span><br><span class="line"></span><br><span class="line">  	<span class="comment">/// let to create a variable</span></span><br><span class="line">   	<span class="comment">/// mut makes the variable mutable</span></span><br><span class="line">  	<span class="keyword">let</span> <span class="keyword">mut</span> guess = <span class="built_in">String</span>::new();</span><br><span class="line"></span><br><span class="line">    io::stdin()</span><br><span class="line">        .read_line(&amp;<span class="keyword">mut</span> guess)</span><br><span class="line">        .expect(<span class="string">&quot;Failed to read line&quot;</span>);</span><br><span class="line"></span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;You guessed: &#123;&#125;&quot;</span>, guess);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>​    编辑 Cargo.toml 代码作为第二部分，完成 dependencies 的引用，cargo.Lock 保证已经使用的都版本，不会再去重新检查版本，当更新过后会改变，更新可使用 cargo update：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[dependencies]</span><br><span class="line">rand &#x3D; &quot;0.5.5&quot;</span><br></pre></td></tr></table></figure>
+
+<p>​    编辑第三部分，完成随机数的生成：</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">use</span> std::io;</span><br><span class="line"><span class="keyword">use</span> rand::Rng;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">fn</span> <span class="title">main</span></span>() &#123;</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;Guess the number!&quot;</span>);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">let</span> secret_number = rand::thread_rng().gen_range(<span class="number">1</span>, <span class="number">101</span>);</span><br><span class="line"></span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;The secret number is: &#123;&#125;&quot;</span>, secret_number);</span><br><span class="line"></span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;Please input your guess.&quot;</span>);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">let</span> <span class="keyword">mut</span> guess = <span class="built_in">String</span>::new();</span><br><span class="line"></span><br><span class="line">    io::stdin()</span><br><span class="line">        .read_line(&amp;<span class="keyword">mut</span> guess)</span><br><span class="line">        .expect(<span class="string">&quot;Failed to read line&quot;</span>);</span><br><span class="line"></span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;You guessed: &#123;&#125;&quot;</span>, guess);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>​    完成第三部分，完成两个数字的比较：</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line">	<span class="keyword">use</span> std::io;</span><br><span class="line">	<span class="keyword">use</span> rand::Rng;</span><br><span class="line">	<span class="keyword">use</span> std::cmp::Ordering;</span><br><span class="line"></span><br><span class="line">	<span class="function"><span class="keyword">fn</span> <span class="title">main</span></span>() &#123;</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;Guess the number!&quot;</span>);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">let</span> secret_number = rand::thread_rng().gen_range(<span class="number">1</span>, <span class="number">101</span>);</span><br><span class="line"></span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;The secret number is: &#123;&#125;&quot;</span>, secret_number);</span><br><span class="line"></span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;Please input your guess.&quot;</span>);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">let</span> <span class="keyword">mut</span> guess = <span class="built_in">String</span>::new();</span><br><span class="line"></span><br><span class="line">    io::stdin()</span><br><span class="line">        .read_line(&amp;<span class="keyword">mut</span> guess)</span><br><span class="line">        .expect(<span class="string">&quot;Failed to read line&quot;</span>);</span><br><span class="line">  </span><br><span class="line">		<span class="keyword">let</span> guess: <span class="built_in">u32</span> = guess.trim().parse().expect(<span class="string">&quot;Please type a number!&quot;</span>);</span><br><span class="line"></span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;You guessed: &#123;&#125;&quot;</span>, guess);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">match</span> guess.cmp(&amp;secret_number) &#123;</span><br><span class="line">        Ordering::Less =&gt; <span class="built_in">println!</span>(<span class="string">&quot;Too small!&quot;</span>),</span><br><span class="line">        Ordering::Greater =&gt; <span class="built_in">println!</span>(<span class="string">&quot;Too big!&quot;</span>),</span><br><span class="line">        Ordering::Equal =&gt; <span class="built_in">println!</span>(<span class="string">&quot;You win!&quot;</span>),</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>​    完成最后一部分，循环，持续产生并比较，完成错误输入的处理：</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">use</span> rand::Rng;</span><br><span class="line"><span class="keyword">use</span> std::cmp::Ordering;</span><br><span class="line"><span class="keyword">use</span> std::io;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">fn</span> <span class="title">main</span></span>() &#123;</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;Guess the number!&quot;</span>);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">let</span> secret_number = rand::thread_rng().gen_range(<span class="number">1</span>, <span class="number">101</span>);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">loop</span> &#123;</span><br><span class="line">        <span class="built_in">println!</span>(<span class="string">&quot;Please input your guess.&quot;</span>);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">let</span> <span class="keyword">mut</span> guess = <span class="built_in">String</span>::new();</span><br><span class="line"></span><br><span class="line">        io::stdin()</span><br><span class="line">            .read_line(&amp;<span class="keyword">mut</span> guess)</span><br><span class="line">            .expect(<span class="string">&quot;Failed to read line&quot;</span>);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">let</span> guess: <span class="built_in">u32</span> = <span class="keyword">match</span> guess.trim().parse() &#123;</span><br><span class="line">            <span class="literal">Ok</span>(num) =&gt; num,</span><br><span class="line">            <span class="literal">Err</span>(_) =&gt; <span class="keyword">continue</span>,</span><br><span class="line">        &#125;;</span><br><span class="line"></span><br><span class="line">        <span class="built_in">println!</span>(<span class="string">&quot;You guessed: &#123;&#125;&quot;</span>, guess);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">match</span> guess.cmp(&amp;secret_number) &#123;</span><br><span class="line">            Ordering::Less =&gt; <span class="built_in">println!</span>(<span class="string">&quot;Too small!&quot;</span>),</span><br><span class="line">            Ordering::Greater =&gt; <span class="built_in">println!</span>(<span class="string">&quot;Too big!&quot;</span>),</span><br><span class="line">            Ordering::Equal =&gt; &#123;</span><br><span class="line">                <span class="built_in">println!</span>(<span class="string">&quot;You win!&quot;</span>);</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="Chapter-3-Common-Programming-Concepts"><a href="#Chapter-3-Common-Programming-Concepts" class="headerlink" title="Chapter 3-Common Programming Concepts"></a>Chapter 3-Common Programming Concepts</h4><h5 id="1、变量的可变性"><a href="#1、变量的可变性" class="headerlink" title="1、变量的可变性"></a>1、变量的可变性</h5><figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 可变变量，可重新赋值</span></span><br><span class="line"><span class="comment">// 不可变变量，可进行隐藏改变</span></span><br><span class="line"><span class="keyword">let</span> <span class="keyword">mut</span> x = <span class="number">5</span>；</span><br><span class="line"><span class="comment">// 影射</span></span><br><span class="line"><span class="keyword">let</span> y = <span class="number">6</span>;</span><br><span class="line"><span class="keyword">let</span> y = y + <span class="number">2</span>;</span><br></pre></td></tr></table></figure>
+
+<p>​    变量可以分为可改变和不可改变，不可改变变量可以通过隐藏进行改变，常量不可以用 mut</p>
+<h5 id="2、数据类型"><a href="#2、数据类型" class="headerlink" title="2、数据类型"></a>2、数据类型</h5><h6 id="1、标量"><a href="#1、标量" class="headerlink" title="1、标量"></a>1、标量</h6><ul>
+<li>整型</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>长度</th>
+<th>有符号</th>
+<th>无符号</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>8-bit</td>
+<td>i8</td>
+<td>u8</td>
+</tr>
+<tr>
+<td>16-bit</td>
+<td>i16</td>
+<td>u16</td>
+</tr>
+<tr>
+<td>32-bit</td>
+<td>i32</td>
+<td>u32</td>
+</tr>
+<tr>
+<td>64-bit</td>
+<td>i64</td>
+<td>u64</td>
+</tr>
+<tr>
+<td>128-bit</td>
+<td>i128</td>
+<td>u128</td>
+</tr>
+<tr>
+<td>arch</td>
+<td>isize</td>
+<td>usize</td>
+</tr>
+</tbody></table>
+<p>​    有符号数以补码的形式，存储：- 2<sup>n-1</sup> 到 2<sup>n-1</sup>-1；无符号数存储：0 到 2<sup>n</sup>-1；isize和usize依赖计算机架构，64位上的是64位，32位上是32位</p>
+<p><code>整形溢出：debug 模式编译，会显示 panic！异常；release 模式编译会进行二进制补码包装：256变成0、257变成1</code></p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> guess: <span class="built_in">u32</span> = <span class="number">64</span>;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>浮点型<ul>
+<li>f32：单精度</li>
+<li>f64：双精度</li>
+</ul>
+</li>
+</ul>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> x = <span class="number">3.3</span> + <span class="number">2.5</span></span><br><span class="line"><span class="keyword">let</span> x: <span class="built_in">f64</span> = <span class="number">78.9</span> / <span class="number">3</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>数值运算</p>
+<ul>
+<li>加减乘除</li>
+</ul>
+</li>
+<li><p>布尔型</p>
+</li>
+</ul>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">fn</span> <span class="title">main</span></span>() &#123;</span><br><span class="line">  <span class="keyword">let</span> t = <span class="literal">true</span>;</span><br><span class="line">  <span class="keyword">let</span> f: <span class="built_in">bool</span> = <span class="literal">false</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>字符类型</li>
+</ul>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">fn</span> <span class="title">main</span></span>()&#123;</span><br><span class="line">  <span class="keyword">let</span> c = <span class="string">&#x27;z&#x27;</span>;</span><br><span class="line">  <span class="keyword">let</span> z = <span class="string">&#x27;Z&#x27;</span>;</span><br><span class="line">  <span class="keyword">let</span> hear_eyed_cat = <span class="string">&#x27; &#x27;</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>​    char 由单引号表示，大小为4个字节；</p>
+<h6 id="2、复合类型"><a href="#2、复合类型" class="headerlink" title="2、复合类型"></a>2、复合类型</h6><ul>
+<li>元组类型：<ul>
+<li>将多个其他类型的值组合进一个复合类型的主要方式</li>
+<li>一旦声明，其长度不会增大或者缩小</li>
+<li>可以进行匹配结构、索引访问</li>
+</ul>
+</li>
+</ul>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">	<span class="function"><span class="keyword">fn</span> <span class="title">main</span></span>()&#123;</span><br><span class="line">    <span class="keyword">let</span> tup: (<span class="built_in">i32</span>,<span class="built_in">f64</span>,<span class="built_in">u8</span>) = (<span class="number">58</span>,<span class="number">6.4</span>,<span class="number">1</span>);</span><br><span class="line">    <span class="keyword">let</span> tup1 = (<span class="number">500</span>,<span class="number">6.4</span>,<span class="number">1</span>);</span><br><span class="line">    <span class="keyword">let</span> (x,y,z) = tup1;</span><br><span class="line">    </span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;The value of y is &#123;&#125;&quot;</span>,y);</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;The value of second num is &#123;&#125;&quot;</span>,tup.<span class="number">1</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>数组类型<ul>
+<li>数组元素类型必须统一</li>
+<li>长度声明，固定不变</li>
+<li>一整块内存分配在栈上，可以用索引访问数组元素</li>
+</ul>
+</li>
+</ul>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">fn</span> <span class="title">main</span></span>()&#123;</span><br><span class="line">  <span class="keyword">let</span> a[<span class="built_in">i32</span>;<span class="number">5</span>] = [<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>,<span class="number">4</span>,<span class="number">5</span>];</span><br><span class="line">  </span><br><span class="line">  <span class="keyword">let</span> index = <span class="number">10</span>; </span><br><span class="line">  <span class="keyword">let</span> element = a[index];</span><br><span class="line">  </span><br><span class="line">  <span class="built_in">println!</span>(<span class="string">&quot;The value of element is: &#123;&#125;&quot;</span>,element);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h5 id="3、函数如何工作"><a href="#3、函数如何工作" class="headerlink" title="3、函数如何工作"></a>3、函数如何工作</h5><p>​    main 函数是很多程序的入口，fn 关键字用来定义新函数,创建一个项目进行测试：</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">fn</span> <span class="title">main</span></span>()&#123;</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;Hello,world!&quot;</span>);</span><br><span class="line">    </span><br><span class="line">    another_function(<span class="number">3</span>,<span class="number">4</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">fn</span> <span class="title">another_function</span></span>(x: <span class="built_in">i32</span>,y: <span class="built_in">i32</span>)&#123;</span><br><span class="line">  <span class="built_in">println!</span>(<span class="string">&quot;The value of x is: &#123;&#125;&quot;</span>,x);</span><br><span class="line">  <span class="built_in">println!</span>(<span class="string">&quot;The value of y is: &#123;&#125;&quot;</span>,y);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>​    语句和表达式函数值，带分号的是语句没有返回值</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">	<span class="keyword">let</span> y = &#123;</span><br><span class="line">    	<span class="keyword">let</span> x = <span class="number">3</span>;</span><br><span class="line">    	x + <span class="number">1</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>​    含有返回值的函数，需要定义好返回值的类型</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">fn</span> <span class="title">five</span></span>() -&gt; <span class="built_in">i32</span>&#123;</span><br><span class="line">  	<span class="number">5</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">fn</span> <span class="title">main</span></span>()&#123;</span><br><span class="line">  <span class="keyword">let</span> x = five()</span><br><span class="line">  </span><br><span class="line">  <span class="built_in">println!</span>(<span class="string">&quot;The value of x is: &#123;&#125;&quot;</span>,x);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h5 id="4、注释"><a href="#4、注释" class="headerlink" title="4、注释"></a>4、注释</h5><p>​    两道斜杠</p>
+<h5 id="5、控制流"><a href="#5、控制流" class="headerlink" title="5、控制流"></a>5、控制流</h5><h6 id="1、if表达式"><a href="#1、if表达式" class="headerlink" title="1、if表达式"></a>1、if表达式</h6><ul>
+<li>格式：if expr_ {}</li>
+<li>不会把 if 3 {} 中的3转化为布尔变量，会进行报错</li>
+</ul>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">fn</span> <span class="title">main</span></span>()&#123;</span><br><span class="line">  <span class="keyword">let</span> number = <span class="number">3</span>;</span><br><span class="line">  <span class="keyword">let</span> number = <span class="keyword">if</span> number&lt;<span class="number">4</span> &#123;</span><br><span class="line">    	<span class="number">100</span></span><br><span class="line">  &#125;<span class="keyword">else</span>&#123;</span><br><span class="line"> 	   <span class="number">1</span></span><br><span class="line">  &#125;;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h6 id="2、循环重复执行"><a href="#2、循环重复执行" class="headerlink" title="2、循环重复执行"></a>2、循环重复执行</h6><ul>
+<li>loop</li>
+</ul>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">	<span class="function"><span class="keyword">fn</span> <span class="title">main</span></span>()&#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="keyword">mut</span> counter = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">let</span> resutl = <span class="keyword">loop</span> &#123;</span><br><span class="line">      	counter += <span class="number">1</span>;</span><br><span class="line">      	</span><br><span class="line">      	<span class="keyword">if</span> counter==<span class="number">10</span>&#123;</span><br><span class="line">          <span class="keyword">break</span> counter*<span class="number">2</span>;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>while</li>
+</ul>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">fn</span> <span class="title">main</span></span>()&#123;</span><br><span class="line">  <span class="keyword">let</span> a = [<span class="number">0</span>,<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>,<span class="number">4</span>];</span><br><span class="line">  </span><br><span class="line">  <span class="keyword">let</span> <span class="keyword">mut</span> index = <span class="number">0</span>;</span><br><span class="line">  <span class="keyword">while</span> index &lt;<span class="number">5</span>&#123;</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;The value is: &#123;&#125;&quot;</span>,a[index]);</span><br><span class="line">    index = index + <span class="number">1</span>;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>for</li>
+</ul>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">fn</span> <span class="title">main</span></span>()&#123;</span><br><span class="line">  <span class="keyword">let</span> a = [<span class="number">10</span>,<span class="number">20</span>,<span class="number">30</span>,<span class="number">40</span>,<span class="number">50</span>];</span><br><span class="line">  </span><br><span class="line">  <span class="keyword">for</span> element <span class="keyword">in</span> a.iter()&#123;</span><br><span class="line">    	<span class="built_in">println!</span>(<span class="string">&quot;The value is: &#123;&#125;&quot;</span>,element);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<h4 id="Chapter-4-所有权"><a href="#Chapter-4-所有权" class="headerlink" title="Chapter 4-所有权"></a>Chapter 4-所有权</h4><p>​    所有权让 rust 没有 GC 也能保障安全，理解所有权如何工作十分重要，所有权规则：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">1、Rust 中的每一个值都有一个被称为其 所有者（owner）的变量。</span><br><span class="line">2、值在任一时刻有且只有一个所有者。</span><br><span class="line">3、当所有者（变量）离开作用域，这个值将被丢弃。</span><br></pre></td></tr></table></figure>
+
+<h5 id="1、变量作用域"><a href="#1、变量作用域" class="headerlink" title="1、变量作用域"></a>1、变量作用域</h5><figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">	&#123;</span><br><span class="line">    <span class="keyword">let</span> s = <span class="string">&quot;hello&quot;</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>​    当 s 进入作用域时，它就是有效的；一直持续到它离开为止。</p>
+<h5 id="2、变量与数据交互方式"><a href="#2、变量与数据交互方式" class="headerlink" title="2、变量与数据交互方式"></a>2、变量与数据交互方式</h5><ul>
+<li> 移动：移交所有权，前者变量无效，后者变量接管指针和内存</li>
+<li>克隆：<ul>
+<li>clone：深度复制堆上的数据，相当耗费资源</li>
+<li>拷贝：编译时已知大小和被存储在栈上，所以拷贝实际速度快</li>
+</ul>
+</li>
+</ul>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/// 函数参数会返回参数所有权 </span></span><br><span class="line"><span class="function"><span class="keyword">fn</span> <span class="title">main</span></span>()&#123;</span><br><span class="line">   <span class="keyword">let</span> s1 = get_string();</span><br><span class="line">   </span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">fn</span> <span class="title">get_string</span></span>()-&gt;string&#123;</span><br><span class="line">  	<span class="keyword">let</span> some_string = <span class="string">&quot;hello wordl!&quot;</span>;</span><br><span class="line">  	some_string</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h5 id="3、引用"><a href="#3、引用" class="headerlink" title="3、引用"></a>3、引用</h5><ul>
+<li><p>可变引用</p>
+</li>
+<li><p>不可变引用</p>
+</li>
+<li><p>在任意给定时间，<strong>要么</strong> 只能有一个可变引用，<strong>要么</strong> 只能有多个不可变引用；引用必须总是有效的</p>
+<p>将引用作为函数参数称为借用</p>
+</li>
+</ul>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> <span class="keyword">mut</span> s = <span class="built_in">String</span>::from(<span class="string">&quot;hello&quot;</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">let</span> r1 = &amp;s; <span class="comment">// 没问题</span></span><br><span class="line"><span class="keyword">let</span> r2 = &amp;s; <span class="comment">// 没问题</span></span><br><span class="line"><span class="keyword">let</span> r3 = &amp;<span class="keyword">mut</span> s; <span class="comment">// 大问题</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">println!</span>(<span class="string">&quot;&#123;&#125;, &#123;&#125;, and &#123;&#125;&quot;</span>, r1, r2, r3);</span><br><span class="line"></span><br><span class="line"><span class="comment">////////////////////////////////</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">let</span> <span class="keyword">mut</span> s = <span class="built_in">String</span>::from(<span class="string">&quot;hello&quot;</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">let</span> r1 = &amp;s; <span class="comment">// 没问题</span></span><br><span class="line"><span class="keyword">let</span> r2 = &amp;s; <span class="comment">// 没问题</span></span><br><span class="line"><span class="built_in">println!</span>(<span class="string">&quot;&#123;&#125; and &#123;&#125;&quot;</span>, r1, r2);</span><br><span class="line"><span class="comment">// 此位置之后 r1 和 r2 不再使用</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">let</span> r3 = &amp;<span class="keyword">mut</span> s; <span class="comment">// 没问题</span></span><br><span class="line"><span class="built_in">println!</span>(<span class="string">&quot;&#123;&#125;&quot;</span>, r3);</span><br></pre></td></tr></table></figure>
+
+<p>​    这段儿代码我只能用神奇两字形容，用来区别可变引用与不可变引用，还可以深刻理解所有权和作用域的关系</p>
+<h5 id="4、slice"><a href="#4、slice" class="headerlink" title="4、slice"></a>4、slice</h5><p>​    slice 仍然是没有所有权的，允许你引用集合中一段儿连续的元素序列，而不引用整个集合，同时在函数中，使用slice来防止失效的引用返回（表示体会不够深刻目前，照着写先</p>
+<h4 id="Chapter-5-结构体"><a href="#Chapter-5-结构体" class="headerlink" title="Chapter 5-结构体"></a>Chapter 5-结构体</h4><p>​    结构体同名情况下可以直接初始化进行简化，举个栗子就ok，看下边儿：</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"> <span class="number">1</span> <span class="meta">#[derive(Debug)]</span></span><br><span class="line"> <span class="number">2</span> <span class="class"><span class="keyword">struct</span> <span class="title">Rectangle</span></span> &#123;</span><br><span class="line"> <span class="number">3</span>     width: <span class="built_in">u32</span>,</span><br><span class="line"> <span class="number">4</span>     height: <span class="built_in">u32</span>,</span><br><span class="line"> <span class="number">5</span> &#125;</span><br><span class="line"> <span class="number">6</span></span><br><span class="line"> <span class="number">7</span> <span class="function"><span class="keyword">fn</span> <span class="title">main</span></span>() &#123;</span><br><span class="line"> <span class="number">8</span>     <span class="keyword">let</span> rect1 = Rectangle&#123;</span><br><span class="line"> <span class="number">9</span>         width: <span class="number">30</span>,</span><br><span class="line"><span class="number">10</span>         height: <span class="number">50</span></span><br><span class="line"><span class="number">11</span>     &#125;;</span><br><span class="line"><span class="number">12</span></span><br><span class="line"><span class="number">13</span>     <span class="keyword">let</span> rect2 = Rectangle &#123;</span><br><span class="line"><span class="number">14</span>         width: <span class="number">40</span>,</span><br><span class="line"><span class="number">15</span>         height: <span class="number">60</span></span><br><span class="line"><span class="number">16</span>     &#125;;</span><br><span class="line"><span class="number">17</span></span><br><span class="line"><span class="number">18</span>     <span class="built_in">println!</span>(<span class="string">&quot;The area of the rectangle is &#123;&#125; square pixels.&quot;</span>,</span><br><span class="line"><span class="number">19</span>                 rect1.area()</span><br><span class="line"><span class="number">20</span>         );</span><br><span class="line"><span class="number">21</span>     <span class="built_in">println!</span>(<span class="string">&quot;Can rect1 hold rect2? &#123;&#125;&quot;</span>,rect1.can_hold(&amp;rect2));</span><br><span class="line"><span class="number">22</span> &#125;</span><br><span class="line"><span class="number">23</span></span><br><span class="line"><span class="number">24</span> <span class="keyword">impl</span> Rectangle &#123;</span><br><span class="line"><span class="number">25</span>     <span class="function"><span class="keyword">fn</span> <span class="title">area</span></span>(&amp;<span class="keyword">self</span>) -&gt; <span class="built_in">u32</span> &#123;</span><br><span class="line"><span class="number">26</span>         <span class="keyword">self</span>.width * <span class="keyword">self</span>.height</span><br><span class="line"><span class="number">27</span>     &#125;</span><br><span class="line"><span class="number">28</span></span><br><span class="line"><span class="number">29</span>     <span class="function"><span class="keyword">fn</span> <span class="title">can_hold</span></span>(&amp;<span class="keyword">self</span>,other: &amp;Rectangle) -&gt; <span class="built_in">bool</span> &#123;</span><br><span class="line"><span class="number">30</span>         <span class="keyword">self</span>.width &gt; other.width &amp;&amp; <span class="keyword">self</span>.height &gt; other.height</span><br><span class="line"><span class="number">31</span>     &#125;</span><br><span class="line"><span class="number">32</span></span><br><span class="line"><span class="number">33</span>     <span class="function"><span class="keyword">fn</span> <span class="title">square</span></span>(size: <span class="built_in">u32</span>) -&gt; Rectangle &#123;</span><br><span class="line"><span class="number">34</span>         Rectangle &#123;width: size,height: size&#125;</span><br><span class="line"><span class="number">35</span>     &#125;</span><br><span class="line"><span class="number">36</span> &#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="Chapter-6-枚举与模式匹配"><a href="#Chapter-6-枚举与模式匹配" class="headerlink" title="Chapter 6-枚举与模式匹配"></a>Chapter 6-枚举与模式匹配</h4>
+        </div>
+
+        
+            <section class="post-copyright">
+                
+                    <p class="copyright-item">
+                        <span>Author:</span>
+                        <span>shuisong</span>
+                    </p>
+                
+                
+                    <p class="copyright-item">
+                        <span>Permalink:</span>
+                        <span><a href="https://blog.bencorn.com/2021/03/30/rust%E7%AC%94%E8%AE%B0/">https://blog.bencorn.com/2021/03/30/rust%E7%AC%94%E8%AE%B0/</a></span>
+                    </p>
+                
+                
+                    <p class="copyright-item">
+                        <span>License:</span>
+                        <span>Copyright (c) 2019 <a target="_blank" rel="noopener" href="http://creativecommons.org/licenses/by-nc/4.0/">CC-BY-NC-4.0</a> LICENSE</span>
+                    </p>
+                
+                
+                     <p class="copyright-item">
+                         <span>Slogan:</span>
+                         <span>Do you believe in <strong>DESTINY</strong>?</span>
+                     </p>
+                
+
+            </section>
+        
+        <section class="post-tags">
+            <div>
+                <span>Tag(s):</span>
+                <span class="tag">
+                    
+                    
+                        <a href="/tags/rust/"># rust</a>
+                    
+                        
+                </span>
+            </div>
+            <div>
+                <a href="javascript:window.history.back();">back</a>
+                <span>· </span>
+                <a href="/">home</a>
+            </div>
+        </section>
+        <section class="post-nav">
+            
+                <a class="prev" rel="prev" href="/2021/03/30/Lab-syscall-System-calls/">Lab syscall: System calls</a>
+            
+            
+            <a class="next" rel="next" href="/2021/03/30/%E8%99%9A%E6%8B%9F%E5%8C%96%E5%AD%A6%E4%B9%A0/">虚拟化学习</a>
+            
+        </section>
+
+
+    </article>
+</div>
+
+        </div>
+        <footer id="footer" class="footer">
+    <div class="copyright">
+        <span>© shuisong | Powered by <a href="https://hexo.io" target="_blank">Hexo</a> & <a href="https://github.com/Siricee/hexo-theme-Chic" target="_blank">Chic</a></span>
+    </div>
+</footer>
+
+    </div>
+</body>
+</html>

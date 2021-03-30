@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <meta name="author" content="shuisong">
+
+
+
+
+
+<title>Lab syscall: System calls | Bencorn</title>
+
+
+
+    <link rel="icon" href="/favicon.ico">
+
+
+
+
+    <!-- stylesheets list from _config.yml -->
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+
+
+
+    <!-- scripts list from _config.yml -->
+    
+    <script src="/js/script.js"></script>
+    
+    <script src="/js/tocbot.min.js"></script>
+    
+
+
+
+    
+    
+        
+    
+
+
+<meta name="generator" content="Hexo 5.2.0"></head>
+<body>
+    <div class="wrapper">
+        <header>
+    <nav class="navbar">
+        <div class="container">
+            <div class="navbar-header header-logo"><a href="/">Shuisong&#39;s Blog</a></div>
+            <div class="menu navbar-right">
+                
+                    <a class="menu-item" href="/archives">Posts</a>
+                
+                    <a class="menu-item" href="/category">Categories</a>
+                
+                    <a class="menu-item" href="/tag">Tags</a>
+                
+                    <a class="menu-item" href="/about">About</a>
+                
+                <input id="switch_default" type="checkbox" class="switch_default">
+                <label for="switch_default" class="toggleBtn"></label>
+            </div>
+        </div>
+    </nav>
+
+    
+    <nav class="navbar-mobile" id="nav-mobile">
+        <div class="container">
+            <div class="navbar-header">
+                <div>
+                    <a href="/">Shuisong&#39;s Blog</a><a id="mobile-toggle-theme">·&nbsp;Light</a>
+                </div>
+                <div class="menu-toggle" onclick="mobileBtn()">&#9776; Menu</div>
+            </div>
+            <div class="menu" id="mobile-menu">
+                
+                    <a class="menu-item" href="/archives">Posts</a>
+                
+                    <a class="menu-item" href="/category">Categories</a>
+                
+                    <a class="menu-item" href="/tag">Tags</a>
+                
+                    <a class="menu-item" href="/about">About</a>
+                
+            </div>
+        </div>
+    </nav>
+
+</header>
+<script>
+    var mobileBtn = function f() {
+        var toggleMenu = document.getElementsByClassName("menu-toggle")[0];
+        var mobileMenu = document.getElementById("mobile-menu");
+        if(toggleMenu.classList.contains("active")){
+           toggleMenu.classList.remove("active")
+            mobileMenu.classList.remove("active")
+        }else{
+            toggleMenu.classList.add("active")
+            mobileMenu.classList.add("active")
+        }
+    }
+</script>
+        <div class="main">
+            <div class="container">
+    
+    
+        <div class="post-toc">
+    <div class="tocbot-list">
+    </div>
+    <div class="tocbot-list-menu">
+        <a class="tocbot-toc-expand" onclick="expand_toc()">Expand all</a>
+        <a onclick="go_top()">Back to top</a>
+        <a onclick="go_bottom()">Go to bottom</a>
+    </div>
+</div>
+
+<script>
+    document.ready(
+        function () {
+            tocbot.init({
+                tocSelector: '.tocbot-list',
+                contentSelector: '.post-content',
+                headingSelector: 'h1, h2, h3, h4, h5',
+                collapseDepth: 1,
+                orderedList: false,
+                scrollSmooth: true,
+            })
+        }
+    )
+
+    function expand_toc() {
+        var b = document.querySelector(".tocbot-toc-expand");
+        tocbot.init({
+            tocSelector: '.tocbot-list',
+            contentSelector: '.post-content',
+            headingSelector: 'h1, h2, h3, h4, h5',
+            collapseDepth: 6,
+            orderedList: false,
+            scrollSmooth: true,
+        });
+        b.setAttribute("onclick", "collapse_toc()");
+        b.innerHTML = "Collapse all"
+    }
+
+    function collapse_toc() {
+        var b = document.querySelector(".tocbot-toc-expand");
+        tocbot.init({
+            tocSelector: '.tocbot-list',
+            contentSelector: '.post-content',
+            headingSelector: 'h1, h2, h3, h4, h5',
+            collapseDepth: 1,
+            orderedList: false,
+            scrollSmooth: true,
+        });
+        b.setAttribute("onclick", "expand_toc()");
+        b.innerHTML = "Expand all"
+    }
+
+    function go_top() {
+        window.scrollTo(0, 0);
+    }
+
+    function go_bottom() {
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+
+</script>
+    
+
+    
+    <article class="post-wrap">
+        <header class="post-header">
+            <h1 class="post-title">Lab syscall: System calls</h1>
+            
+                <div class="post-meta">
+                    
+                        Author: <a itemprop="author" rel="author" href="/">shuisong</a>
+                    
+
+                    
+                        <span class="post-time">
+                        Date: <a href="#">三月 30, 2021&nbsp;&nbsp;23:04:07</a>
+                        </span>
+                    
+                    
+                        <span class="post-category">
+                    Category:
+                            
+                                <a href="/categories/6-s081/">6.s081</a>
+                            
+                                <a href="/categories/6-s081/OS/">OS</a>
+                            
+                        </span>
+                    
+                </div>
+            
+        </header>
+
+        <div class="post-content">
+            <h3 id="Lab-2-System-Call"><a href="#Lab-2-System-Call" class="headerlink" title="Lab 2 System Call"></a>Lab 2 System Call</h3><p>​    lab2 总算是跌跌撞撞做完了，其实思路不难，但就是会发生一些意想不到的错误，就包括了 PPT 中提到的指针问题，把我卡了一天f**k；然后内存那个地方误打误撞还做出来了，思路找wyy提示了一下，总而言之还是对页表部分理解不够深刻吧可能</p>
+<p>​    学习网站：<a target="_blank" rel="noopener" href="https://pdos.csail.mit.edu/6.S081/2020/labs/syscall.html">https://pdos.csail.mit.edu/6.S081/2020/labs/syscall.html</a></p>
+<h4 id="System-call-tracing"><a href="#System-call-tracing" class="headerlink" title="System call tracing"></a>System call tracing</h4><p>​    要求实现一个调用跟踪的 trace，其中有一个地方我一开始没理解到 mask 是干嘛的（原文： You have to modify the xv6 kernel to print out a line when each system call is about to return, if the system call’s number is set in the mask. ），卡了2天（英语不够，google来凑）；</p>
+<h5 id="1、修改-Makefile"><a href="#1、修改-Makefile" class="headerlink" title="1、修改 Makefile"></a>1、修改 Makefile</h5><p>​    add $U/_trace\</p>
+<h5 id="2、添加-syscall"><a href="#2、添加-syscall" class="headerlink" title="2、添加 syscall"></a>2、添加 syscall</h5><p>​    add a prototype for the system call to <code>user/user.h</code>, a stub to <code>user/usys.pl</code>, and a syscall number to <code>kernel/syscall.h</code>. The Makefile invokes the perl script <code>user/usys.pl</code>, which produces <code>user/usys.S</code>, the actual system call stubs, which use the RISC-V <code>ecall</code> instruction to transition to the kernel. </p>
+<h5 id="3、添加-sys-trace-函数-kernel-sysproc-c"><a href="#3、添加-sys-trace-函数-kernel-sysproc-c" class="headerlink" title="3、添加 sys_trace()函数 kernel/sysproc.c"></a>3、添加 sys_trace()函数 kernel/sysproc.c</h5><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// lab2 trace</span></span><br><span class="line">uint64</span><br><span class="line">sys_trace(<span class="keyword">void</span>)&#123;</span><br><span class="line">    <span class="keyword">int</span> n;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">proc</span> *<span class="title">p</span> =</span> myproc();</span><br><span class="line">    <span class="keyword">if</span> (argint(<span class="number">0</span>,&amp;n)&lt;<span class="number">0</span>)</span><br><span class="line">        <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">    p-&gt;mask = n;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h5 id="4、修改-fork-函数-kernel-proc-c"><a href="#4、修改-fork-函数-kernel-proc-c" class="headerlink" title="4、修改 fork 函数 kernel/proc.c"></a>4、修改 fork 函数 kernel/proc.c</h5><p>​    以防万一，修改的时候mask还是上锁了，mask 其实是每个 process 的 private 信息应该，但是上锁无伤大雅感觉，就放到了release前边儿</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Create a new process, copying the parent.</span></span><br><span class="line"><span class="comment">// Sets up child kernel stack to return as if from fork() system call.</span></span><br><span class="line"><span class="keyword">int</span></span><br><span class="line">fork(<span class="keyword">void</span>)</span><br><span class="line">&#123;</span><br><span class="line">  <span class="keyword">int</span> i, pid;</span><br><span class="line">  <span class="class"><span class="keyword">struct</span> <span class="title">proc</span> *<span class="title">np</span>;</span></span><br><span class="line">  <span class="class"><span class="keyword">struct</span> <span class="title">proc</span> *<span class="title">p</span> =</span> myproc();</span><br><span class="line"></span><br><span class="line">  <span class="comment">// Allocate process.</span></span><br><span class="line">  <span class="keyword">if</span>((np = allocproc()) == <span class="number">0</span>)&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// Copy user memory from parent to child.</span></span><br><span class="line">  <span class="keyword">if</span>(uvmcopy(p-&gt;pagetable, np-&gt;pagetable, p-&gt;sz) &lt; <span class="number">0</span>)&#123;</span><br><span class="line">    freeproc(np);</span><br><span class="line">    release(&amp;np-&gt;lock);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">  &#125;</span><br><span class="line">  np-&gt;sz = p-&gt;sz;</span><br><span class="line"></span><br><span class="line">  np-&gt;parent = p;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// copy saved user registers.</span></span><br><span class="line">  *(np-&gt;trapframe) = *(p-&gt;trapframe);</span><br><span class="line"></span><br><span class="line">  <span class="comment">// Cause fork to return 0 in the child.</span></span><br><span class="line">  np-&gt;trapframe-&gt;a0 = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// increment reference counts on open file descriptors.</span></span><br><span class="line">  <span class="keyword">for</span>(i = <span class="number">0</span>; i &lt; NOFILE; i++)</span><br><span class="line">    <span class="keyword">if</span>(p-&gt;ofile[i])</span><br><span class="line">      np-&gt;ofile[i] = filedup(p-&gt;ofile[i]);</span><br><span class="line">  np-&gt;cwd = idup(p-&gt;cwd);</span><br><span class="line"></span><br><span class="line">  safestrcpy(np-&gt;name, p-&gt;name, <span class="keyword">sizeof</span>(p-&gt;name));</span><br><span class="line"></span><br><span class="line">  pid = np-&gt;pid;</span><br><span class="line"></span><br><span class="line">  np-&gt;state = RUNNABLE;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// lab2 get the trace mask from parent</span></span><br><span class="line">  np-&gt;mask = p-&gt;mask;</span><br><span class="line"></span><br><span class="line">  release(&amp;np-&gt;lock);</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> pid;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h5 id="5、添加trace输出"><a href="#5、添加trace输出" class="headerlink" title="5、添加trace输出"></a>5、添加trace输出</h5><p>​    提前准备好映射的名字，因为输出的时候需要（You will need to add an array of syscall names to index into.），然后积极犯错，忘记如何定义二维数组的信息了</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">static</span> <span class="keyword">const</span> <span class="keyword">char</span> *syscall_names[] = &#123;</span><br><span class="line">        [SYS_fork]    <span class="string">&quot;fork&quot;</span>,</span><br><span class="line">        [SYS_exit]    <span class="string">&quot;exit&quot;</span>,</span><br><span class="line">        [SYS_wait]    <span class="string">&quot;wait&quot;</span>,</span><br><span class="line">        [SYS_pipe]    <span class="string">&quot;pipe&quot;</span>,</span><br><span class="line">        [SYS_read]    <span class="string">&quot;read&quot;</span>,</span><br><span class="line">        [SYS_kill]    <span class="string">&quot;kill&quot;</span>,</span><br><span class="line">        [SYS_exec]    <span class="string">&quot;exec&quot;</span>,</span><br><span class="line">        [SYS_fstat]   <span class="string">&quot;fstat&quot;</span>,</span><br><span class="line">        [SYS_chdir]   <span class="string">&quot;chdir&quot;</span>,</span><br><span class="line">        [SYS_dup]     <span class="string">&quot;dup&quot;</span>,</span><br><span class="line">        [SYS_getpid]  <span class="string">&quot;getpid&quot;</span>,</span><br><span class="line">        [SYS_sbrk]    <span class="string">&quot;sbrk&quot;</span>,</span><br><span class="line">        [SYS_sleep]   <span class="string">&quot;sleep&quot;</span>,</span><br><span class="line">        [SYS_uptime]  <span class="string">&quot;uptime&quot;</span>,</span><br><span class="line">        [SYS_open]    <span class="string">&quot;open&quot;</span>,</span><br><span class="line">        [SYS_write]   <span class="string">&quot;write&quot;</span>,</span><br><span class="line">        [SYS_mknod]   <span class="string">&quot;mknod&quot;</span>,</span><br><span class="line">        [SYS_unlink]  <span class="string">&quot;unlink&quot;</span>,</span><br><span class="line">        [SYS_link]    <span class="string">&quot;link&quot;</span>,</span><br><span class="line">        [SYS_mkdir]   <span class="string">&quot;mkdir&quot;</span>,</span><br><span class="line">        [SYS_close]   <span class="string">&quot;close&quot;</span>,</span><br><span class="line">        [SYS_trace]   <span class="string">&quot;trace&quot;</span>,</span><br><span class="line">        [SYS_sysinfo] <span class="string">&quot;sysinfo&quot;</span>,</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">void</span></span><br><span class="line">syscall(<span class="keyword">void</span>) &#123;</span><br><span class="line">    <span class="keyword">int</span> num;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">proc</span> *<span class="title">p</span> =</span> myproc();</span><br><span class="line"></span><br><span class="line">    <span class="comment">// num syscall numbers store in the register a7</span></span><br><span class="line">    num = p-&gt;trapframe-&gt;a7;</span><br><span class="line">    <span class="keyword">if</span> (num &gt; <span class="number">0</span> &amp;&amp; num &lt; NELEM(syscalls) &amp;&amp; syscalls[num]) &#123;</span><br><span class="line">        p-&gt;trapframe-&gt;a0 = syscalls[num]();</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;%d %s: unknown sys call %d\n&quot;</span>,</span><br><span class="line">               p-&gt;pid, p-&gt;name, num);</span><br><span class="line">        p-&gt;trapframe-&gt;a0 = <span class="number">-1</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// trace the syscall</span></span><br><span class="line">    <span class="keyword">if</span> (((<span class="number">1</span> &lt;&lt; num) &amp; p-&gt;mask) &gt; <span class="number">0</span>)</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;%d: syscall %s -&gt; %d\n&quot;</span>, p-&gt;pid, syscall_names[num], p-&gt;trapframe-&gt;a0);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>​    到这里 trace 就完成了，解决之前的疑惑，mask 和 num 两个的关系，在开头的英语中说的是，如果返回的 mask 和调用 num 在mask 中，也就是那个mask = 1 &lt;&lt; num ，ok搞定</p>
+<h4 id="Sysinfo"><a href="#Sysinfo" class="headerlink" title="Sysinfo"></a>Sysinfo</h4><p>​    这个实验着实让人伤脑筋一开始，主要是没认真 xv6 这书，书上说了 defs.h 中定义了各个模块的接口，然而一开始没看见，所以老是不知道怎么把要加的两个函数加入到新函数中，老是出现未定义的错误提示</p>
+<h5 id="1、添加基本的调用信息"><a href="#1、添加基本的调用信息" class="headerlink" title="1、添加基本的调用信息"></a>1、添加基本的调用信息</h5><p>​    和 trace 中的步骤一样，每个地方都要填</p>
+<h5 id="2、To-collect-the-amount-of-free-memory-add-a-function-to-kernel-kalloc-c"><a href="#2、To-collect-the-amount-of-free-memory-add-a-function-to-kernel-kalloc-c" class="headerlink" title="2、To collect the amount of free memory, add a function to kernel/kalloc.c"></a>2、To collect the amount of free memory, add a function to kernel/kalloc.c</h5><p>​    遍历 freelist ，把所有的 page 求和就好了，这里我一开始很meng不知道怎么办，后来问了问wyy逻辑关系，一下子就明朗了</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// lab2</span></span><br><span class="line">uint64</span><br><span class="line">collect_free_memory(<span class="keyword">void</span>) &#123;</span><br><span class="line">    uint64 res = <span class="number">0</span>;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">run</span>* <span class="title">r</span>;</span></span><br><span class="line">    acquire(&amp;kmem.lock);</span><br><span class="line">    r = kmem.freelist;</span><br><span class="line">    <span class="keyword">while</span> (r) &#123;</span><br><span class="line">        res += PGSIZE;</span><br><span class="line">        r = r-&gt;next;</span><br><span class="line">    &#125;</span><br><span class="line">    release(&amp;kmem.lock);</span><br><span class="line">    <span class="keyword">return</span> res;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h5 id="3、To-collect-the-number-of-processes-add-a-function-to-kernel-proc-c"><a href="#3、To-collect-the-number-of-processes-add-a-function-to-kernel-proc-c" class="headerlink" title="3、To collect the number of processes, add a function to kernel/proc.c"></a>3、To collect the number of processes, add a function to kernel/proc.c</h5><p>​    这里的 p-&gt;state 在 proc.h 中有要求上锁，所以要小心</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//lab2</span></span><br><span class="line">uint64</span><br><span class="line">collect_process_number(<span class="keyword">void</span>)&#123;</span><br><span class="line">    uint64 n = <span class="number">0</span>;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">proc</span> *<span class="title">p</span>;</span></span><br><span class="line">    <span class="keyword">for</span> (p = proc;p  &lt; &amp;proc[NPROC];p++) &#123;</span><br><span class="line">        acquire(&amp;p-&gt;lock);</span><br><span class="line">        <span class="keyword">if</span> (p-&gt;state != UNUSED)&#123;</span><br><span class="line">            n += <span class="number">1</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        release(&amp;p-&gt;lock);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> n;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h5 id="4、sysinfo-needs-to-copy-a-struct-sysinfo-back-to-user-space-kernel-sysproc-c"><a href="#4、sysinfo-needs-to-copy-a-struct-sysinfo-back-to-user-space-kernel-sysproc-c" class="headerlink" title="4、sysinfo needs to copy a struct sysinfo back to user space kernel/sysproc.c"></a>4、sysinfo needs to copy a <code>struct sysinfo</code> back to user space kernel/sysproc.c</h5><p>​    这里一开始我凡的错误，是开了一个 sysinfo 的指针，然后将 info-&gt;freemem = collect_free_memory()，然后返回的地址是一个未知的地址，指针指向的是一个 uint64 的地址，根本不是值，f**k一天过去了原来如此，太菜了</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// lab2 sys_info</span></span><br><span class="line">uint64</span><br><span class="line">sys_sysinfo(<span class="keyword">void</span>)&#123;</span><br><span class="line"></span><br><span class="line">    uint64 addr;</span><br><span class="line"><span class="comment">//   wrong answer</span></span><br><span class="line"><span class="comment">//   struct sysinfo* info;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">sysinfo</span> <span class="title">info</span>;</span></span><br><span class="line">    <span class="keyword">if</span> (argaddr(<span class="number">0</span>,&amp;addr)&lt;<span class="number">0</span>)&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">proc</span>* <span class="title">p</span> =</span> myproc();</span><br><span class="line">    info.freemem= collect_free_memory();</span><br><span class="line">    info.nproc = collect_process_number();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (copyout(p-&gt;pagetable,addr,(<span class="keyword">char</span>*)&amp;info,<span class="keyword">sizeof</span>(info))&lt;<span class="number">0</span>)&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>​    到此就两个实验结束了，赶紧学习下一个鸭得，不然得失业了要，下一个实验很有意思，是关于页表的。</p>
+
+        </div>
+
+        
+            <section class="post-copyright">
+                
+                    <p class="copyright-item">
+                        <span>Author:</span>
+                        <span>shuisong</span>
+                    </p>
+                
+                
+                    <p class="copyright-item">
+                        <span>Permalink:</span>
+                        <span><a href="https://blog.bencorn.com/2021/03/30/Lab-syscall-System-calls/">https://blog.bencorn.com/2021/03/30/Lab-syscall-System-calls/</a></span>
+                    </p>
+                
+                
+                    <p class="copyright-item">
+                        <span>License:</span>
+                        <span>Copyright (c) 2019 <a target="_blank" rel="noopener" href="http://creativecommons.org/licenses/by-nc/4.0/">CC-BY-NC-4.0</a> LICENSE</span>
+                    </p>
+                
+                
+                     <p class="copyright-item">
+                         <span>Slogan:</span>
+                         <span>Do you believe in <strong>DESTINY</strong>?</span>
+                     </p>
+                
+
+            </section>
+        
+        <section class="post-tags">
+            <div>
+                <span>Tag(s):</span>
+                <span class="tag">
+                    
+                    
+                        <a href="/tags/6-s081/"># 6.s081</a>
+                    
+                        <a href="/tags/OS/"># OS</a>
+                    
+                        
+                </span>
+            </div>
+            <div>
+                <a href="javascript:window.history.back();">back</a>
+                <span>· </span>
+                <a href="/">home</a>
+            </div>
+        </section>
+        <section class="post-nav">
+            
+            
+            <a class="next" rel="next" href="/2021/03/30/rust%E7%AC%94%E8%AE%B0/">rust笔记</a>
+            
+        </section>
+
+
+    </article>
+</div>
+
+        </div>
+        <footer id="footer" class="footer">
+    <div class="copyright">
+        <span>© shuisong | Powered by <a href="https://hexo.io" target="_blank">Hexo</a> & <a href="https://github.com/Siricee/hexo-theme-Chic" target="_blank">Chic</a></span>
+    </div>
+</footer>
+
+    </div>
+</body>
+</html>

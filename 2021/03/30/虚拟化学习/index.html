@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <meta name="author" content="shuisong">
+
+
+
+
+
+<title>虚拟化学习 | Bencorn</title>
+
+
+
+    <link rel="icon" href="/favicon.ico">
+
+
+
+
+    <!-- stylesheets list from _config.yml -->
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+
+
+
+    <!-- scripts list from _config.yml -->
+    
+    <script src="/js/script.js"></script>
+    
+    <script src="/js/tocbot.min.js"></script>
+    
+
+
+
+    
+    
+        
+    
+
+
+<meta name="generator" content="Hexo 5.2.0"></head>
+<body>
+    <div class="wrapper">
+        <header>
+    <nav class="navbar">
+        <div class="container">
+            <div class="navbar-header header-logo"><a href="/">Shuisong&#39;s Blog</a></div>
+            <div class="menu navbar-right">
+                
+                    <a class="menu-item" href="/archives">Posts</a>
+                
+                    <a class="menu-item" href="/category">Categories</a>
+                
+                    <a class="menu-item" href="/tag">Tags</a>
+                
+                    <a class="menu-item" href="/about">About</a>
+                
+                <input id="switch_default" type="checkbox" class="switch_default">
+                <label for="switch_default" class="toggleBtn"></label>
+            </div>
+        </div>
+    </nav>
+
+    
+    <nav class="navbar-mobile" id="nav-mobile">
+        <div class="container">
+            <div class="navbar-header">
+                <div>
+                    <a href="/">Shuisong&#39;s Blog</a><a id="mobile-toggle-theme">·&nbsp;Light</a>
+                </div>
+                <div class="menu-toggle" onclick="mobileBtn()">&#9776; Menu</div>
+            </div>
+            <div class="menu" id="mobile-menu">
+                
+                    <a class="menu-item" href="/archives">Posts</a>
+                
+                    <a class="menu-item" href="/category">Categories</a>
+                
+                    <a class="menu-item" href="/tag">Tags</a>
+                
+                    <a class="menu-item" href="/about">About</a>
+                
+            </div>
+        </div>
+    </nav>
+
+</header>
+<script>
+    var mobileBtn = function f() {
+        var toggleMenu = document.getElementsByClassName("menu-toggle")[0];
+        var mobileMenu = document.getElementById("mobile-menu");
+        if(toggleMenu.classList.contains("active")){
+           toggleMenu.classList.remove("active")
+            mobileMenu.classList.remove("active")
+        }else{
+            toggleMenu.classList.add("active")
+            mobileMenu.classList.add("active")
+        }
+    }
+</script>
+        <div class="main">
+            <div class="container">
+    
+    
+        <div class="post-toc">
+    <div class="tocbot-list">
+    </div>
+    <div class="tocbot-list-menu">
+        <a class="tocbot-toc-expand" onclick="expand_toc()">Expand all</a>
+        <a onclick="go_top()">Back to top</a>
+        <a onclick="go_bottom()">Go to bottom</a>
+    </div>
+</div>
+
+<script>
+    document.ready(
+        function () {
+            tocbot.init({
+                tocSelector: '.tocbot-list',
+                contentSelector: '.post-content',
+                headingSelector: 'h1, h2, h3, h4, h5',
+                collapseDepth: 1,
+                orderedList: false,
+                scrollSmooth: true,
+            })
+        }
+    )
+
+    function expand_toc() {
+        var b = document.querySelector(".tocbot-toc-expand");
+        tocbot.init({
+            tocSelector: '.tocbot-list',
+            contentSelector: '.post-content',
+            headingSelector: 'h1, h2, h3, h4, h5',
+            collapseDepth: 6,
+            orderedList: false,
+            scrollSmooth: true,
+        });
+        b.setAttribute("onclick", "collapse_toc()");
+        b.innerHTML = "Collapse all"
+    }
+
+    function collapse_toc() {
+        var b = document.querySelector(".tocbot-toc-expand");
+        tocbot.init({
+            tocSelector: '.tocbot-list',
+            contentSelector: '.post-content',
+            headingSelector: 'h1, h2, h3, h4, h5',
+            collapseDepth: 1,
+            orderedList: false,
+            scrollSmooth: true,
+        });
+        b.setAttribute("onclick", "expand_toc()");
+        b.innerHTML = "Expand all"
+    }
+
+    function go_top() {
+        window.scrollTo(0, 0);
+    }
+
+    function go_bottom() {
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+
+</script>
+    
+
+    
+    <article class="post-wrap">
+        <header class="post-header">
+            <h1 class="post-title">虚拟化学习</h1>
+            
+                <div class="post-meta">
+                    
+                        Author: <a itemprop="author" rel="author" href="/">shuisong</a>
+                    
+
+                    
+                        <span class="post-time">
+                        Date: <a href="#">三月 30, 2021&nbsp;&nbsp;22:58:10</a>
+                        </span>
+                    
+                    
+                        <span class="post-category">
+                    Category:
+                            
+                                <a href="/categories/OS/">OS</a>
+                            
+                        </span>
+                    
+                </div>
+            
+        </header>
+
+        <div class="post-content">
+            <h3 id="虚拟化学习"><a href="#虚拟化学习" class="headerlink" title="虚拟化学习"></a>虚拟化学习</h3><p>​    操作系统三大特性之虚拟化，现在的虚拟化技术非常的🐂，引人入胜可以说是</p>
+<h5 id="概念学习"><a href="#概念学习" class="headerlink" title="概念学习"></a>概念学习</h5><h5 id="所需系统知识学习"><a href="#所需系统知识学习" class="headerlink" title="所需系统知识学习"></a>所需系统知识学习</h5><p>​    了解虚拟化的 Linux 做了什么，怎么做到的，以及 OS 是如何提供这些服务的；只有了解了底层过后才会更好的对上层服务理解，否则只是停留在了解业务层面，无法了解人家是怎么做出来的；</p>
+<h6 id="1、Linux-namespace"><a href="#1、Linux-namespace" class="headerlink" title="1、Linux namespace"></a>1、Linux namespace</h6><p>​    参考文章：<a target="_blank" rel="noopener" href="http://www.haifux.org/lectures/299/netLec7.pdf">http://www.haifux.org/lectures/299/netLec7.pdf</a></p>
+<p>​                        <a target="_blank" rel="noopener" href="https://man7.org/linux/man-pages/man7/namespaces.7.html">https://man7.org/linux/man-pages/man7/namespaces.7.html</a></p>
+<p>​                        <a target="_blank" rel="noopener" href="https://segmentfault.com/a/1190000009732550">https://segmentfault.com/a/1190000009732550</a> (这里有api实践)</p>
+<p><img src="https://hss-imgcloud.oss-cn-beijing.aliyuncs.com/img/2021/03/3020210330225353.jpeg" alt="62320051-701F-4820-81BE-DFB35FDC06C7_4_5005_c"></p>
+<p>​    <code>namespace描述</code></p>
+<p>​    namespace 实现对全局资源的封装隔离，使得处于不同的 namespace 的进程拥有独立的全局资源，改变一个 namespace 只会影响相同 namespace 内的进程，不会影响其他 namespace 内的进程；</p>
+<p>​    <code>namespace 类型</code></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">Namespace        Flag            Page                  Isolates</span><br><span class="line">  Cgroup    CLONE_NEWCGROUP cgroup_namespaces(7)  Cgroup root directory</span><br><span class="line">                                                      </span><br><span class="line">  IPC       CLONE_NEWIPC    ipc_namespaces(7)     System V IPC, POSIX message queues</span><br><span class="line">  </span><br><span class="line">  Network   CLONE_NEWNET    network_namespaces(7) Network devices,stacks, ports, etc.</span><br><span class="line">                                                      </span><br><span class="line">  Mount     CLONE_NEWNS     mount_namespaces(7)   Mount points</span><br><span class="line">  </span><br><span class="line">  PID       CLONE_NEWPID    pid_namespaces(7)     Process IDs</span><br><span class="line">  </span><br><span class="line">  Time      CLONE_NEWTIME   time_namespaces(7)    Boot and monotonic  clocks</span><br><span class="line">                                                     </span><br><span class="line">  User      CLONE_NEWUSER   user_namespaces(7)    T&#123;User and group IDsT&#125;</span><br><span class="line">  </span><br><span class="line">  UTS       CLONE_NEWUTS    uts_namespaces(7)     Hostname and NIS domain name                                                  </span><br></pre></td></tr></table></figure>
+
+<p>​    注：Page 是 Linux man 里边儿的介绍页面，然后 copy 下来就没改，便于去查找相应资料</p>
+<p><code>namespace APIs</code></p>
+<p>​    接口中涉及到的 flag 是如上类型中提到的 Flag 作为参数，但可能具体参数会有不止上述所提到的</p>
+<ul>
+<li><p>clone</p>
+<p>创建一个新的进程并把他放到新的 namespace 中</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">int clone(int (*fn)(void *), void *stack, int flags, void *arg, ...</span><br><span class="line">                 &#x2F;* pid_t *parent_tid, void *tls, pid_t *child_tid *&#x2F; );</span><br><span class="line">与 fork 类似，创建子进程；</span><br><span class="line">与 fork 相比，clone 提供更精确的控制，比如：父子进程之间执行上下文的共享，syscall 的时候决定是否共享那些共享虚拟地址空间、文件描述符、signal handler 等，也可以让子进程加入新的 namespace</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>setns</p>
+<p>将当前进程加入到已有的namespace中</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">int setns(int fd, int nstype);</span><br><span class="line">fd： </span><br><span class="line">  指向&#x2F;proc&#x2F;[pid]&#x2F;ns&#x2F;目录里相应namespace对应的文件，表示要加入哪个namespace</span><br><span class="line">nstype：</span><br><span class="line">  指定 namespace 的类型（上面的任意一个CLONE_NEW*）：</span><br><span class="line">    1. 如果当前进程不能根据 fd 得到它的类型，如 fd 由其他进程创建，并通过 UNIX domain socket 传给当前进程，那么就需要通过 nstype 来指定 fd 指向的 namespace 的类型</span><br><span class="line">    2. 如果进程能根据 fd 得到 namespace 类型，比如这个 fd 是由当前进程打开的，那么 nstype 设置为0即可</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>unshare</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">int unshare(int flags);</span><br><span class="line">unshare() allows a process (or thread) to disassociate parts of</span><br><span class="line">       its execution context that are currently being shared with other</span><br><span class="line">       processes (or threads).</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>ioctl</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">int ioctl(int fd, unsigned long request, ...);</span><br><span class="line">	The ioctl() system call manipulates the underlying device parameters of special files.  In particular, many operating characteristics of character special files (e.g., terminals) maybe controlled with ioctl() requests.  The argument fd must be an open file descriptor.</span><br></pre></td></tr></table></figure>
+
+
+
+</li>
+</ul>
+<h6 id="2、Linux-Cgroup"><a href="#2、Linux-Cgroup" class="headerlink" title="2、Linux Cgroup"></a>2、Linux Cgroup</h6><p>​    参考文章：<a target="_blank" rel="noopener" href="https://man7.org/linux/man-pages/man7/cgroups.7.html">https://man7.org/linux/man-pages/man7/cgroups.7.html</a></p>
+<p>​                        <a target="_blank" rel="noopener" href="https://segmentfault.com/a/1190000009732550">https://segmentfault.com/a/1190000009732550</a> (这里有api实践)</p>
+<p><img src="https://hss-imgcloud.oss-cn-beijing.aliyuncs.com/img/2021/03/3020210330225438.jpeg" alt="403BEC39-EFA9-4B9F-9765-9024E83AA677_4_5005_c"></p>
+<h6 id="3、Linux-Capability"><a href="#3、Linux-Capability" class="headerlink" title="3、Linux Capability"></a>3、Linux Capability</h6><p>​    参考文章：<a target="_blank" rel="noopener" href="https://cloud.tencent.com/developer/article/1529342">https://cloud.tencent.com/developer/article/1529342</a></p>
+<p>​    </p>
+<h5 id="论文阅读总结"><a href="#论文阅读总结" class="headerlink" title="论文阅读总结"></a>论文阅读总结</h5><h5 id="Case-Study"><a href="#Case-Study" class="headerlink" title="Case Study"></a>Case Study</h5><p>​    进行一些理论部分的例子学习，这样有助于加深对虚拟化的认识和感知；</p>
+<h6 id="1、在线升级虚拟机虚拟器"><a href="#1、在线升级虚拟机虚拟器" class="headerlink" title="1、在线升级虚拟机虚拟器"></a>1、在线升级虚拟机虚拟器</h6><p>​    <a target="_blank" rel="noopener" href="https://patentimages.storage.googleapis.com/f4/36/b1/8247d4b518cee8/CN106293781A.pdf">https://patentimages.storage.googleapis.com/f4/36/b1/8247d4b518cee8/CN106293781A.pdf</a></p>
+<p>​    <a target="_blank" rel="noopener" href="https://www.ksplice.com/doc/ksplice.pdf">https://www.ksplice.com/doc/ksplice.pdf</a></p>
+<p>​    </p>
+
+        </div>
+
+        
+            <section class="post-copyright">
+                
+                    <p class="copyright-item">
+                        <span>Author:</span>
+                        <span>shuisong</span>
+                    </p>
+                
+                
+                    <p class="copyright-item">
+                        <span>Permalink:</span>
+                        <span><a href="https://blog.bencorn.com/2021/03/30/%E8%99%9A%E6%8B%9F%E5%8C%96%E5%AD%A6%E4%B9%A0/">https://blog.bencorn.com/2021/03/30/%E8%99%9A%E6%8B%9F%E5%8C%96%E5%AD%A6%E4%B9%A0/</a></span>
+                    </p>
+                
+                
+                    <p class="copyright-item">
+                        <span>License:</span>
+                        <span>Copyright (c) 2019 <a target="_blank" rel="noopener" href="http://creativecommons.org/licenses/by-nc/4.0/">CC-BY-NC-4.0</a> LICENSE</span>
+                    </p>
+                
+                
+                     <p class="copyright-item">
+                         <span>Slogan:</span>
+                         <span>Do you believe in <strong>DESTINY</strong>?</span>
+                     </p>
+                
+
+            </section>
+        
+        <section class="post-tags">
+            <div>
+                <span>Tag(s):</span>
+                <span class="tag">
+                    
+                    
+                        <a href="/tags/OS/"># OS</a>
+                    
+                        
+                </span>
+            </div>
+            <div>
+                <a href="javascript:window.history.back();">back</a>
+                <span>· </span>
+                <a href="/">home</a>
+            </div>
+        </section>
+        <section class="post-nav">
+            
+                <a class="prev" rel="prev" href="/2021/03/30/rust%E7%AC%94%E8%AE%B0/">rust笔记</a>
+            
+            
+            <a class="next" rel="next" href="/2021/03/21/Lab-util-Unix-utilities/">Lab util: Unix utilities</a>
+            
+        </section>
+
+
+    </article>
+</div>
+
+        </div>
+        <footer id="footer" class="footer">
+    <div class="copyright">
+        <span>© shuisong | Powered by <a href="https://hexo.io" target="_blank">Hexo</a> & <a href="https://github.com/Siricee/hexo-theme-Chic" target="_blank">Chic</a></span>
+    </div>
+</footer>
+
+    </div>
+</body>
+</html>
