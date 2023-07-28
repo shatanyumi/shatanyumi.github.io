@@ -1,0 +1,904 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/browser.png">
+  <link rel="icon" href="/img/browser.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+    <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Bencorn">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="简介这个部分，我们来学习一下 xv6 是如何进行内存的管理的，了解最简单的管理方式，为后续学习 Linux 内存管理哪些打个小基础。 xv6 这儿有源文件 是一个 UNIX 风格的操作系统。后续的代码，我会按照顺序，对其进行拆分，和一些自己理解的说明，其实基本上内容都是在 xv6 的这本书里。 Page tablesx86 的指令操纵的都是虚拟地址（virtual address），而硬件 RAM">
+<meta property="og:type" content="article">
+<meta property="og:title" content="xv6-Memory">
+<meta property="og:url" content="https://www.bencorn.com/2023/07/05/xv6-Memory/index.html">
+<meta property="og:site_name" content="Sparkplace">
+<meta property="og:description" content="简介这个部分，我们来学习一下 xv6 是如何进行内存的管理的，了解最简单的管理方式，为后续学习 Linux 内存管理哪些打个小基础。 xv6 这儿有源文件 是一个 UNIX 风格的操作系统。后续的代码，我会按照顺序，对其进行拆分，和一些自己理解的说明，其实基本上内容都是在 xv6 的这本书里。 Page tablesx86 的指令操纵的都是虚拟地址（virtual address），而硬件 RAM">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://imgs.bencorn.com/imgs/xv6-Boot-2023-04-25-18-53-50.png">
+<meta property="article:published_time" content="2023-07-05T14:48:11.000Z">
+<meta property="article:modified_time" content="2023-07-18T08:04:16.000Z">
+<meta property="article:author" content="Bencorn">
+<meta property="article:tag" content="xv6">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://imgs.bencorn.com/imgs/xv6-Boot-2023-04-25-18-53-50.png">
+  
+  
+    <meta name="referrer" content="no-referrer-when-downgrade">
+  
+  
+  <title>xv6-Memory - Sparkplace</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"www.bencorn.com","root":"/","version":"1.9.4","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":"G-PPB8YXR0QF","gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+
+  
+    <!-- Google Analytics -->
+    <script async>
+      if (!Fluid.ctx.dnt) {
+        Fluid.utils.createScript('https://www.google-analytics.com/analytics.js', function() {
+          window.ga = window.ga || function() { (ga.q = ga.q || []).push(arguments) };
+          ga.l = +new Date;
+          ga('create', 'G-PPB8YXR0QF', 'auto');
+          ga('send', 'pageview');
+        });
+      }
+    </script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>妙想屋</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/links/">
+                <i class="iconfont icon-link-fill"></i>
+                <span>友链</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="xv6-Memory"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2023-07-05 22:48" pubdate>
+          2023年7月5日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          15k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          122 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="busuanzi_container_page_pv" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="busuanzi_value_page_pv"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">xv6-Memory</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><p>这个部分，我们来学习一下 xv6 是如何进行内存的管理的，了解最简单的管理方式，为后续学习 Linux 内存管理哪些打个小基础。</p>
+<p>xv6 <a href="./book-rev11.pdf">这儿有源文件</a> 是一个 UNIX 风格的操作系统。后续的代码，我会按照顺序，对其进行拆分，和一些自己理解的说明，其实基本上内容都是在 xv6 的这本书里。</p>
+<h1 id="Page-tables"><a href="#Page-tables" class="headerlink" title="Page tables"></a>Page tables</h1><p>x86 的指令操纵的都是虚拟地址（virtual address），而硬件 RAM 物理内存（physical address），则是每个存储空间有一个物理地址。x86 页表硬件将虚拟地址和物理地址进行一一映射。</p>
+<p>x86 页表逻辑上是一个大小为 2^20 的数组，每个数组想被称为一个页表条目(page table entry, PTEs)。每个 PTE 包含 20-bit 物理页号（physical page number, PPN）和一些标志 flag。页表硬件将虚拟地址的高 20-bit 作为索引在页表中寻找一个 PTE，然后将高 20-bit 的地址替换为 PTE 中对应内存单元中保存的 PPN；同时，页表硬件将虚拟地址中的低 12-bit 直接复制到物理内存中的低 12-bit 的位置，然后和前边儿的 20-bit 组合起来形成一个地址，这个地址就是虚拟地址对应的实际的物理地址，然后硬件系统就可以通过该物理地址进行内存数据的访问。通过这样的步骤，就可以得到一个页大小 2^12（4096）bytes。</p>
+<p><img src="https://imgs.bencorn.com/imgs/xv6-Memory-2023-07-09-21-30-21.png" srcset="/img/loading.gif" lazyload alt="x86 page table hardware"></p>
+<p>如图所示，虚拟地址到物理地址的转换实际分为了两个步骤。页表在物理内存中保存为两级树的形式，树的根部是一个 4096 字节的页目录（page directory），包含 1024 个页表页（page table pages）。这些页表页都包含一个 1024 大小的 32-bit 的页表条目（PTEs）。</p>
+<p>页表硬件会使用虚拟地址的高地址的 10-bits 在页目录表中选择条目，然后使用接下来的 10-bits 在二级页表中选择页表条目。如果页目录表（page directory entry）和页表条目（PTE）都没有的话，页表硬件会报错。</p>
+<p>每个 PTE 会包含标志位，页表硬件通过这些标志位来知晓如何使用虚拟地址。</p>
+<ul>
+<li>PTE_P：表明PTE是否存在，如果否会报错；</li>
+<li>PTE_W：表明指令是否可以对页进行写操作，如果否，那么只允许读和取指令；</li>
+<li>PTE_U：表明用户程序允许使用该页；</li>
+</ul>
+<p>这些标志位的具体信息，可以在 <code>mmu.h</code> 中看到，这些 16 进制的数，转化为二进制过后就可以得到相应的标志位为 1。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">// Page table/directory entry flags.</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> PTE_P           0x001   <span class="hljs-comment">// Present</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> PTE_W           0x002   <span class="hljs-comment">// Writeable</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> PTE_U           0x004   <span class="hljs-comment">// User</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> PTE_PS          0x080   <span class="hljs-comment">// Page Size</span></span><br></code></pre></td></tr></table></figure>
+
+<p>关于术语的一些注释。 物理内存是指DRAM中的存储单元。 物理内存的一个字节有一个地址，称为物理地址。 指令仅使用虚拟地址，分页硬件将其转换为物理地址，然后发送到 DRAM 硬件以读取或写入存储。 在这个级别的讨论中，没有虚拟内存之类的东西，只有虚拟地址。</p>
+<h1 id="Process-address-space"><a href="#Process-address-space" class="headerlink" title="Process address space"></a>Process address space</h1><p>这个部分我们讨论 xv6 的进程地址空间。</p>
+<figure class="highlight x86asm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><code class="hljs x86asm"># By convention, the _start symbol specifies the ELF entry point.<br># Since we haven<span class="hljs-string">&#x27;t set up virtual memory yet, our entry point is</span><br><span class="hljs-string"># the physical address of &#x27;</span>entry<span class="hljs-string">&#x27;.</span><br><span class="hljs-string">.globl _start</span><br><span class="hljs-string">_start = V2P_WO(entry)</span><br><span class="hljs-string"></span><br><span class="hljs-string"># Entering xv6 on boot processor, with paging off.</span><br><span class="hljs-string">.globl entry</span><br><span class="hljs-string">entry:</span><br><span class="hljs-string">  # Turn on page size extension for 4Mbyte pages</span><br><span class="hljs-string">  movl    %cr4, %eax</span><br><span class="hljs-string">  orl     $(CR4_PSE), %eax</span><br><span class="hljs-string">  movl    %eax, %cr4</span><br><span class="hljs-string">  # Set page directory</span><br><span class="hljs-string">  movl    $(V2P_WO(entrypgdir)), %eax</span><br><span class="hljs-string">  movl    %eax, %cr3</span><br><span class="hljs-string">  # Turn on paging.</span><br><span class="hljs-string">  movl    %cr0, %eax</span><br><span class="hljs-string">  orl     $(CR0_PG|CR0_WP), %eax</span><br><span class="hljs-string">  movl    %eax, %cr0</span><br><span class="hljs-string"></span><br><span class="hljs-string">  # Set up the stack pointer.</span><br><span class="hljs-string">  movl $(stack + KSTACKSIZE), %esp</span><br><span class="hljs-string"></span><br><span class="hljs-string">  # Jump to main(), and switch to executing at</span><br><span class="hljs-string">  # high addresses. The indirect call is needed because</span><br><span class="hljs-string">  # the assembler produces a PC-relative instruction</span><br><span class="hljs-string">  # for a direct jump.</span><br><span class="hljs-string">  mov $main, %eax</span><br><span class="hljs-string">  jmp *%eax</span><br><span class="hljs-string"></span><br><span class="hljs-string">.comm stack, KSTACKSIZE</span><br><span class="hljs-string"></span><br></code></pre></td></tr></table></figure>
+
+<p>由entry创建的页表有足够的映射来允许内核的C代码开始运行。 </p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs c"><br><span class="hljs-comment">// Allocate one page table for the machine for the kernel address</span><br><span class="hljs-comment">// space for scheduler processes.</span><br><span class="hljs-type">void</span><br><span class="hljs-title function_">kvmalloc</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span><br>&#123;<br>  kpgdir = setupkvm();<br>  switchkvm();<br>&#125;<br><br></code></pre></td></tr></table></figure>
+
+<p>然而，main 立即通过调用 kvmalloc 更改为新的页表，因为内核有一个更详细的计划来描述进程地址空间。</p>
+<p>每个进程有一个单独的页表，并且 xv6 告知页表硬件，当 xv6 切换进程的时候切换页表。</p>
+<p><img src="https://imgs.bencorn.com/imgs/xv6-Memory-2023-07-10-20-44-02.png" srcset="/img/loading.gif" lazyload alt="Layout of the virtual address space of a process and the layout of the physical address space. Note that if a machine has more than 2 Gbyte of physical memory, xv6 can use only the memory that fits between KERNBASE and 0xFE00000"></p>
+<p>如图所示，一个进程的用户内存从虚拟地址 0 开始，一直增长到 <code>KERNBASE </code> 的位置，允许一个进程寻址最多 2G。</p>
+<p>在 <code>memlayout.h</code> 中，有描述 xv6 的内存布局，和一些将虚拟地址转化到虚拟地址的宏。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">// Memory layout</span><br><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> EXTMEM  0x100000            <span class="hljs-comment">// Start of extended memory</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> PHYSTOP 0xE000000           <span class="hljs-comment">// Top physical memory</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> DEVSPACE 0xFE000000         <span class="hljs-comment">// Other devices are at high addresses</span></span><br><br><span class="hljs-comment">// Key addresses for address space layout (see kmap in vm.c for layout)</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> KERNBASE 0x80000000         <span class="hljs-comment">// First kernel virtual address</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> KERNLINK (KERNBASE+EXTMEM)  <span class="hljs-comment">// Address where kernel is linked</span></span><br><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> V2P(a) (((uint) (a)) - KERNBASE)</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> P2V(a) ((void *)(((char *) (a)) + KERNBASE))</span><br><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> V2P_WO(x) ((x) - KERNBASE)    <span class="hljs-comment">// same as V2P, but without casts</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> P2V_WO(x) ((x) + KERNBASE)    <span class="hljs-comment">// same as P2V, but without casts</span></span><br><br></code></pre></td></tr></table></figure>
+
+<p>当一个进程向 xv6 申请内存的时候，xv6 首先寻找空闲的物理页（physical page），然后添加 PTEs 到进程的页表，该 PTEs 指向新的物理页。xv6 设置 <code>PTE_U PTE_W PTE_P</code> 标志位在这些 PTEs中。绝大部分进程不会使用完所有的用户进程空间，xv6 让 未使用的PTEs的 <code>PTE_P</code> 清零。不同的进程页表将用户地址转换为不同的物理内存，所以每个进程都有私有的用户内存。</p>
+<p>xv6 包含了内核在每个进程的页表中运行所需的所有映射； 这些映射都出现在 KERNBASE 之上。它将虚拟地址 KERNBASE:KERNBASE+PHYSTOP 映射到 0:PHYSTOP。 这种映射的原因之一是内核可以使用自己的指令和数据。 另一个原因是内核有时需要能够写入物理内存的给定页面，例如在创建页表页面时； 让每个物理页都出现在可预测的虚拟地址处使这变得很方便。 这种安排的一个缺陷是 xv6 无法使用超过 2 GB 的物理内存，因为地址空间的内核部分是 2 GB。 因此，xv6 要求 PHYSTOP 小于 2 GB，即使计算机具有超过 2 GB 的物理内存。</p>
+<p>一些使用内存映射 I&#x2F;O 的设备出现在从 0xFE000000 开始的物理地址处，因此 xv6 页表包括它们的直接映射。 因此，PHYSTOP 必须小于 2 GB - 16 MB（对于设备内存）。</p>
+<p>xv6 不会将高于 KERNBASE 的 PTEs 中设置 PTE_U 标志，所以只有内核可以使用他们。</p>
+<p>让每个进程的页表都包含用户内存和整个内核的映射，在系统调用和中断期间从用户代码切换到内核代码时很方便：这种切换不需要页表切换。 大多数情况下，内核没有自己的页表； 它几乎总是借用某个进程的页表。（其实这种管理方式是不安全的，Linux 现在都会维护内核页表，用户态切换带内核态的时候，也会从用户页表切换到内核页表）</p>
+<p>回顾一下，xv6 确保每个进程只能使用自己的内存。 而且，每个进程都将其内存视为具有从零开始的连续虚拟地址，而进程的物理内存可以是不连续的。 xv6 通过仅在引用进程自己的内存的虚拟地址的 PTE 上设置 PTE_U 位来实现第一个。 它使用页表的能力来实现第二个，将连续的虚拟地址转换为恰好分配给进程的任何物理页。</p>
+<h2 id="Code：createing-an-address-space"><a href="#Code：createing-an-address-space" class="headerlink" title="Code：createing an address space"></a>Code：createing an address space</h2><p>main 调用 kvmalloc 创建并切换到具有内核运行所需的 KERNBASE 以上映射的页表。 大部分工作发生在 setupkvm 中。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">// Set up kernel part of a page table.</span><br><span class="hljs-type">pde_t</span>*<br><span class="hljs-title function_">setupkvm</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span><br>&#123;<br>  <span class="hljs-type">pde_t</span> *pgdir;<br>  <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">kmap</span> *<span class="hljs-title">k</span>;</span><br><br>  <span class="hljs-keyword">if</span>((pgdir = (<span class="hljs-type">pde_t</span>*)kalloc()) == <span class="hljs-number">0</span>)<br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>  <span class="hljs-built_in">memset</span>(pgdir, <span class="hljs-number">0</span>, PGSIZE);<br>  <span class="hljs-keyword">if</span> (P2V(PHYSTOP) &gt; (<span class="hljs-type">void</span>*)DEVSPACE)<br>    panic(<span class="hljs-string">&quot;PHYSTOP too high&quot;</span>);<br>  <span class="hljs-keyword">for</span>(k = kmap; k &lt; &amp;kmap[NELEM(kmap)]; k++)<br>    <span class="hljs-keyword">if</span>(mappages(pgdir, k-&gt;virt, k-&gt;phys_end - k-&gt;phys_start,<br>                (uint)k-&gt;phys_start, k-&gt;perm) &lt; <span class="hljs-number">0</span>) &#123;<br>      freevm(pgdir);<br>      <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>    &#125;<br>  <span class="hljs-keyword">return</span> pgdir;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>它首先分配一个内存页来保存页目录。 然后它调用mappages 来安装内核所需的翻译，这些映射在 kmap 数组中进行了描述。 这些翻译包括内核的指令和数据、直至 PHYSTOP 的物理内存以及实际上是 I&#x2F;O 设备的内存范围。 setupkvm 不会为用户内存安装任何映射； 这将在稍后发生。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">// Create PTEs for virtual addresses starting at va that refer to</span><br><span class="hljs-comment">// physical addresses starting at pa. va and size might not</span><br><span class="hljs-comment">// be page-aligned.</span><br><span class="hljs-type">static</span> <span class="hljs-type">int</span><br><span class="hljs-title function_">mappages</span><span class="hljs-params">(<span class="hljs-type">pde_t</span> *pgdir, <span class="hljs-type">void</span> *va, uint size, uint pa, <span class="hljs-type">int</span> perm)</span><br>&#123;<br>  <span class="hljs-type">char</span> *a, *last;<br>  <span class="hljs-type">pte_t</span> *pte;<br><br>  a = (<span class="hljs-type">char</span>*)PGROUNDDOWN((uint)va);<br>  last = (<span class="hljs-type">char</span>*)PGROUNDDOWN(((uint)va) + size - <span class="hljs-number">1</span>);<br>  <span class="hljs-keyword">for</span>(;;)&#123;<br>    <span class="hljs-keyword">if</span>((pte = walkpgdir(pgdir, a, <span class="hljs-number">1</span>)) == <span class="hljs-number">0</span>)<br>      <span class="hljs-keyword">return</span> <span class="hljs-number">-1</span>;<br>    <span class="hljs-keyword">if</span>(*pte &amp; PTE_P)<br>      panic(<span class="hljs-string">&quot;remap&quot;</span>);<br>    *pte = pa | perm | PTE_P;<br>    <span class="hljs-keyword">if</span>(a == last)<br>      <span class="hljs-keyword">break</span>;<br>    a += PGSIZE;<br>    pa += PGSIZE;<br>  &#125;<br>  <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+<p>mappages 将一系列虚拟地址到对应的物理地址范围的映射安装到页表中。 它以页面大小间隔为范围内的每个虚拟地址单独执行此操作。 对于每个要映射的虚拟地址，mappages 调用 walkpgdir 来查找该地址的 PTE 地址。 然后它初始化 PTE 以保存相关的物理页号、期望的权限 (PTE_W 和&#x2F;或 PTE_U) 以及 PTE_P 以将 PTE 标记为有效。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">// Return the address of the PTE in page table pgdir</span><br><span class="hljs-comment">// that corresponds to virtual address va.  If alloc!=0,</span><br><span class="hljs-comment">// create any required page table pages.</span><br><span class="hljs-type">static</span> <span class="hljs-type">pte_t</span> *<br><span class="hljs-title function_">walkpgdir</span><span class="hljs-params">(<span class="hljs-type">pde_t</span> *pgdir, <span class="hljs-type">const</span> <span class="hljs-type">void</span> *va, <span class="hljs-type">int</span> alloc)</span><br>&#123;<br>  <span class="hljs-type">pde_t</span> *pde;<br>  <span class="hljs-type">pte_t</span> *pgtab;<br><br>  pde = &amp;pgdir[PDX(va)];<br>  <span class="hljs-keyword">if</span>(*pde &amp; PTE_P)&#123;<br>    pgtab = (<span class="hljs-type">pte_t</span>*)P2V(PTE_ADDR(*pde));<br>  &#125; <span class="hljs-keyword">else</span> &#123;<br>    <span class="hljs-keyword">if</span>(!alloc || (pgtab = (<span class="hljs-type">pte_t</span>*)kalloc()) == <span class="hljs-number">0</span>)<br>      <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>    <span class="hljs-comment">// Make sure all those PTE_P bits are zero.</span><br>    <span class="hljs-built_in">memset</span>(pgtab, <span class="hljs-number">0</span>, PGSIZE);<br>    <span class="hljs-comment">// The permissions here are overly generous, but they can</span><br>    <span class="hljs-comment">// be further restricted by the permissions in the page table</span><br>    <span class="hljs-comment">// entries, if necessary.</span><br>    *pde = V2P(pgtab) | PTE_P | PTE_W | PTE_U;<br>  &#125;<br>  <span class="hljs-keyword">return</span> &amp;pgtab[PTX(va)];<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>walkpgdir  模仿 x86 分页硬件在 PTE 中查找虚拟地址的操作。 walkpgdir 使用虚拟地址的高 10 位来查找页目录条目。 如果页目录项不存在，则所需的页表页尚未分配； 如果设置了 alloc 参数，walkpgdir 会分配它并将其物理地址放入页目录中。 最后，它使用虚拟地址的接下来的 10 位来查找页表页中 PTE 的地址。</p>
+<h1 id="Physical-memory-allocation"><a href="#Physical-memory-allocation" class="headerlink" title="Physical memory allocation"></a>Physical memory allocation</h1><p>这个部分看一看物理内存的分配。</p>
+<p>内核必须在运行时为页表、进程用户内存、内核堆栈和管道缓冲区分配和释放物理内存。</p>
+<p>xv6 使用 kernel 结尾到 PHYSTOP 之间的物理内存，来为运行过程中进行内存分配。每一次分配，都是按照 4096-byte 大小的页进行。并且通过链表来跟踪每个页的使用情况。</p>
+<p>物理内存分配包括从链表中删除一个页，释放物理内存则是添加空闲页到链表。</p>
+<p>存在一个引导问题：必须映射所有物理内存以便分配器初始化空闲列表，但是使用这些映射创建页表涉及分配页表页面。 xv6 通过在进入期间使用单独的页面分配器来解决这个问题，该分配器在内核数据段末尾之后分配内存。 该分配器不支持释放，并且受到 entrypgdir 中 4 MB 映射的限制，但这足以分配第一个内核页表。</p>
+<h2 id="Code：Physical-memory-allocator"><a href="#Code：Physical-memory-allocator" class="headerlink" title="Code：Physical memory allocator"></a>Code：Physical memory allocator</h2><p>分配器的数据结构是可用于分配的物理内存页的空闲列表。 </p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">run</span> &#123;</span><br>  <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">run</span> *<span class="hljs-title">next</span>;</span><br>&#125;;<br><br><span class="hljs-class"><span class="hljs-keyword">struct</span> &#123;</span><br>  <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">spinlock</span> <span class="hljs-title">lock</span>;</span><br>  <span class="hljs-type">int</span> use_lock;<br>  <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">run</span> *<span class="hljs-title">freelist</span>;</span><br>&#125; kmem;<br><br></code></pre></td></tr></table></figure>
+
+<p>每个空闲页面的列表元素都是一个struct run。分配器从哪里获取内存来保存该数据结构？ 它将每个空闲页面的运行结构存储在空闲页面本身中，因为那里没有存储任何其他内容。 空闲列表受自旋锁保护。 链表和锁包装在一个结构中，以明确锁保护结构中的字段。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">// Bootstrap processor starts running C code here.</span><br><span class="hljs-comment">// Allocate a real stack and switch to it, first</span><br><span class="hljs-comment">// doing some setup required for memory allocator to work.</span><br><span class="hljs-type">int</span><br><span class="hljs-title function_">main</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span><br>&#123;<br>  kinit1(end, P2V(<span class="hljs-number">4</span>*<span class="hljs-number">1024</span>*<span class="hljs-number">1024</span>)); <span class="hljs-comment">// phys page allocator</span><br>  kvmalloc();      <span class="hljs-comment">// kernel page table</span><br>  mpinit();        <span class="hljs-comment">// detect other processors</span><br>  lapicinit();     <span class="hljs-comment">// interrupt controller</span><br>  seginit();       <span class="hljs-comment">// segment descriptors</span><br>  picinit();       <span class="hljs-comment">// disable pic</span><br>  ioapicinit();    <span class="hljs-comment">// another interrupt controller</span><br>  consoleinit();   <span class="hljs-comment">// console hardware</span><br>  uartinit();      <span class="hljs-comment">// serial port</span><br>  pinit();         <span class="hljs-comment">// process table</span><br>  tvinit();        <span class="hljs-comment">// trap vectors</span><br>  binit();         <span class="hljs-comment">// buffer cache</span><br>  fileinit();      <span class="hljs-comment">// file table</span><br>  ideinit();       <span class="hljs-comment">// disk </span><br>  startothers();   <span class="hljs-comment">// start other processors</span><br>  kinit2(P2V(<span class="hljs-number">4</span>*<span class="hljs-number">1024</span>*<span class="hljs-number">1024</span>), P2V(PHYSTOP)); <span class="hljs-comment">// must come after startothers()</span><br>  userinit();      <span class="hljs-comment">// first user process</span><br>  mpmain();        <span class="hljs-comment">// finish this processor&#x27;s setup</span><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>函数 main 调用 kinit1 和 kinit2 来初始化分配器。 进行两次调用的原因是，对于 main 的大部分调用来说，不能使用锁或超过 4 MB 的内存。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">// Initialization happens in two phases.</span><br><span class="hljs-comment">// 1. main() calls kinit1() while still using entrypgdir to place just</span><br><span class="hljs-comment">// the pages mapped by entrypgdir on free list.</span><br><span class="hljs-comment">// 2. main() calls kinit2() with the rest of the physical pages</span><br><span class="hljs-comment">// after installing a full page table that maps them on all cores.</span><br><span class="hljs-type">void</span><br><span class="hljs-title function_">kinit1</span><span class="hljs-params">(<span class="hljs-type">void</span> *vstart, <span class="hljs-type">void</span> *vend)</span><br>&#123;<br>  initlock(&amp;kmem.lock, <span class="hljs-string">&quot;kmem&quot;</span>);<br>  kmem.use_lock = <span class="hljs-number">0</span>;<br>  freerange(vstart, vend);<br>&#125;<br><br><span class="hljs-type">void</span><br><span class="hljs-title function_">kinit2</span><span class="hljs-params">(<span class="hljs-type">void</span> *vstart, <span class="hljs-type">void</span> *vend)</span><br>&#123;<br>  freerange(vstart, vend);<br>  kmem.use_lock = <span class="hljs-number">1</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>kinit1 为前 4 MB 建立无锁的分配，kinit2 则是对剩下的更多的内存添加锁服务。</p>
+<p>main 函数应该决定多少物理内存是可用的，但是在 x86 上比较困难。取而代之的，它假设一台电脑拥有 224 MB（PHYSTOP）的物理内存，并且使用所有的 kernel 结束位置到 PHYSTOP 的物理内存作为初始空闲内存池。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">void</span><br><span class="hljs-title function_">freerange</span><span class="hljs-params">(<span class="hljs-type">void</span> *vstart, <span class="hljs-type">void</span> *vend)</span><br>&#123;<br>  <span class="hljs-type">char</span> *p;<br>  p = (<span class="hljs-type">char</span>*)PGROUNDUP((uint)vstart);<br>  <span class="hljs-keyword">for</span>(; p + PGSIZE &lt;= (<span class="hljs-type">char</span>*)vend; p += PGSIZE)<br>    kfree(p);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>kinit1 和 kinit2 调用 <code>freerange</code> 接口添加内存到空闲链表，这个步骤是通过对每一个物理页调用 <code>kfree</code> 来实现。一个 PTE 只能指向一个对齐 4096-byte 的物理地址，所以会使用 <code>PGROUNDUP</code> 来保证对齐。分配器 allocator 初始是没有内存的，这些调用通过 <code>kfree</code> 准备好一些内存来给分配器使用。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">//PAGEBREAK: 21</span><br><span class="hljs-comment">// Free the page of physical memory pointed at by v,</span><br><span class="hljs-comment">// which normally should have been returned by a</span><br><span class="hljs-comment">// call to kalloc().  (The exception is when</span><br><span class="hljs-comment">// initializing the allocator; see kinit above.)</span><br><span class="hljs-type">void</span><br><span class="hljs-title function_">kfree</span><span class="hljs-params">(<span class="hljs-type">char</span> *v)</span><br>&#123;<br>  <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">run</span> *<span class="hljs-title">r</span>;</span><br><br>  <span class="hljs-keyword">if</span>((uint)v % PGSIZE || v &lt; end || V2P(v) &gt;= PHYSTOP)<br>    panic(<span class="hljs-string">&quot;kfree&quot;</span>);<br><br>  <span class="hljs-comment">// Fill with junk to catch dangling refs.</span><br>  <span class="hljs-built_in">memset</span>(v, <span class="hljs-number">1</span>, PGSIZE);<br><br>  <span class="hljs-keyword">if</span>(kmem.use_lock)<br>    acquire(&amp;kmem.lock);<br>  r = (<span class="hljs-keyword">struct</span> run*)v;<br>  r-&gt;next = kmem.freelist;<br>  kmem.freelist = r;<br>  <span class="hljs-keyword">if</span>(kmem.use_lock)<br>    release(&amp;kmem.lock);<br>&#125;<br><br></code></pre></td></tr></table></figure>
+
+<p><code>kfree</code> 功能将一个物理内存页进行释放，并且将其添加到空闲内存链表内。这个步骤是需要进行原子操作的，因此会使用原子锁进行控制。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">// Allocate one 4096-byte page of physical memory.</span><br><span class="hljs-comment">// Returns a pointer that the kernel can use.</span><br><span class="hljs-comment">// Returns 0 if the memory cannot be allocated.</span><br><span class="hljs-type">char</span>*<br><span class="hljs-title function_">kalloc</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span><br>&#123;<br>  <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">run</span> *<span class="hljs-title">r</span>;</span><br><br>  <span class="hljs-keyword">if</span>(kmem.use_lock)<br>    acquire(&amp;kmem.lock);<br>  r = kmem.freelist;<br>  <span class="hljs-keyword">if</span>(r)<br>    kmem.freelist = r-&gt;next;<br>  <span class="hljs-keyword">if</span>(kmem.use_lock)<br>    release(&amp;kmem.lock);<br>  <span class="hljs-keyword">return</span> (<span class="hljs-type">char</span>*)r;<br>&#125;<br><br></code></pre></td></tr></table></figure>
+
+<p><code>kalloc</code> 则是分配一个 4096-byte 大小的物理内存，并且返回一个指向该内存页初始地址的指针。如果返回 0 的话，则是没有内存可以分配了。</p>
+<p>值得注意的是，分配器 allocator 通过虚拟地址映射来指向一个物理页，所以 <code>kinit </code> 使用 <code>P2V(PHYSTOP)</code> 来将物理地址 PHYSTOP 翻译成一个虚拟地址。分配器有时将地址视为整数以便对其进行算术（例如，遍历 kinit 中的所有页面），有时将地址用作读写内存的指针（例如，操作存储在每个页面中的运行结构）； 地址的双重使用是分配器代码充满 C 类型转换的主要原因。 另一个原因是释放和分配本质上改变了内存的类型。</p>
+<h1 id="User-part-of-an-address-space"><a href="#User-part-of-an-address-space" class="headerlink" title="User part of an address space"></a>User part of an address space</h1><p><img src="https://imgs.bencorn.com/imgs/xv6-Memory-2023-07-15-09-18-00.png" srcset="/img/loading.gif" lazyload alt="Memory layout of a user process with its initial stack"></p>
+<p>如图所示，xv6 进程的用户内存空间分布。每一个用户进程都从地址 0 开始。地址空间的地步是用户程序的具体内容 text，data，stack。堆 heap 在栈 stack 的上方，进程可以通过 <code>sbrk</code> 来扩展堆的大小。值得注意的是，text，data，stack 在进程地址空间内是连续的，但是 xv6 可以自由的为这些部分使用非连续的物理页。例如，当 xv6 扩展进程的 heap 时，可以使用任何空闲的物理页来构建新的虚拟页，然后使用页表硬件，通过编程将虚拟页映射到物理页。这种灵活性是使用分页硬件的主要优点。</p>
+<p>堆栈是一个页，并显示由 <code>exec</code> 创建的初始内容。 包含命令行参数的字符串以及指向它们的指针数组位于堆栈的最顶部。 就在其下方是允许程序在 <code>main</code> 处启动的值，就像函数调用 <code>main(argc, argv)</code> 刚刚启动一样。 为了保护堆栈从堆栈页增长，xv6 在堆栈的正下方放置了一个保护页。 保护页未映射，因此如果堆栈超出堆栈页，硬件将生成异常，因为它无法转换错误地址。 Linux等操作系统可能会为堆栈分配更多空间，以便它可以增长到超过一页。</p>
+<h2 id="Code：sbrk"><a href="#Code：sbrk" class="headerlink" title="Code：sbrk"></a>Code：sbrk</h2><p>sbrk 是一个系统调用，它可以为一个进程收缩或者增加内存。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">int</span><br><span class="hljs-title function_">sys_sbrk</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span><br>&#123;<br>  <span class="hljs-type">int</span> addr;<br>  <span class="hljs-type">int</span> n;<br><br>  <span class="hljs-keyword">if</span>(argint(<span class="hljs-number">0</span>, &amp;n) &lt; <span class="hljs-number">0</span>)<br>    <span class="hljs-keyword">return</span> <span class="hljs-number">-1</span>;<br>  addr = myproc()-&gt;sz;<br>  <span class="hljs-keyword">if</span>(growproc(n) &lt; <span class="hljs-number">0</span>)<br>    <span class="hljs-keyword">return</span> <span class="hljs-number">-1</span>;<br>  <span class="hljs-keyword">return</span> addr;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>该系统调用通过函数 <code>growproc</code> 来实现。如果 n 是正数，<code>growproc</code> 会分配一个或更多的物理页，并且映射他们到进程地址空间的顶部。如果 n 是负数，则会从进程地址空间的顶部取消一个或更多的页。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">// Grow current process&#x27;s memory by n bytes.</span><br><span class="hljs-comment">// Return 0 on success, -1 on failure.</span><br><span class="hljs-type">int</span><br><span class="hljs-title function_">growproc</span><span class="hljs-params">(<span class="hljs-type">int</span> n)</span><br>&#123;<br>  uint sz;<br>  <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">proc</span> *<span class="hljs-title">curproc</span> =</span> myproc();<br><br>  sz = curproc-&gt;sz;<br>  <span class="hljs-keyword">if</span>(n &gt; <span class="hljs-number">0</span>)&#123;<br>    <span class="hljs-keyword">if</span>((sz = allocuvm(curproc-&gt;pgdir, sz, sz + n)) == <span class="hljs-number">0</span>)<br>      <span class="hljs-keyword">return</span> <span class="hljs-number">-1</span>;<br>  &#125; <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span>(n &lt; <span class="hljs-number">0</span>)&#123;<br>    <span class="hljs-keyword">if</span>((sz = deallocuvm(curproc-&gt;pgdir, sz, sz + n)) == <span class="hljs-number">0</span>)<br>      <span class="hljs-keyword">return</span> <span class="hljs-number">-1</span>;<br>  &#125;<br>  curproc-&gt;sz = sz;<br>  switchuvm(curproc);<br>  <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>为了进行这些更改，xv6 修改了进程的页表。 进程的页表存储在内存中，因此内核可以使用普通的赋值语句更新页表，这就是 allocuvm 和 deallocuvm 所做的事情。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">// Allocate page tables and physical memory to grow process from oldsz to</span><br><span class="hljs-comment">// newsz, which need not be page aligned.  Returns new size or 0 on error.</span><br><span class="hljs-type">int</span><br><span class="hljs-title function_">allocuvm</span><span class="hljs-params">(<span class="hljs-type">pde_t</span> *pgdir, uint oldsz, uint newsz)</span><br>&#123;<br>  <span class="hljs-type">char</span> *mem;<br>  uint a;<br><br>  <span class="hljs-keyword">if</span>(newsz &gt;= KERNBASE)<br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>  <span class="hljs-keyword">if</span>(newsz &lt; oldsz)<br>    <span class="hljs-keyword">return</span> oldsz;<br><br>  a = PGROUNDUP(oldsz);<br>  <span class="hljs-keyword">for</span>(; a &lt; newsz; a += PGSIZE)&#123;<br>    mem = kalloc();<br>    <span class="hljs-keyword">if</span>(mem == <span class="hljs-number">0</span>)&#123;<br>      cprintf(<span class="hljs-string">&quot;allocuvm out of memory\n&quot;</span>);<br>      deallocuvm(pgdir, newsz, oldsz);<br>      <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>    &#125;<br>    <span class="hljs-built_in">memset</span>(mem, <span class="hljs-number">0</span>, PGSIZE);<br>    <span class="hljs-keyword">if</span>(mappages(pgdir, (<span class="hljs-type">char</span>*)a, PGSIZE, V2P(mem), PTE_W|PTE_U) &lt; <span class="hljs-number">0</span>)&#123;<br>      cprintf(<span class="hljs-string">&quot;allocuvm out of memory (2)\n&quot;</span>);<br>      deallocuvm(pgdir, newsz, oldsz);<br>      kfree(mem);<br>      <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>    &#125;<br>  &#125;<br>  <span class="hljs-keyword">return</span> newsz;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><code>allocuvm</code> 分配一个物理页，并且添加一个映射到页表内。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">// Deallocate user pages to bring the process size from oldsz to</span><br><span class="hljs-comment">// newsz.  oldsz and newsz need not be page-aligned, nor does newsz</span><br><span class="hljs-comment">// need to be less than oldsz.  oldsz can be larger than the actual</span><br><span class="hljs-comment">// process size.  Returns the new process size.</span><br><span class="hljs-type">int</span><br><span class="hljs-title function_">deallocuvm</span><span class="hljs-params">(<span class="hljs-type">pde_t</span> *pgdir, uint oldsz, uint newsz)</span><br>&#123;<br>  <span class="hljs-type">pte_t</span> *pte;<br>  uint a, pa;<br><br>  <span class="hljs-keyword">if</span>(newsz &gt;= oldsz)<br>    <span class="hljs-keyword">return</span> oldsz;<br><br>  a = PGROUNDUP(newsz);<br>  <span class="hljs-keyword">for</span>(; a  &lt; oldsz; a += PGSIZE)&#123;<br>    pte = walkpgdir(pgdir, (<span class="hljs-type">char</span>*)a, <span class="hljs-number">0</span>);<br>    <span class="hljs-keyword">if</span>(!pte)<br>      a = PGADDR(PDX(a) + <span class="hljs-number">1</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>) - PGSIZE;<br>    <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span>((*pte &amp; PTE_P) != <span class="hljs-number">0</span>)&#123;<br>      pa = PTE_ADDR(*pte);<br>      <span class="hljs-keyword">if</span>(pa == <span class="hljs-number">0</span>)<br>        panic(<span class="hljs-string">&quot;kfree&quot;</span>);<br>      <span class="hljs-type">char</span> *v = P2V(pa);<br>      kfree(v);<br>      *pte = <span class="hljs-number">0</span>;<br>    &#125;<br>  &#125;<br>  <span class="hljs-keyword">return</span> newsz;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><code>deallocuvm</code> 删除页表中的映射关系。并且调整具体的内存大小的值。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">// Switch TSS and h/w page table to correspond to process p.</span><br><span class="hljs-type">void</span><br><span class="hljs-title function_">switchuvm</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> proc *p)</span><br>&#123;<br>  <span class="hljs-keyword">if</span>(p == <span class="hljs-number">0</span>)<br>    panic(<span class="hljs-string">&quot;switchuvm: no process&quot;</span>);<br>  <span class="hljs-keyword">if</span>(p-&gt;kstack == <span class="hljs-number">0</span>)<br>    panic(<span class="hljs-string">&quot;switchuvm: no kstack&quot;</span>);<br>  <span class="hljs-keyword">if</span>(p-&gt;pgdir == <span class="hljs-number">0</span>)<br>    panic(<span class="hljs-string">&quot;switchuvm: no pgdir&quot;</span>);<br><br>  pushcli();<br>  mycpu()-&gt;gdt[SEG_TSS] = SEG16(STS_T32A, &amp;mycpu()-&gt;ts,<br>                                <span class="hljs-keyword">sizeof</span>(mycpu()-&gt;ts)<span class="hljs-number">-1</span>, <span class="hljs-number">0</span>);<br>  mycpu()-&gt;gdt[SEG_TSS].s = <span class="hljs-number">0</span>;<br>  mycpu()-&gt;ts.ss0 = SEG_KDATA &lt;&lt; <span class="hljs-number">3</span>;<br>  mycpu()-&gt;ts.esp0 = (uint)p-&gt;kstack + KSTACKSIZE;<br>  <span class="hljs-comment">// setting IOPL=0 in eflags *and* iomb beyond the tss segment limit</span><br>  <span class="hljs-comment">// forbids I/O instructions (e.g., inb and outb) from user space</span><br>  mycpu()-&gt;ts.iomb = (ushort) <span class="hljs-number">0xFFFF</span>;<br>  ltr(SEG_TSS &lt;&lt; <span class="hljs-number">3</span>);<br>  lcr3(V2P(p-&gt;pgdir));  <span class="hljs-comment">// switch to process&#x27;s address space</span><br>  popcli();<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>x86 硬件将页表条目缓存在 Translation Look-aside Buffer(TLB) 中，当 xv6 更改页表时，它必须使缓存的条目无效。如果它没有使缓存的条目无效，那么在稍后的某个时刻，TLB 可能会使用旧的映射，指向同时已分配给另一个进程的物理页，因此，进程可能能在其他进程的内存上修改。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">static</span> <span class="hljs-keyword">inline</span> <span class="hljs-type">void</span><br><span class="hljs-title function_">lcr3</span><span class="hljs-params">(uint val)</span><br>&#123;<br>  <span class="hljs-keyword">asm</span> <span class="hljs-title function_">volatile</span><span class="hljs-params">(<span class="hljs-string">&quot;movl %0,%%cr3&quot;</span> : : <span class="hljs-string">&quot;r&quot;</span> (val))</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>xv6 通过重新加载 cr3（保存当前页表地址的寄存器）来使过时的缓存条目无效。</p>
+<h2 id="Code：exec"><a href="#Code：exec" class="headerlink" title="Code：exec"></a>Code：exec</h2><p><code>exec</code> 是创建地址空间的用户部分的系统调用。它从文件系统中存储的文件初始化地址空间的用户部分。</p>
+<p><code>exec</code> 使用 <code>namei</code> 打开命名二进制路径。然后，它读取 ELF 标头。 xv6 应用程序使用 elf 格式，在 elf.h 中定义。 </p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">// Format of an ELF executable file</span><br><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> ELF_MAGIC 0x464C457FU  <span class="hljs-comment">// &quot;\x7FELF&quot; in little endian</span></span><br><br><span class="hljs-comment">// File header</span><br><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">elfhdr</span> &#123;</span><br>  uint magic;  <span class="hljs-comment">// must equal ELF_MAGIC</span><br>  uchar elf[<span class="hljs-number">12</span>];<br>  ushort type;<br>  ushort machine;<br>  uint version;<br>  uint entry;<br>  uint phoff;<br>  uint shoff;<br>  uint flags;<br>  ushort ehsize;<br>  ushort phentsize;<br>  ushort phnum;<br>  ushort shentsize;<br>  ushort shnum;<br>  ushort shstrndx;<br>&#125;;<br><br><span class="hljs-comment">// Program section header</span><br><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">proghdr</span> &#123;</span><br>  uint type;<br>  uint off;<br>  uint vaddr;<br>  uint paddr;<br>  uint filesz;<br>  uint memsz;<br>  uint flags;<br>  uint align;<br>&#125;;<br><br><span class="hljs-comment">// Values for Proghdr type</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> ELF_PROG_LOAD           1</span><br><br><span class="hljs-comment">// Flag bits for Proghdr flags</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> ELF_PROG_FLAG_EXEC      1</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> ELF_PROG_FLAG_WRITE     2</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> ELF_PROG_FLAG_READ      4</span><br><br></code></pre></td></tr></table></figure>
+<p>ELF 二进制文件由 ELF 头 struct elfhdr 组成，后面跟着一系列程序段头 struct proghdr。 每个 proghdr 描述了必须加载到内存中的应用程序的一部分； xv6 程序只有一个程序节标头，但其他系统可能有单独的指令和数据节。</p>
+<p>第一步是快速检查该文件是否可能包含 ELF 二进制文件。 ELF 二进制文件以四字节“幻数 ”0x7F、“E”、“L”、“F” 或 ELF_MAGIC 开头。 如果 ELF 标头具有正确的幻数，则 exec 会假定二进制文件格式良好。</p>
+<p><code>exec</code> 使用 setupkvm 分配一个没有用户映射的新页表，使用 allocuvm 为每个 ELF 段分配内存，并使用 loaduvm 将每个段加载到内存中。 allocuvm 检查请求的虚拟地址是否低于 KERNBASE。 loaduvm 使用 walkpgdir 查找已定位内存的物理地址，在该地址写入 ELF 段的每个页面，并使用 readi 从文件中读取。</p>
+<p>&#x2F;init（使用 exec 创建的第一个用户程序）的程序节标头如下所示：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs bash"><br><span class="hljs-comment"># objdump -p _init</span><br>_init:  file format elf32-i386<br>Program Header:<br>  LOAD off 0x00000054 vaddr 0x00000000 paddr 0x00000000 align 2**2<br>    filesz 0x000008c0 memsz 0x000008cc flags rwx<br><br></code></pre></td></tr></table></figure>
+
+
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/xv6/" class="category-chain-item">xv6</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/xv6/">#xv6</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>xv6-Memory</div>
+      <div>https://www.bencorn.com/2023/07/05/xv6-Memory/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Bencorn</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2023年7月5日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2023/07/15/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C-1/" title="计算机网络-1">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">计算机网络-1</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2023/06/14/1-%E4%B8%A4%E6%95%B0%E4%B9%8B%E5%92%8C/" title="1-两数之和">
+                        <span class="hidden-mobile">1-两数之和</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  
+  
+    <article id="comments" lazyload>
+      
+  <div id="gitalk-container"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#gitalk-container', function() {
+      Fluid.utils.createCssLink('/css/gitalk.css')
+      Fluid.utils.createScript('https://lib.baomitu.com/gitalk/1.8.0/gitalk.min.js', function() {
+        var options = Object.assign(
+          {"clientID":"c8e51936bf0945ca26ae","clientSecret":"e712730e967ff8834fa267ac7d2a6a11587a35ed","repo":"shatanyumi.github.io","owner":"shatanyumi","admin":["shatanyumi"],"language":"zh-CN","labels":["Gitalk"],"perPage":10,"pagerDirection":"last","distractionFreeMode":false,"createIssueManually":true,"proxy":"https://cloudflare-cors-anywhere.bencorn.com/?https://github.com/login/oauth/access_token"},
+          {
+            id: '089a50723838e7eea1a30df1cea7e1c7'
+          }
+        )
+        var gitalk = new Gitalk(options);
+        gitalk.render('gitalk-container');
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+    </article>
+  
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="busuanzi_container_site_pv" style="display: none">
+        总访问量 
+        <span id="busuanzi_value_site_pv"></span>
+         次
+      </span>
+    
+    
+      <span id="busuanzi_container_site_uv" style="display: none">
+        总访客数 
+        <span id="busuanzi_value_site_uv"></span>
+         人
+      </span>
+    
+    
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+
+        Fluid.events.registerRefreshCallback(function() {
+          if ('MathJax' in window && MathJax.startup.document && typeof MathJax.startup.document.state === 'function') {
+            MathJax.startup.document.state(0);
+            MathJax.texReset();
+            MathJax.typeset();
+            MathJax.typesetPromise();
+          }
+        });
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.2/es5/tex-mml-chtml.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

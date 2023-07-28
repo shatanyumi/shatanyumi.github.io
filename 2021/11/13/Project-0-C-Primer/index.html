@@ -1,0 +1,836 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/browser.png">
+  <link rel="icon" href="/img/browser.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+    <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Bencorn">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="Lab 1 Summary cmu15445第一个项目是学习C++，包括C++的面向对象、C++11&#x2F;14&#x2F;17特性，如智能指针等。同时也是对计算机基础知识的一个基本检验。  实验地址（以后可能用不了）：https:&#x2F;&#x2F;15445.courses.cs.cmu.edu&#x2F;fall2021&#x2F;project0&#x2F;  首先说一下这个部分用到的基本原理：  1、CPU cache会将一维数">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Project 0 C++ Primer">
+<meta property="og:url" content="https://www.bencorn.com/2021/11/13/Project-0-C-Primer/index.html">
+<meta property="og:site_name" content="Sparkplace">
+<meta property="og:description" content="Lab 1 Summary cmu15445第一个项目是学习C++，包括C++的面向对象、C++11&#x2F;14&#x2F;17特性，如智能指针等。同时也是对计算机基础知识的一个基本检验。  实验地址（以后可能用不了）：https:&#x2F;&#x2F;15445.courses.cs.cmu.edu&#x2F;fall2021&#x2F;project0&#x2F;  首先说一下这个部分用到的基本原理：  1、CPU cache会将一维数">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://imgs.bencorn.com/imgs/2021/11/13/20211113141101.png">
+<meta property="article:published_time" content="2021-11-13T06:09:56.000Z">
+<meta property="article:modified_time" content="2023-04-30T08:50:28.000Z">
+<meta property="article:author" content="Bencorn">
+<meta property="article:tag" content="CMU15445">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://imgs.bencorn.com/imgs/2021/11/13/20211113141101.png">
+  
+  
+    <meta name="referrer" content="no-referrer-when-downgrade">
+  
+  
+  <title>Project 0 C++ Primer - Sparkplace</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"www.bencorn.com","root":"/","version":"1.9.4","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":"G-PPB8YXR0QF","gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+
+  
+    <!-- Google Analytics -->
+    <script async>
+      if (!Fluid.ctx.dnt) {
+        Fluid.utils.createScript('https://www.google-analytics.com/analytics.js', function() {
+          window.ga = window.ga || function() { (ga.q = ga.q || []).push(arguments) };
+          ga.l = +new Date;
+          ga('create', 'G-PPB8YXR0QF', 'auto');
+          ga('send', 'pageview');
+        });
+      }
+    </script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>妙想屋</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/links/">
+                <i class="iconfont icon-link-fill"></i>
+                <span>友链</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="Project 0 C++ Primer"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2021-11-13 14:09" pubdate>
+          2021年11月13日 下午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          4.2k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          35 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="busuanzi_container_page_pv" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="busuanzi_value_page_pv"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">Project 0 C++ Primer</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h2 id="Lab-1-Summary"><a href="#Lab-1-Summary" class="headerlink" title="Lab 1 Summary"></a>Lab 1 Summary</h2><p> cmu15445第一个项目是学习C++，包括C++的面向对象、C++11&#x2F;14&#x2F;17特性，如智能指针等。同时也是对计算机基础知识的一个基本检验。</p>
+<p> 实验地址（以后可能用不了）：<a target="_blank" rel="noopener" href="https://15445.courses.cs.cmu.edu/fall2021/project0/">https://15445.courses.cs.cmu.edu/fall2021/project0/</a></p>
+<p> 首先说一下这个部分用到的基本原理：</p>
+<ul>
+<li>1、CPU cache会将一维数组进行缓存，因此对RowMatrix中二维数组内存的开辟和使用Matrix中的linear一维数组，这样可以更好的使用CPU cache这一机制，提升代码速度；</li>
+<li>2、C++多态，以及智能指针unique_ptr独占指针实现安全；</li>
+</ul>
+<h2 id="具体实现"><a href="#具体实现" class="headerlink" title="具体实现"></a>具体实现</h2><p> 接下来是每个部分的实现，可能会有错误的地方，C++语言特性目前还不是特别的熟悉，菜~</p>
+<h3 id="TODO-1-Construct-a-new-Matrix-instance"><a href="#TODO-1-Construct-a-new-Matrix-instance" class="headerlink" title="TODO 1 Construct a new Matrix instance"></a>TODO 1 Construct a new Matrix instance</h3><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs c++"><span class="hljs-built_in">Matrix</span>(<span class="hljs-type">int</span> rows, <span class="hljs-type">int</span> cols) &#123;<br>    rows_ = rows;<br>    cols_ = cols;<br>    <span class="hljs-type">int</span> len = rows * cols;<br>    linear_ = <span class="hljs-keyword">new</span> T[len];<br>    <span class="hljs-built_in">memset</span>(linear_, <span class="hljs-number">0</span>, <span class="hljs-built_in">sizeof</span>(T) * len);<br>  &#125;<br></code></pre></td></tr></table></figure>
+
+<h3 id="TODO-2-Destroy-a-matrix-instance"><a href="#TODO-2-Destroy-a-matrix-instance" class="headerlink" title="TODO 2 Destroy a matrix instance"></a>TODO 2 Destroy a matrix instance</h3><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c++"><span class="hljs-keyword">virtual</span> ~<span class="hljs-built_in">Matrix</span>() &#123; <span class="hljs-keyword">delete</span>[] linear_; &#125;<br></code></pre></td></tr></table></figure>
+
+<h3 id="TODO-3-Construct-a-new-RowMatrix-instance"><a href="#TODO-3-Construct-a-new-RowMatrix-instance" class="headerlink" title="TODO 3 Construct a new RowMatrix instance"></a>TODO 3 Construct a new RowMatrix instance</h3><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs C++"><span class="hljs-built_in">RowMatrix</span>(<span class="hljs-type">int</span> rows, <span class="hljs-type">int</span> cols) : <span class="hljs-built_in">Matrix</span>&lt;T&gt;(rows, cols) &#123;<br>    data_ = <span class="hljs-keyword">new</span> T *[rows];<br>    <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> i = <span class="hljs-number">0</span>; i &lt; rows; ++i) &#123;<br>      data_[i] = <span class="hljs-keyword">this</span>-&gt;linear_ + i * cols;<br>    &#125;<br>  &#125;<br></code></pre></td></tr></table></figure>
+
+<h3 id="TODO-4-Implementation-getter-and-setter"><a href="#TODO-4-Implementation-getter-and-setter" class="headerlink" title="TODO 4 Implementation getter and setter"></a>TODO 4 Implementation getter and setter</h3><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs C++"><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">GetRowCount</span><span class="hljs-params">()</span> <span class="hljs-type">const</span> <span class="hljs-keyword">override</span> </span>&#123; <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>-&gt;rows_; &#125;<br><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">GetColumnCount</span><span class="hljs-params">()</span> <span class="hljs-type">const</span> <span class="hljs-keyword">override</span> </span>&#123; <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>-&gt;cols_; &#125;<br><br><span class="hljs-function">T <span class="hljs-title">GetElement</span><span class="hljs-params">(<span class="hljs-type">int</span> i, <span class="hljs-type">int</span> j)</span> <span class="hljs-type">const</span> <span class="hljs-keyword">override</span> </span>&#123;<br>    <span class="hljs-keyword">if</span> (i &lt; <span class="hljs-number">0</span> || i &gt;= <span class="hljs-keyword">this</span>-&gt;rows_ || j &lt; <span class="hljs-number">0</span> || j &gt;= <span class="hljs-keyword">this</span>-&gt;cols_) &#123;<br>      <span class="hljs-keyword">throw</span> <span class="hljs-built_in">Exception</span>(ExceptionType::OUT_OF_RANGE, <span class="hljs-string">&quot;Void Get Element: index is out of range.&quot;</span>);<br>    &#125;<br>    <span class="hljs-keyword">return</span> data_[i][j];<br>  &#125;<br><br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">SetElement</span><span class="hljs-params">(<span class="hljs-type">int</span> i, <span class="hljs-type">int</span> j, T val)</span> <span class="hljs-keyword">override</span> </span>&#123;<br>    <span class="hljs-keyword">if</span> (i &lt; <span class="hljs-number">0</span> || i &gt;= <span class="hljs-keyword">this</span>-&gt;rows_ || j &lt; <span class="hljs-number">0</span> || j &gt;= <span class="hljs-keyword">this</span>-&gt;cols_) &#123;<br>      <span class="hljs-keyword">throw</span> <span class="hljs-built_in">Exception</span>(ExceptionType::OUT_OF_RANGE, <span class="hljs-string">&quot;Void Set Element: index out of range&quot;</span>);<br>    &#125;<br>    data_[i][j] = val;<br>  &#125;<br></code></pre></td></tr></table></figure>
+
+<h3 id="TODO-5-Fill-from-source-container"><a href="#TODO-5-Fill-from-source-container" class="headerlink" title="TODO 5 Fill from source container"></a>TODO 5 Fill from source container</h3><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs C++"><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">FillFrom</span><span class="hljs-params">(<span class="hljs-type">const</span> std::vector&lt;T&gt; &amp;source)</span> <span class="hljs-keyword">override</span> </span>&#123;<br>    <span class="hljs-type">int</span> size = source.<span class="hljs-built_in">size</span>();<br>    <span class="hljs-keyword">if</span> (size != <span class="hljs-keyword">this</span>-&gt;rows_ * <span class="hljs-keyword">this</span>-&gt;cols_) &#123;<br>      <span class="hljs-keyword">throw</span> <span class="hljs-built_in">Exception</span>(ExceptionType::OUT_OF_RANGE, <span class="hljs-string">&quot;source does not contain the required number of elements&quot;</span>);<br>    &#125;<br>    <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> i = <span class="hljs-number">0</span>; i &lt; size; ++i) &#123;<br>      <span class="hljs-keyword">this</span>-&gt;linear_[i] = source[i];<br>    &#125;<br>  &#125;<br></code></pre></td></tr></table></figure>
+
+<h3 id="TODO-6-Destroy-a-RowMatrix-instance"><a href="#TODO-6-Destroy-a-RowMatrix-instance" class="headerlink" title="TODO 6 Destroy a RowMatrix instance"></a>TODO 6 Destroy a RowMatrix instance</h3><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs C++">~<span class="hljs-built_in">RowMatrix</span>() <span class="hljs-keyword">override</span> &#123; <span class="hljs-keyword">delete</span>[] data_; &#125;<br></code></pre></td></tr></table></figure>
+
+<h3 id="TODO-7-RowMatrix-ADD"><a href="#TODO-7-RowMatrix-ADD" class="headerlink" title="TODO 7 RowMatrix ADD"></a>TODO 7 RowMatrix ADD</h3><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><code class="hljs c++"><span class="hljs-type">static</span> std::unique_ptr&lt;RowMatrix&lt;T&gt;&gt; <span class="hljs-built_in">Add</span>(<span class="hljs-type">const</span> RowMatrix&lt;T&gt; *matrixA, <span class="hljs-type">const</span> RowMatrix&lt;T&gt; *matrixB) &#123;<br>    <span class="hljs-comment">// TODO(P0): Add implementation</span><br><br>    <span class="hljs-keyword">if</span> (matrixA-&gt;<span class="hljs-built_in">GetRowCount</span>() != matrixB-&gt;<span class="hljs-built_in">GetRowCount</span>() || matrixA-&gt;<span class="hljs-built_in">GetColumnCount</span>() != matrixB-&gt;<span class="hljs-built_in">GetColumnCount</span>()) &#123;<br>      <span class="hljs-keyword">return</span> std::unique_ptr&lt;RowMatrix&lt;T&gt;&gt;(<span class="hljs-literal">nullptr</span>);<br>    &#125;<br><br>    <span class="hljs-type">int</span> rows = matrixA-&gt;<span class="hljs-built_in">GetRowCount</span>();<br>    <span class="hljs-type">int</span> cols = matrixA-&gt;<span class="hljs-built_in">GetColumnCount</span>();<br>    std::unique_ptr&lt;RowMatrix&lt;T&gt;&gt; ret = std::make_unique&lt;RowMatrix&lt;T&gt;&gt;(rows, cols);<br><br>    <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> i = <span class="hljs-number">0</span>; i &lt; rows; ++i) &#123;<br>      <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> j = <span class="hljs-number">0</span>; j &lt; cols; ++j) &#123;<br>        ret-&gt;<span class="hljs-built_in">SetElement</span>(i, j, matrixA-&gt;<span class="hljs-built_in">GetElement</span>(i, j) + matrixB-&gt;<span class="hljs-built_in">GetElement</span>(i, j));<br>      &#125;<br>    &#125;<br>    <span class="hljs-keyword">return</span> ret;<br>  &#125;<br></code></pre></td></tr></table></figure>
+
+<h3 id="TODO-8-RowMatrix-Multiply"><a href="#TODO-8-RowMatrix-Multiply" class="headerlink" title="TODO 8 RowMatrix Multiply"></a>TODO 8 RowMatrix Multiply</h3><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><code class="hljs C++"><span class="hljs-type">static</span> std::unique_ptr&lt;RowMatrix&lt;T&gt;&gt; <span class="hljs-built_in">Multiply</span>(<span class="hljs-type">const</span> RowMatrix&lt;T&gt; *matrixA, <span class="hljs-type">const</span> RowMatrix&lt;T&gt; *matrixB) &#123;<br>    <span class="hljs-comment">// TODO(P0): Add implementation</span><br><br>    <span class="hljs-keyword">if</span> (matrixA-&gt;<span class="hljs-built_in">GetColumnCount</span>() != matrixB-&gt;<span class="hljs-built_in">GetRowCount</span>()) &#123;<br>      <span class="hljs-keyword">return</span> std::unique_ptr&lt;RowMatrix&lt;T&gt;&gt;(<span class="hljs-literal">nullptr</span>);<br>    &#125;<br><br>    <span class="hljs-type">int</span> rows = matrixA-&gt;<span class="hljs-built_in">GetRowCount</span>();<br>    <span class="hljs-type">int</span> lines = matrixA-&gt;<span class="hljs-built_in">GetColumnCount</span>();<br>    <span class="hljs-type">int</span> cols = matrixB-&gt;<span class="hljs-built_in">GetColumnCount</span>();<br><br>    std::unique_ptr&lt;RowMatrix&lt;T&gt;&gt; ret = std::make_unique&lt;RowMatrix&lt;T&gt;&gt;(rows, cols);<br><br>    <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> i = <span class="hljs-number">0</span>; i &lt; rows; ++i) &#123;<br>      <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> j = <span class="hljs-number">0</span>; j &lt; cols; ++j) &#123;<br>        <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> k = <span class="hljs-number">0</span>; k &lt; lines; ++k) &#123;<br>          ret-&gt;<span class="hljs-built_in">SetElement</span>(i, j, ret-&gt;<span class="hljs-built_in">GetElement</span>(i, j) + matrixA-&gt;<span class="hljs-built_in">GetElement</span>(i, k) * matrixB-&gt;<span class="hljs-built_in">GetElement</span>(k, j));<br>        &#125;<br>      &#125;<br>    &#125;<br>    <span class="hljs-keyword">return</span> ret;<br>  &#125;<br></code></pre></td></tr></table></figure>
+
+<h3 id="TODO-9-RowMatrix-GEMM"><a href="#TODO-9-RowMatrix-GEMM" class="headerlink" title="TODO 9 RowMatrix GEMM"></a>TODO 9 RowMatrix GEMM</h3><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><code class="hljs C++"><span class="hljs-type">static</span> std::unique_ptr&lt;RowMatrix&lt;T&gt;&gt; <span class="hljs-built_in">GEMM</span>(<span class="hljs-type">const</span> RowMatrix&lt;T&gt; *matrixA, <span class="hljs-type">const</span> RowMatrix&lt;T&gt; *matrixB,<br>                                            <span class="hljs-type">const</span> RowMatrix&lt;T&gt; *matrixC) &#123;<br>    <span class="hljs-comment">// TODO(P0): Add implementation</span><br><br>    <span class="hljs-keyword">if</span> (matrixA-&gt;<span class="hljs-built_in">GetColumnCount</span>() != matrixB-&gt;<span class="hljs-built_in">GetRowCount</span>()) &#123;<br>      <span class="hljs-keyword">return</span> std::unique_ptr&lt;RowMatrix&lt;T&gt;&gt;(<span class="hljs-literal">nullptr</span>);<br>    &#125;<br><br>    <span class="hljs-keyword">if</span> (matrixA-&gt;<span class="hljs-built_in">GetRowCount</span>() != matrixC-&gt;<span class="hljs-built_in">GetRowCount</span>() || matrixB-&gt;<span class="hljs-built_in">GetColumnCount</span>() != matrixC-&gt;<span class="hljs-built_in">GetColumnCount</span>()) &#123;<br>      <span class="hljs-keyword">return</span> std::unique_ptr&lt;RowMatrix&lt;T&gt;&gt;(<span class="hljs-literal">nullptr</span>);<br>    &#125;<br><br>    <span class="hljs-keyword">auto</span> ret = <span class="hljs-built_in">Multiply</span>(matrixA, matrixB);<br>    <span class="hljs-keyword">if</span> (ret == <span class="hljs-literal">nullptr</span>) &#123;<br>      <span class="hljs-keyword">return</span> <span class="hljs-literal">nullptr</span>;<br>    &#125;<br><br>    <span class="hljs-keyword">return</span> <span class="hljs-built_in">Add</span>(ret.<span class="hljs-built_in">get</span>(), matrixC);<br>  &#125;<br></code></pre></td></tr></table></figure>
+
+<h2 id="Tests"><a href="#Tests" class="headerlink" title="Tests"></a>Tests</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs shell">cd build<br>make start_test<br>./test/start_test<br><br></code></pre></td></tr></table></figure>
+
+<p><img src="https://imgs.bencorn.com/imgs/2021/11/13/20211113143446.png" srcset="/img/loading.gif" lazyload alt="测试结果1"></p>
+<p><img src="https://imgs.bencorn.com/imgs/2021/11/13/20211113143508.png" srcset="/img/loading.gif" lazyload alt="测试结果2"></p>
+<h2 id="Gradescope"><a href="#Gradescope" class="headerlink" title="Gradescope"></a>Gradescope</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs shell">make format<br>make check-lint<br>make check-clang-tidy<br>cd ..<br>zip -q -r project0-submission.zip src/include/primer/p0_starter.h<br><br></code></pre></td></tr></table></figure>
+
+
+
+<p><img src="https://imgs.bencorn.com/imgs/2021/11/13/20211113174633.png" srcset="/img/loading.gif" lazyload alt="grade测试结果"></p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/CMU15445/" class="category-chain-item">CMU15445</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/CMU15445/">#CMU15445</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>Project 0 C++ Primer</div>
+      <div>https://www.bencorn.com/2021/11/13/Project-0-C-Primer/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Bencorn</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2021年11月13日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2022/01/22/%E5%B7%A5%E5%85%B7%E8%AE%B0%E5%BD%95/" title="工具记录">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">工具记录</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2021/08/13/Lab2-Memory-Management/" title="Lab2 Memory Management">
+                        <span class="hidden-mobile">Lab2 Memory Management</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  
+  
+    <article id="comments" lazyload>
+      
+  <div id="gitalk-container"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#gitalk-container', function() {
+      Fluid.utils.createCssLink('/css/gitalk.css')
+      Fluid.utils.createScript('https://lib.baomitu.com/gitalk/1.8.0/gitalk.min.js', function() {
+        var options = Object.assign(
+          {"clientID":"c8e51936bf0945ca26ae","clientSecret":"e712730e967ff8834fa267ac7d2a6a11587a35ed","repo":"shatanyumi.github.io","owner":"shatanyumi","admin":["shatanyumi"],"language":"zh-CN","labels":["Gitalk"],"perPage":10,"pagerDirection":"last","distractionFreeMode":false,"createIssueManually":true,"proxy":"https://cloudflare-cors-anywhere.bencorn.com/?https://github.com/login/oauth/access_token"},
+          {
+            id: 'e443acdc6537d03f3eb1ea0bd35b2625'
+          }
+        )
+        var gitalk = new Gitalk(options);
+        gitalk.render('gitalk-container');
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+    </article>
+  
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="busuanzi_container_site_pv" style="display: none">
+        总访问量 
+        <span id="busuanzi_value_site_pv"></span>
+         次
+      </span>
+    
+    
+      <span id="busuanzi_container_site_uv" style="display: none">
+        总访客数 
+        <span id="busuanzi_value_site_uv"></span>
+         人
+      </span>
+    
+    
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+
+        Fluid.events.registerRefreshCallback(function() {
+          if ('MathJax' in window && MathJax.startup.document && typeof MathJax.startup.document.state === 'function') {
+            MathJax.startup.document.state(0);
+            MathJax.texReset();
+            MathJax.typeset();
+            MathJax.typesetPromise();
+          }
+        });
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.2/es5/tex-mml-chtml.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

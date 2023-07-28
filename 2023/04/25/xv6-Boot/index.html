@@ -1,0 +1,854 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/browser.png">
+  <link rel="icon" href="/img/browser.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+    <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Bencorn">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="简介学习 xv6 的同时，对照 Linux 0.11 源代码进行理解，希望自己能够有所提升吧。顺便给自己立一个 flag，看能不能花两个月的时间啃完。 xv6 这儿有源文件 是一个 UNIX 风格的操作系统。后续的代码，我会按照顺序，对其进行拆分，和一些自己理解的说明，其实基本上内容都是在 xv6 的这本书里。 The boot loaderxv6 是基于 X86 的，可以参考的芯片手册是 i38">
+<meta property="og:type" content="article">
+<meta property="og:title" content="xv6-Boot">
+<meta property="og:url" content="https://www.bencorn.com/2023/04/25/xv6-Boot/index.html">
+<meta property="og:site_name" content="Sparkplace">
+<meta property="og:description" content="简介学习 xv6 的同时，对照 Linux 0.11 源代码进行理解，希望自己能够有所提升吧。顺便给自己立一个 flag，看能不能花两个月的时间啃完。 xv6 这儿有源文件 是一个 UNIX 风格的操作系统。后续的代码，我会按照顺序，对其进行拆分，和一些自己理解的说明，其实基本上内容都是在 xv6 的这本书里。 The boot loaderxv6 是基于 X86 的，可以参考的芯片手册是 i38">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://imgs.bencorn.com/imgs/xv6-Boot-2023-04-25-18-53-50.png">
+<meta property="article:published_time" content="2023-04-25T07:38:49.000Z">
+<meta property="article:modified_time" content="2023-07-18T08:04:35.000Z">
+<meta property="article:author" content="Bencorn">
+<meta property="article:tag" content="xv6">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://imgs.bencorn.com/imgs/xv6-Boot-2023-04-25-18-53-50.png">
+  
+  
+    <meta name="referrer" content="no-referrer-when-downgrade">
+  
+  
+  <title>xv6-Boot - Sparkplace</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"www.bencorn.com","root":"/","version":"1.9.4","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":"G-PPB8YXR0QF","gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+
+  
+    <!-- Google Analytics -->
+    <script async>
+      if (!Fluid.ctx.dnt) {
+        Fluid.utils.createScript('https://www.google-analytics.com/analytics.js', function() {
+          window.ga = window.ga || function() { (ga.q = ga.q || []).push(arguments) };
+          ga.l = +new Date;
+          ga('create', 'G-PPB8YXR0QF', 'auto');
+          ga('send', 'pageview');
+        });
+      }
+    </script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>妙想屋</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/links/">
+                <i class="iconfont icon-link-fill"></i>
+                <span>友链</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="xv6-Boot"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2023-04-25 15:38" pubdate>
+          2023年4月25日 下午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          11k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          91 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="busuanzi_container_page_pv" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="busuanzi_value_page_pv"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">xv6-Boot</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><p>学习 xv6 的同时，对照 Linux 0.11 源代码进行理解，希望自己能够有所提升吧。顺便给自己立一个 flag，看能不能花两个月的时间啃完。</p>
+<p>xv6 <a href="./book-rev11.pdf">这儿有源文件</a> 是一个 UNIX 风格的操作系统。后续的代码，我会按照顺序，对其进行拆分，和一些自己理解的说明，其实基本上内容都是在 xv6 的这本书里。</p>
+<h1 id="The-boot-loader"><a href="#The-boot-loader" class="headerlink" title="The boot loader"></a>The boot loader</h1><p>xv6 是基于 X86 的，可以参考的芯片手册是 i386。在实验部分有细讲。当 X86 的机子开机的时候，PC 会首先执行 BIOS（Basic Input&#x2F;Output System）程序，BIOS 是保存在主板上的非易失性存储器上。</p>
+<p>BIOS 的任务是准备好 PC 的硬件，然后将控制权转移给操作系统。BIOS 首先会把控制权转移给保存在启动盘的第一个 512 字节的扇区内的代码，也就是 boot loader：一些汇编代码组成的指令，它主要把内核加载到内存。BIOS 把启动扇区内的 boot loader 加载到内存地址为 0x7c00 的地方，然后将处理器的 pc（%ip） 设置为该地址。</p>
+<p>当 boot loader 开始执行，处理器模拟 Intel 8088 模式（16-bit 实模式）运行，并且 boot loader 的任务就是处理器设置成为现代处理器模式（32-bit 保护模式）。然后 boot loader 从磁盘把 xv6 的内核加载到内存，把控制权转交给内核。xv6 的 boot loader 分为两个文件，分别是 bootasm.S 和 bootmain.c</p>
+<h2 id="Code-Assembly-bootstrap"><a href="#Code-Assembly-bootstrap" class="headerlink" title="Code: Assembly bootstrap"></a>Code: Assembly bootstrap</h2><p>boot loader 的第一条指令是 cli，它的作用是关中断（中断：硬件提供的调用操作系统的中断处理函数的机制）。为啥要关中断呢？现代处理器的 BIOS 实际上是一个小型的操作系统，BIOS 在运行的时候，可能也会使用一些中断处理函数来初始化硬件。但是，在运行 boot loader 的时候，BIOS 已经没有运行了，原来定义的中断处理函数例程不应该再被使用，所以就要先关中断。所以，也会猜到，当 xv6 操作系统就绪的时候，中断应该会再次被打开，而此时的中断服务例程是由 xv6 提供。</p>
+<figure class="highlight x86asm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs x86asm">#include <span class="hljs-string">&quot;asm.h&quot;</span><br>#include <span class="hljs-string">&quot;memlayout.h&quot;</span><br>#include <span class="hljs-string">&quot;mmu.h&quot;</span><br><br># Start the first <span class="hljs-meta">CPU</span>: switch to <span class="hljs-number">32</span>-bit protected mode, jump <span class="hljs-keyword">into</span> C.<br># The BIOS loads this code from the first sector of the hard disk <span class="hljs-keyword">into</span><br># memory <span class="hljs-meta">at</span> physical address <span class="hljs-number">0x7c00</span> <span class="hljs-keyword">and</span> starts executing <span class="hljs-keyword">in</span> real mode<br># with %cs=<span class="hljs-number">0</span> %ip=7c00.<br><span class="hljs-meta"></span><br><span class="hljs-meta">.code16</span>                       # Assemble for <span class="hljs-number">16</span>-bit mode<br><span class="hljs-meta">.globl</span> start<br><span class="hljs-symbol">start:</span><br>  <span class="hljs-keyword">cli</span>                         # BIOS enabled interrupts<span class="hljs-comment">; disable</span><br></code></pre></td></tr></table></figure>
+
+<p>接下来就是老生常谈了，X86 的特点了，兼容性带来的一系列的特殊东西。<br>具体的细节可以查询这个手册：<a target="_blank" rel="noopener" href="https://www.intel.com/content/www/us/en/developer/articles/technical/intel-sdm.html">https://www.intel.com/content/www/us/en/developer/articles/technical/intel-sdm.html</a></p>
+<p>现在，X86 处理器是运行在实模式的，它实际上是模拟 Intel 8088 运行机制。实模式下有以下特征，总共有 8 个 16-bit 的通用寄存器，但是 CPU 进行内存访问使用的是 20-bit 的地址。所以段寄存器 <code>%cs，%ds，%es，%ss</code>为 16-bit 的寄存器们提供额外的 4-bit 的寻址，来凑齐 20-bit，这样的机制是处理器本身的硬件结构设计导致的，至于为什么，估计是为了兼容性导致的了。当程序在访问内存的时候，处理器会自动将段寄存器的值乘以 16，然后加上这些寄存器里的内存地址。内存使用的种类通常会指明使用哪个寄存器：指令的获取使用代码段寄存器<code>%cs</code>，数据的读写使用数据段寄存器<code>%ds</code>。</p>
+<p><img src="https://imgs.bencorn.com/imgs/xv6-Boot-2023-04-26-11-08-04.png" srcset="/img/loading.gif" lazyload alt="relationship between logical，linear，physical address"></p>
+<p>xv6 是假设 X86 的指令，对其内存操作数是使用的虚拟地址（virtual address），但是一条 X86 指令实际上使用的是逻辑地址（logical address）。一条逻辑地址包含段选择子（segment selector）和偏移（offset），可以写作<code>segment:offset</code>。常见的情况是，段是隐式的，程序实际上只操作偏移量。段处理相关的硬件，将逻辑地址转换为线性地址（linear address）。如果页相关的硬件支持打开的话，那么页处理相关的硬件将会把线性地址转换为物理地址（physical address）；如果页没有启用，那么处理器会将线性地址，直接当做物理地址来使用。</p>
+<p>说明：虚拟地址就是程序操纵的地址，出于历史原因被这样叫做。其他三个地址概念是 Intel 处理器出现的硬件上的概念。</p>
+<p>boot loader 是没有使用页机制的，逻辑地址被直接转换为线性地址，线性地址直接当做物理地址使用。xv6 配置硬件将逻辑地址翻译为线性地址，并且不做任何改变，所以此时的逻辑地址和线性地址是相等的。xv6 的虚拟地址是和 X86 的逻辑地址是相同的，并且和线性地址相同。（虽然很奇怪，段机制没有使用上的感觉，xv6 的逻辑是这样的）当页机制开起的时候，线性地址转换为物理地址就成了我们后续唯一需要重点关注的。</p>
+<p>BIOS 并没有保证<code>%ds，%es，%ss</code>的值为某个特定的值，因此第一件事情就是对每个段寄存器清零。那为什么要用<code>xorw %ax,%ax</code>，而不是<code>movw $0,%ax</code>呢，在逻辑电路上边儿表示的话，应该是会更快一点。</p>
+<figure class="highlight x86asm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs x86asm"># <span class="hljs-meta">Zero</span> data <span class="hljs-meta">segment</span> registers <span class="hljs-built_in">DS</span>, <span class="hljs-built_in">ES</span>, <span class="hljs-keyword">and</span> <span class="hljs-built_in">SS</span>.<br>xorw    %ax,%ax             # Set %ax to <span class="hljs-meta">zero</span><br>movw    %ax,%ds             # -&gt; Data <span class="hljs-meta">Segment</span><br>movw    %ax,%es             # -&gt; Extra <span class="hljs-meta">Segment</span><br>movw    %ax,%ss             # -&gt; Stack <span class="hljs-meta">Segment</span><br></code></pre></td></tr></table></figure>
+
+<p>地址<code>segment:offset</code>可以达到 21-bit 的物理地址，但是 Intel 8088 只能使用 20-bit 的内存地址，所以丢弃掉了高地址<code>0xffff0 + 0xffff = 0x10ffef</code>,但是虚拟地址<code>0xffff:0xffff</code>指向物理地址的<code>0x0ffef</code>。早期的依赖硬件的一些软件会选择忽略到第 21 位地址，IBM 提供了一种方式让硬件更加的灵活。它是这样操作的，如果键盘控制器的输出端口的第 2 个bit位是关着的，那么第 21 位物理地址总是清零；如果是开着的，那么第 21 位地址是正常的。boot loader 必须将第 21 位地址位变为可用，把键盘控制器端口<code>0x64</code>和<code>0x60</code>设置为开起，即可达到该效果。</p>
+<figure class="highlight x86asm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs x86asm"> # Physical address line A20 is tied to <span class="hljs-meta">zero</span> so that the first PCs <br>  # with <span class="hljs-number">2</span> MB would run software that assumed <span class="hljs-number">1</span> MB.  Undo that.<br><span class="hljs-symbol">seta20.1:</span><br>  inb     <span class="hljs-number">$0</span>x64,%al               # Wait for <span class="hljs-keyword">not</span> busy<br>  testb   <span class="hljs-number">$0</span>x2,%al<br>  <span class="hljs-keyword">jnz</span>     seta20<span class="hljs-number">.1</span><br><br>  movb    <span class="hljs-number">$0</span>xd1,%al               # <span class="hljs-number">0xd1</span> -&gt; port <span class="hljs-number">0x64</span><br>  outb    %al,<span class="hljs-number">$0</span>x64<br><span class="hljs-symbol"></span><br><span class="hljs-symbol">seta20.2:</span><br>  inb     <span class="hljs-number">$0</span>x64,%al               # Wait for <span class="hljs-keyword">not</span> busy<br>  testb   <span class="hljs-number">$0</span>x2,%al<br>  <span class="hljs-keyword">jnz</span>     seta20<span class="hljs-number">.2</span><br><br>  movb    <span class="hljs-number">$0</span>xdf,%al               # <span class="hljs-number">0xdf</span> -&gt; port <span class="hljs-number">0x60</span><br>  outb    %al,<span class="hljs-number">$0</span>x60<br></code></pre></td></tr></table></figure>
+
+<p>实模式 16-bit 的通用寄存器和段寄存器，最多只能访问 1M 的内存，X86 处理器从 80286 开始支持保护模式，增加了寻址能力，然后 80386 支持 32-bit 模式， 让寻址、寄存器等支持 32 位。</p>
+<p>保护模式下，段寄存器是一个到段描述符表（segment descriptor table）的索引。每个表条目都指定一个物理地址基址（base），一个最大虚拟地址的限制（limit），一个权限控制 bit （permission bits）等组成。权限控制位在保护模式下，让操作系统内核保证代码只能使用自己的内存，这样就可以起到保护作用。</p>
+<p><img src="https://imgs.bencorn.com/imgs/xv6-Boot-2023-04-27-09-37-32.png" srcset="/img/loading.gif" lazyload alt="Segment in protected mode"></p>
+<p>xv6 基本上没使用段，它主要使用的是页机制。xv6 的 boot loader 设置好短描述符表 gdt，让每个表项的基地址都为 0，同时每个表项的最大可能的限制都设置为 4G。段描述符表有一个空的表项，一个执行代码段表项，一个数据段表项。代码段描述符有一个标志（flag）位设置，它可以表示代码是运行在 32-bit 模式的，当这个开起的时候，boot loader 进入保护模式，逻辑地址就一条一条的被映射成为物理地址（注意这个时候还没有开起页机制，线性地址就是当做物理地址用）。</p>
+<figure class="highlight x86asm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs x86asm"><br># Bootstrap GDT<br><span class="hljs-meta">.p2align</span> <span class="hljs-number">2</span>                                # force <span class="hljs-number">4</span> <span class="hljs-built_in">byte</span> alignment<br><span class="hljs-symbol">gdt:</span><br>  SEG_NULLASM                             # null <span class="hljs-built_in">seg</span><br>  SEG_ASM(STA_X|STA_R, <span class="hljs-number">0x0</span>, <span class="hljs-number">0xffffffff</span>)   # code <span class="hljs-built_in">seg</span><br>  SEG_ASM(STA_W, <span class="hljs-number">0x0</span>, <span class="hljs-number">0xffffffff</span>)         # data <span class="hljs-built_in">seg</span><br><span class="hljs-symbol"></span><br><span class="hljs-symbol">gdtdesc:</span><br><span class="hljs-meta">  .word</span>   (gdtdesc - gdt - <span class="hljs-number">1</span>)             # sizeof(gdt) - <span class="hljs-number">1</span><br><span class="hljs-meta">  .long</span>   gdt                             # address gdt<br><br></code></pre></td></tr></table></figure>
+
+<p>boot loader 执行 <code>lgdt</code> 指令，将段描述符表的信息 <code>gdtdesc</code> 加载到全局描述符表寄存器（GDT register，简称 gdtr），寄存器的值指向全局描述符表 <code>gdt</code>。当 boot loader 加载了全局描述符表寄存器，boot loader 通过将寄存器 <code>%cr0</code> 的 1 bit（CR0_PE） 位设置开起保护模式。</p>
+<figure class="highlight x86asm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs x86asm"><br># Switch from real to protected mode.  Use a bootstrap GDT that makes<br># virtual addresses map directly to physical addresses so that the<br># effective memory map doesn<span class="hljs-string">&#x27;t change during the transition.</span><br><span class="hljs-string">lgdt    gdtdesc</span><br><span class="hljs-string">movl    %cr0, %eax</span><br><span class="hljs-string">orl     $CR0_PE, %eax</span><br><span class="hljs-string">movl    %eax, %cr0</span><br><span class="hljs-string"></span><br></code></pre></td></tr></table></figure>
+
+<p>开起保护模式过后，处理器不是立马就是在保护模式了，也并不是立刻就改变处理器是如何将逻辑地址转换成物理地址的。这个时候，只有当处理器从GDT读取并加载一个新的值到段寄存器，然后它才会改变内部的段机制相关的设置。由于我们不可以直接手动设置 <code>%cs</code>段寄存器，因此只有执行代码 <code>ljmp</code> 长跳转指令，才能保证段选择子被定义。长跳转所跳转的指令继续执行，由于此时 <code>%cs</code> 指向的代码段是 32-bit 的，所以处理器切换到 32-bit 模式。</p>
+<p>此时，boot loader将处理器的运行模式，从 8088 模式，切换到 80286 模式，最后切换到了 80386 模式。</p>
+<figure class="highlight x86asm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs x86asm"><br># PAGEBREAK!<br># Complete the transition to <span class="hljs-number">32</span>-bit protected mode by using a long <span class="hljs-keyword">jmp</span><br># to reload %cs <span class="hljs-keyword">and</span> %eip.  The <span class="hljs-meta">segment</span> descriptors are set <span class="hljs-meta">up</span> with no<br># translation, so that the mapping is still the identity mapping.<br>ljmp    $(SEG_KCODE&lt;&lt;<span class="hljs-number">3</span>), $start32<br><br></code></pre></td></tr></table></figure>
+
+<p>进入 32-bit 模式过后，boot loader 第一件事情，是设置代码段寄存器的值为 <code>SEG_KDATA</code>。现在逻辑地址仍然是直接映射到物理地址的，这个时候为了支持C代码的运行，需要在未使用的内存区域，建立好堆栈。目前，内存中从 0xa0000 到 0x100000 是设备内存区，然后 xv6 的内核将放置在 0x100000。boot loader 则是放置在 0x7c00 到 0x7e00（512 bytes）的区域。其他的任何空闲的区域都可以作为堆栈来使用，boot loader 选择 0x7c00 作为堆栈的栈顶，堆栈将从该地址开始往下压栈，一直直到 0x0000，这样可以很好的远离 boot loader。</p>
+<figure class="highlight x86asm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs x86asm"><span class="hljs-meta"></span><br><span class="hljs-meta">.code32</span>  # Tell assembler to generate <span class="hljs-number">32</span>-bit code now.<br><span class="hljs-symbol">start32:</span><br>  # Set <span class="hljs-meta">up</span> the protected-mode data <span class="hljs-meta">segment</span> registers<br>  movw    $(SEG_KDATA&lt;&lt;<span class="hljs-number">3</span>), %ax    # Our data <span class="hljs-meta">segment</span> selector<br>  movw    %ax, %ds                # -&gt; <span class="hljs-built_in">DS</span>: Data <span class="hljs-meta">Segment</span><br>  movw    %ax, %es                # -&gt; <span class="hljs-built_in">ES</span>: Extra <span class="hljs-meta">Segment</span><br>  movw    %ax, %ss                # -&gt; <span class="hljs-built_in">SS</span>: Stack <span class="hljs-meta">Segment</span><br>  movw    <span class="hljs-number">$0</span>, %ax                 # <span class="hljs-meta">Zero</span> segments <span class="hljs-keyword">not</span> ready for use<br>  movw    %ax, %fs                # -&gt; <span class="hljs-built_in">FS</span><br>  movw    %ax, %gs                # -&gt; <span class="hljs-built_in">GS</span><br><br></code></pre></td></tr></table></figure>
+
+<p>最后，boot loader 调用 C 函数 bootmain。bootmain 的主要任务是，加载并且运行操作系统的内核。后续的代码主要是为了与模拟器做准备，call bootmain 它仅在出现问题时返回。在这种情况下，代码会在端口 0x8a00 上发送一些输出字。在真正的硬件上，没有设备连接到那个端口，所以这段代码什么都不做。如果引导加载程序在 PC 模拟器中运行，端口 0x8a00 连接到模拟器本身，并且可以将控制权传回模拟器。不管是否是模拟器，代码都会执行一个无限循环。真正的引导加载程序可能会首先尝试打印错误消息。</p>
+<figure class="highlight x86asm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs x86asm"><br>  # Set <span class="hljs-meta">up</span> the stack pointer <span class="hljs-keyword">and</span> <span class="hljs-keyword">call</span> <span class="hljs-keyword">into</span> C.<br>  movl    $start, %esp<br>  <span class="hljs-keyword">call</span>    bootmain<br><br>  # If bootmain returns (it shouldn<span class="hljs-string">&#x27;t), trigger a Bochs</span><br><span class="hljs-string">  # breakpoint if running under Bochs, then loop.</span><br><span class="hljs-string">  movw    $0x8a00, %ax            # 0x8a00 -&gt; port 0x8a00</span><br><span class="hljs-string">  movw    %ax, %dx</span><br><span class="hljs-string">  outw    %ax, %dx</span><br><span class="hljs-string">  movw    $0x8ae0, %ax            # 0x8ae0 -&gt; port 0x8a00</span><br><span class="hljs-string">  outw    %ax, %dx</span><br><span class="hljs-string">spin:</span><br><span class="hljs-string">  jmp     spin</span><br><span class="hljs-string"></span><br></code></pre></td></tr></table></figure>
+
+<h2 id="Code-C-bootstrap"><a href="#Code-C-bootstrap" class="headerlink" title="Code: C bootstrap"></a>Code: C bootstrap</h2><p>boot loader 的 C 语言部分，bootmain.c 主要是在磁盘的第二个扇区寻找可执行的内核，内核文件以 ELF 二进制文件的格式保存。读取内核二进制文件的时候，首先读取 ELF 的 header，bootmain 首先读取 ELF 文件的前 4096 bytes，将其拷贝到内存地址为 0x10000的位置。然后就是检测，将要读取的是否是 ELF 文件，如果不是，那么直接返回，bootasm.S定义好的错误处理进行处理；如果是的话，接着 header 后边的内容，从 phoff 字节开始写入到内存地址为 paddr 的位置。Bootmain 调用 readseg 从磁盘加载数据并调用 stosb 将段的剩余部分归零。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br></pre></td><td class="code"><pre><code class="hljs C"><span class="hljs-comment">// Boot loader.</span><br><span class="hljs-comment">//</span><br><span class="hljs-comment">// Part of the boot block, along with bootasm.S, which calls bootmain().</span><br><span class="hljs-comment">// bootasm.S has put the processor into protected 32-bit mode.</span><br><span class="hljs-comment">// bootmain() loads an ELF kernel image from the disk starting at</span><br><span class="hljs-comment">// sector 1 and then jumps to the kernel entry routine.</span><br><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&quot;types.h&quot;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&quot;elf.h&quot;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&quot;x86.h&quot;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&quot;memlayout.h&quot;</span></span><br><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> SECTSIZE  512</span><br><br><span class="hljs-type">void</span> <span class="hljs-title function_">readseg</span><span class="hljs-params">(uchar*, uint, uint)</span>;<br><br><span class="hljs-type">void</span><br><span class="hljs-title function_">bootmain</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span><br>&#123;<br>  <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">elfhdr</span> *<span class="hljs-title">elf</span>;</span><br>  <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">proghdr</span> *<span class="hljs-title">ph</span>, *<span class="hljs-title">eph</span>;</span><br>  <span class="hljs-type">void</span> (*entry)(<span class="hljs-type">void</span>);<br>  uchar* pa;<br><br>  elf = (<span class="hljs-keyword">struct</span> elfhdr*)<span class="hljs-number">0x10000</span>;  <span class="hljs-comment">// scratch space</span><br><br>  <span class="hljs-comment">// Read 1st page off disk</span><br>  readseg((uchar*)elf, <span class="hljs-number">4096</span>, <span class="hljs-number">0</span>);<br><br>  <span class="hljs-comment">// Is this an ELF executable?</span><br>  <span class="hljs-keyword">if</span>(elf-&gt;magic != ELF_MAGIC)<br>    <span class="hljs-keyword">return</span>;  <span class="hljs-comment">// let bootasm.S handle error</span><br><br>  <span class="hljs-comment">// Load each program segment (ignores ph flags).</span><br>  ph = (<span class="hljs-keyword">struct</span> proghdr*)((uchar*)elf + elf-&gt;phoff);<br>  eph = ph + elf-&gt;phnum;<br>  <span class="hljs-keyword">for</span>(; ph &lt; eph; ph++)&#123;<br>    pa = (uchar*)ph-&gt;paddr;<br>    readseg(pa, ph-&gt;filesz, ph-&gt;off);<br>    <span class="hljs-keyword">if</span>(ph-&gt;memsz &gt; ph-&gt;filesz)<br>      stosb(pa + ph-&gt;filesz, <span class="hljs-number">0</span>, ph-&gt;memsz - ph-&gt;filesz);<br>  &#125;<br><br>  <span class="hljs-comment">// Call the entry point from the ELF header.</span><br>  <span class="hljs-comment">// Does not return!</span><br>  entry = (<span class="hljs-type">void</span>(*)(<span class="hljs-type">void</span>))(elf-&gt;entry);<br>  entry();<br>&#125;<br><br><span class="hljs-type">void</span><br><span class="hljs-title function_">waitdisk</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span><br>&#123;<br>  <span class="hljs-comment">// Wait for disk ready.</span><br>  <span class="hljs-keyword">while</span>((inb(<span class="hljs-number">0x1F7</span>) &amp; <span class="hljs-number">0xC0</span>) != <span class="hljs-number">0x40</span>)<br>    ;<br>&#125;<br><br><span class="hljs-comment">// Read a single sector at offset into dst.</span><br><span class="hljs-type">void</span><br><span class="hljs-title function_">readsect</span><span class="hljs-params">(<span class="hljs-type">void</span> *dst, uint offset)</span><br>&#123;<br>  <span class="hljs-comment">// Issue command.</span><br>  waitdisk();<br>  outb(<span class="hljs-number">0x1F2</span>, <span class="hljs-number">1</span>);   <span class="hljs-comment">// count = 1</span><br>  outb(<span class="hljs-number">0x1F3</span>, offset);<br>  outb(<span class="hljs-number">0x1F4</span>, offset &gt;&gt; <span class="hljs-number">8</span>);<br>  outb(<span class="hljs-number">0x1F5</span>, offset &gt;&gt; <span class="hljs-number">16</span>);<br>  outb(<span class="hljs-number">0x1F6</span>, (offset &gt;&gt; <span class="hljs-number">24</span>) | <span class="hljs-number">0xE0</span>);<br>  outb(<span class="hljs-number">0x1F7</span>, <span class="hljs-number">0x20</span>);  <span class="hljs-comment">// cmd 0x20 - read sectors</span><br><br>  <span class="hljs-comment">// Read data.</span><br>  waitdisk();<br>  insl(<span class="hljs-number">0x1F0</span>, dst, SECTSIZE/<span class="hljs-number">4</span>);<br>&#125;<br><br><span class="hljs-comment">// Read &#x27;count&#x27; bytes at &#x27;offset&#x27; from kernel into physical address &#x27;pa&#x27;.</span><br><span class="hljs-comment">// Might copy more than asked.</span><br><span class="hljs-type">void</span><br><span class="hljs-title function_">readseg</span><span class="hljs-params">(uchar* pa, uint count, uint offset)</span><br>&#123;<br>  uchar* epa;<br><br>  epa = pa + count;<br><br>  <span class="hljs-comment">// Round down to sector boundary.</span><br>  pa -= offset % SECTSIZE;<br><br>  <span class="hljs-comment">// Translate from bytes to sectors; kernel starts at sector 1.</span><br>  offset = (offset / SECTSIZE) + <span class="hljs-number">1</span>;<br><br>  <span class="hljs-comment">// If this is too slow, we could read lots of sectors at a time.</span><br>  <span class="hljs-comment">// We&#x27;d write more to memory than asked, but it doesn&#x27;t matter --</span><br>  <span class="hljs-comment">// we load in increasing order.</span><br>  <span class="hljs-keyword">for</span>(; pa &lt; epa; pa += SECTSIZE, offset++)<br>    readsect(pa, offset);<br>&#125;<br><br></code></pre></td></tr></table></figure>
+
+<p>Bootmain 调用 readseg 从磁盘加载数据并调用 stosb 将段的剩余部分归零。Stosb 使用 x86 指令 rep stosb 来初始化内存块的每个字节。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs c"><br><span class="hljs-type">static</span> <span class="hljs-keyword">inline</span> <span class="hljs-type">void</span><br><span class="hljs-title function_">stosb</span><span class="hljs-params">(<span class="hljs-type">void</span> *addr, <span class="hljs-type">int</span> data, <span class="hljs-type">int</span> cnt)</span><br>&#123;<br>  <span class="hljs-keyword">asm</span> <span class="hljs-title function_">volatile</span><span class="hljs-params">(<span class="hljs-string">&quot;cld; rep stosb&quot;</span> :</span><br><span class="hljs-params">               <span class="hljs-string">&quot;=D&quot;</span> (addr), <span class="hljs-string">&quot;=c&quot;</span> (cnt) :</span><br><span class="hljs-params">               <span class="hljs-string">&quot;0&quot;</span> (addr), <span class="hljs-string">&quot;1&quot;</span> (cnt), <span class="hljs-string">&quot;a&quot;</span> (data) :</span><br><span class="hljs-params">               <span class="hljs-string">&quot;memory&quot;</span>, <span class="hljs-string">&quot;cc&quot;</span>)</span>;<br>&#125;<br><br></code></pre></td></tr></table></figure>
+
+<p>内核经过编译和链接，在虚拟地址为 0x80100000 中找到内核。因此，函数调用指令必须类似于 call 0x801xxxxx 的目标地址。这个地址在kernel.ld中配置0x80100000是一个比较高的地址，朝向32位地址空间的末尾； 第 2 章解释了做出这种选择的原因。 在这么高的地址可能没有任何物理内存。 一旦内核开始执行，它将设置分页硬件来映射虚拟地址 0x80100000 到 0x00100000 开始的物理地址；内核假定在这个低地址有物理内存。但是，这个时候 boot loader 未启用分页机制。于是，编写链接文件的时候，kernel.ld 指定 ELF paddr 从 0x00100000 开始，这会导致 boot loader 将内核复制到 0x00100000 低物理地址，当开起分页机制过后，分页硬件将会将 0x80100000 最终指向该地址。</p>
+<figure class="highlight x86asm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br></pre></td><td class="code"><pre><code class="hljs x86asm">/* Simple linker script for the JOS kernel.<br>   See the GNU ld <span class="hljs-string">&#x27;info&#x27;</span> manual (<span class="hljs-string">&quot;info ld&quot;</span>) to learn the syntax. */<br><br>OUTPUT_FORMAT(<span class="hljs-string">&quot;elf32-i386&quot;</span>, <span class="hljs-string">&quot;elf32-i386&quot;</span>, <span class="hljs-string">&quot;elf32-i386&quot;</span>)<br>OUTPUT_ARCH(i386)<br>ENTRY(_start)<br><br>SECTIONS<br>&#123;<br>	/* Link the kernel <span class="hljs-meta">at</span> this address: <span class="hljs-string">&quot;.&quot;</span> means the current address */<br>        /* Must be equal to KERNLINK */<br>	. = <span class="hljs-number">0x80100000</span><span class="hljs-comment">;</span><br><span class="hljs-meta"></span><br><span class="hljs-meta">	.text</span> : <span class="hljs-meta">AT</span>(<span class="hljs-number">0x100000</span>) &#123;<br>		*(.text .stub .text.* .gnu<span class="hljs-number">.</span>linkonce<span class="hljs-number">.</span>t.*)<br>	&#125;<br><br>	PROVIDE(etext = .)<span class="hljs-comment">;	/* Define the &#x27;etext&#x27; symbol to this value */</span><br><span class="hljs-meta"></span><br><span class="hljs-meta">	.rodata</span> : &#123;<br>		*(.rodata .rodata.* .gnu<span class="hljs-number">.</span>linkonce<span class="hljs-number">.</span>r.*)<br>	&#125;<br><br>	/* Include debugging information <span class="hljs-keyword">in</span> kernel memory */<br><span class="hljs-meta">	.stab</span> : &#123;<br>		PROVIDE(__STAB_BEGIN__ = .)<span class="hljs-comment">;</span><br>		*(.stab)<span class="hljs-comment">;</span><br>		PROVIDE(__STAB_END__ = .)<span class="hljs-comment">;</span><br>	&#125;<br><span class="hljs-meta"></span><br><span class="hljs-meta">	.stabstr</span> : &#123;<br>		PROVIDE(__STABSTR_BEGIN__ = .)<span class="hljs-comment">;</span><br>		*(.stabstr)<span class="hljs-comment">;</span><br>		PROVIDE(__STABSTR_END__ = .)<span class="hljs-comment">;</span><br>	&#125;<br><br>	/* Adjust the address for the data <span class="hljs-meta">segment</span> to the next page */<br>	. = <span class="hljs-meta">ALIGN</span>(<span class="hljs-number">0x1000</span>)<span class="hljs-comment">;</span><br><br>	/* Conventionally, Unix linkers provide pseudo-symbols<br>	 * etext, edata, <span class="hljs-keyword">and</span> end, <span class="hljs-meta">at</span> the end of the text, data, <span class="hljs-keyword">and</span> bss.<br>	 * For the kernel mapping, we need the address <span class="hljs-meta">at</span> the beginning<br>	 * of the data <span class="hljs-meta">section</span>, but that<span class="hljs-string">&#x27;s not one of the conventional</span><br><span class="hljs-string">	 * symbols, because the convention started before there was a</span><br><span class="hljs-string">	 * read-only rodata section between text and data. */</span><br><span class="hljs-string">	PROVIDE(data = .);</span><br><span class="hljs-string"></span><br><span class="hljs-string">	/* The data segment */</span><br><span class="hljs-string">	.data : &#123;</span><br><span class="hljs-string">		*(.data)</span><br><span class="hljs-string">	&#125;</span><br><span class="hljs-string"></span><br><span class="hljs-string">	PROVIDE(edata = .);</span><br><span class="hljs-string"></span><br><span class="hljs-string">	.bss : &#123;</span><br><span class="hljs-string">		*(.bss)</span><br><span class="hljs-string">	&#125;</span><br><span class="hljs-string"></span><br><span class="hljs-string">	PROVIDE(end = .);</span><br><span class="hljs-string"></span><br><span class="hljs-string">	/DISCARD/ : &#123;</span><br><span class="hljs-string">		*(.eh_frame .note.GNU-stack)</span><br><span class="hljs-string">	&#125;</span><br><span class="hljs-string">&#125;</span><br><span class="hljs-string"></span><br></code></pre></td></tr></table></figure>
+
+<p>boot loader 的最后一步是调用内核的入口，也就是调用内核开始执行的地方。xv6 的入口地址是 0x10000c。<br><img src="https://imgs.bencorn.com/imgs/xv6-Boot-2023-04-27-19-55-32.png" srcset="/img/loading.gif" lazyload alt="xv6 kernel entry point"></p>
+<p>按照惯例，_start 符号指定 ELF 入口点，它在文件 entry.S 中定义。 由于xv6还没有设置虚拟内存，所以xv6的entry point就是entry的物理地址。</p>
+<figure class="highlight x86asm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs x86asm"><br># By convention, the _start symbol specifies the ELF entry point.<br># Since we haven<span class="hljs-string">&#x27;t set up virtual memory yet, our entry point is</span><br><span class="hljs-string"># the physical address of &#x27;</span>entry<span class="hljs-string">&#x27;.</span><br><span class="hljs-string">.globl _start</span><br><span class="hljs-string">_start = V2P_WO(entry)</span><br><span class="hljs-string"></span><br></code></pre></td></tr></table></figure>
+
+<p>到这个地方 xv6 的 boot loader 就基本上结束了，嗯，xv6 的设计的话，还是进行了简化，但是确实是可行的，其中段机制的使用很少，然后就是由于页机制迟迟没有打开，先是在物理内存上，把整个操作系统安排好了，再做页机制的映射，后续对照一下 linux 看一下是怎么做到的。</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/xv6/" class="category-chain-item">xv6</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/xv6/">#xv6</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>xv6-Boot</div>
+      <div>https://www.bencorn.com/2023/04/25/xv6-Boot/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Bencorn</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2023年4月25日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2023/06/06/Minikube-%E5%88%9B%E5%BB%BA%E9%9B%86%E7%BE%A4/" title="Minikube-创建集群">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Minikube-创建集群</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2022/09/20/chronos%E5%92%8Csimplescalar%E5%AE%89%E8%A3%85/" title="chronos和simplescalar安装">
+                        <span class="hidden-mobile">chronos和simplescalar安装</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  
+  
+    <article id="comments" lazyload>
+      
+  <div id="gitalk-container"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#gitalk-container', function() {
+      Fluid.utils.createCssLink('/css/gitalk.css')
+      Fluid.utils.createScript('https://lib.baomitu.com/gitalk/1.8.0/gitalk.min.js', function() {
+        var options = Object.assign(
+          {"clientID":"c8e51936bf0945ca26ae","clientSecret":"e712730e967ff8834fa267ac7d2a6a11587a35ed","repo":"shatanyumi.github.io","owner":"shatanyumi","admin":["shatanyumi"],"language":"zh-CN","labels":["Gitalk"],"perPage":10,"pagerDirection":"last","distractionFreeMode":false,"createIssueManually":true,"proxy":"https://cloudflare-cors-anywhere.bencorn.com/?https://github.com/login/oauth/access_token"},
+          {
+            id: '4a586d329d6ecf1b365640de4933d9bd'
+          }
+        )
+        var gitalk = new Gitalk(options);
+        gitalk.render('gitalk-container');
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+    </article>
+  
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="busuanzi_container_site_pv" style="display: none">
+        总访问量 
+        <span id="busuanzi_value_site_pv"></span>
+         次
+      </span>
+    
+    
+      <span id="busuanzi_container_site_uv" style="display: none">
+        总访客数 
+        <span id="busuanzi_value_site_uv"></span>
+         人
+      </span>
+    
+    
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+
+        Fluid.events.registerRefreshCallback(function() {
+          if ('MathJax' in window && MathJax.startup.document && typeof MathJax.startup.document.state === 'function') {
+            MathJax.startup.document.state(0);
+            MathJax.texReset();
+            MathJax.typeset();
+            MathJax.typesetPromise();
+          }
+        });
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.2/es5/tex-mml-chtml.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

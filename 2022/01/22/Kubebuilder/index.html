@@ -1,0 +1,865 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/browser.png">
+  <link rel="icon" href="/img/browser.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+    <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Bencorn">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="kubebuilder installgo安装1参照网站：[&lt;https:&#x2F;&#x2F;golang.org&#x2F;&gt;](&lt;https:&#x2F;&#x2F;golang.org&#x2F;&gt;)  docker安装123参照网站：[&lt;https:&#x2F;&#x2F;docs.docker.com&#x2F;engine&#x2F;install&#x2F;&gt;](&lt;https:&#x2F;&#x2F;docs.docker.com&#x2F;engine&#x2F;install&#x2F;&amp;g">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Kubebuilder">
+<meta property="og:url" content="https://www.bencorn.com/2022/01/22/Kubebuilder/index.html">
+<meta property="og:site_name" content="Sparkplace">
+<meta property="og:description" content="kubebuilder installgo安装1参照网站：[&lt;https:&#x2F;&#x2F;golang.org&#x2F;&gt;](&lt;https:&#x2F;&#x2F;golang.org&#x2F;&gt;)  docker安装123参照网站：[&lt;https:&#x2F;&#x2F;docs.docker.com&#x2F;engine&#x2F;install&#x2F;&gt;](&lt;https:&#x2F;&#x2F;docs.docker.com&#x2F;engine&#x2F;install&#x2F;&amp;g">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://imgs.bencorn.com/imgs/2022/01/22/20220122213021.png">
+<meta property="article:published_time" content="2022-01-22T13:28:27.000Z">
+<meta property="article:modified_time" content="2023-06-09T15:33:05.000Z">
+<meta property="article:author" content="Bencorn">
+<meta property="article:tag" content="K8s">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://imgs.bencorn.com/imgs/2022/01/22/20220122213021.png">
+  
+  
+    <meta name="referrer" content="no-referrer-when-downgrade">
+  
+  
+  <title>Kubebuilder - Sparkplace</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"www.bencorn.com","root":"/","version":"1.9.4","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":"G-PPB8YXR0QF","gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+
+  
+    <!-- Google Analytics -->
+    <script async>
+      if (!Fluid.ctx.dnt) {
+        Fluid.utils.createScript('https://www.google-analytics.com/analytics.js', function() {
+          window.ga = window.ga || function() { (ga.q = ga.q || []).push(arguments) };
+          ga.l = +new Date;
+          ga('create', 'G-PPB8YXR0QF', 'auto');
+          ga('send', 'pageview');
+        });
+      }
+    </script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>妙想屋</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/links/">
+                <i class="iconfont icon-link-fill"></i>
+                <span>友链</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="Kubebuilder"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2022-01-22 21:28" pubdate>
+          2022年1月22日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          4k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          34 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="busuanzi_container_page_pv" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="busuanzi_value_page_pv"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">Kubebuilder</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h2 id="kubebuilder-install"><a href="#kubebuilder-install" class="headerlink" title="kubebuilder install"></a>kubebuilder install</h2><h3 id="go安装"><a href="#go安装" class="headerlink" title="go安装"></a>go安装</h3><figure class="highlight awk"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs awk">参照网站：[&lt;https:<span class="hljs-regexp">//g</span>olang.org<span class="hljs-regexp">/&gt;](&lt;https:/</span><span class="hljs-regexp">/golang.org/</span>&gt;)<br></code></pre></td></tr></table></figure>
+
+<h3 id="docker安装"><a href="#docker安装" class="headerlink" title="docker安装"></a>docker安装</h3><figure class="highlight awk"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs awk">参照网站：[&lt;https:<span class="hljs-regexp">//</span>docs.docker.com<span class="hljs-regexp">/engine/i</span>nstall<span class="hljs-regexp">/&gt;](&lt;https:/</span><span class="hljs-regexp">/docs.docker.com/</span>engine<span class="hljs-regexp">/install/</span>&gt;)<br><br>bug fix参见docker：[&lt;https:<span class="hljs-regexp">//</span>www.notion.so<span class="hljs-regexp">/docker-70e41d6ca1bd4b2b966c9d247ce628a4&gt;](&lt;https:/</span><span class="hljs-regexp">/www.notion.so/</span>docker-<span class="hljs-number">70</span>e41d6ca1bd4b2b966c9d247ce628a4&gt;)<br></code></pre></td></tr></table></figure>
+
+<h3 id="SIG-CLI-安装"><a href="#SIG-CLI-安装" class="headerlink" title="SIG CLI 安装"></a>SIG CLI 安装</h3><figure class="highlight awk"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs awk">参照网站：[&lt;https:<span class="hljs-regexp">//</span>kubernetes.io<span class="hljs-regexp">/docs/</span>tasks<span class="hljs-regexp">/tools/i</span>nstall-kubectl-linux<span class="hljs-regexp">/&gt;](&lt;https:/</span><span class="hljs-regexp">/kubectl.docs.kubernetes.io/i</span>nstallation/&gt;)<br></code></pre></td></tr></table></figure>
+
+<p>​	kind 安装：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs bash">curl -Lo ./kind &lt;https://kind.sigs.k8s.io/dl/v0.11.1/kind-linux-amd64&gt;<br><span class="hljs-built_in">chmod</span> +x ./kind<br><span class="hljs-built_in">mv</span> ./kind /some-dir-in-your-PATH/kind<br></code></pre></td></tr></table></figure>
+
+<p>​	kustome 安装：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">GOBIN=$(<span class="hljs-built_in">pwd</span>)/ GO111MODULE=on go get sigs.k8s.io/kustomize/kustomize/v3<br></code></pre></td></tr></table></figure>
+
+<h3 id="kubebuilder安装"><a href="#kubebuilder安装" class="headerlink" title="kubebuilder安装"></a>kubebuilder安装</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs bash">os=$(go <span class="hljs-built_in">env</span> GOOS)<br><span class="hljs-built_in">arch</span>=$(go <span class="hljs-built_in">env</span> GOARCH)<br><br><span class="hljs-comment"># 下载 kubebuilder 并解压到 tmp 目录中</span><br>curl -L &lt;https://go.kubebuilder.io/dl/2.3.1/<span class="hljs-variable">$&#123;os&#125;</span>/<span class="hljs-variable">$&#123;arch&#125;</span>&gt; | tar -xz -C /tmp/<br><br><span class="hljs-comment"># 将 kubebuilder 移动到一个长期的路径，并将其加入环境变量 path 中</span><br><span class="hljs-comment"># （如果你把 kubebuilder 放在别的地方，你需要额外设置 KUBEBUILDER_ASSETS 环境变量）</span><br><br>sudo <span class="hljs-built_in">mv</span> /tmp/kubebuilder_2.3.1_<span class="hljs-variable">$&#123;os&#125;</span>_<span class="hljs-variable">$&#123;arch&#125;</span> /usr/local/kubebuilder<br><span class="hljs-built_in">export</span> PATH=<span class="hljs-variable">$PATH</span>:/usr/local/kubebuilder/bin<br><span class="hljs-comment"># 或者添加到/etc/profile</span><br></code></pre></td></tr></table></figure>
+
+<h2 id="First-Program"><a href="#First-Program" class="headerlink" title="First Program"></a>First Program</h2><p><a target="_blank" rel="noopener" href="https://cloudnative.to/kubebuilder/quick-start.html">https://cloudnative.to/kubebuilder/quick-start.html</a></p>
+<h2 id="development-a-demo"><a href="#development-a-demo" class="headerlink" title="development a demo"></a>development a demo</h2><h3 id="go安装-1"><a href="#go安装-1" class="headerlink" title="go安装"></a>go安装</h3><figure class="highlight awk"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs awk">参照网站：[&lt;https:<span class="hljs-regexp">//g</span>olang.org<span class="hljs-regexp">/&gt;](&lt;https:/</span><span class="hljs-regexp">/golang.org/</span>&gt;)<br></code></pre></td></tr></table></figure>
+
+<h3 id="docker安装-1"><a href="#docker安装-1" class="headerlink" title="docker安装"></a>docker安装</h3><figure class="highlight awk"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs awk">参照网站：[&lt;https:<span class="hljs-regexp">//</span>docs.docker.com<span class="hljs-regexp">/engine/i</span>nstall<span class="hljs-regexp">/&gt;](&lt;https:/</span><span class="hljs-regexp">/docs.docker.com/</span>engine<span class="hljs-regexp">/install/</span>&gt;)<br><br>bug fix参见docker：[&lt;https:<span class="hljs-regexp">//</span>www.notion.so<span class="hljs-regexp">/docker-70e41d6ca1bd4b2b966c9d247ce628a4&gt;](&lt;https:/</span><span class="hljs-regexp">/www.notion.so/</span>docker-<span class="hljs-number">70</span>e41d6ca1bd4b2b966c9d247ce628a4&gt;)<br></code></pre></td></tr></table></figure>
+
+<h3 id="SIG-CLI-安装-1"><a href="#SIG-CLI-安装-1" class="headerlink" title="SIG CLI 安装"></a>SIG CLI 安装</h3><figure class="highlight awk"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs awk">参照网站：[&lt;https:<span class="hljs-regexp">//</span>kubernetes.io<span class="hljs-regexp">/docs/</span>tasks<span class="hljs-regexp">/tools/i</span>nstall-kubectl-linux<span class="hljs-regexp">/&gt;](&lt;https:/</span><span class="hljs-regexp">/kubectl.docs.kubernetes.io/i</span>nstallation/&gt;)<br></code></pre></td></tr></table></figure>
+
+<p>​	kind 安装：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs bash">curl -Lo ./kind &lt;https://kind.sigs.k8s.io/dl/v0.11.1/kind-linux-amd64&gt;<br><span class="hljs-built_in">chmod</span> +x ./kind<br><span class="hljs-built_in">mv</span> ./kind /some-dir-in-your-PATH/kind<br></code></pre></td></tr></table></figure>
+
+<p>​	kustome 安装：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">GOBIN=$(<span class="hljs-built_in">pwd</span>)/ GO111MODULE=on go get sigs.k8s.io/kustomize/kustomize/v3<br></code></pre></td></tr></table></figure>
+
+<h3 id="kubebuilder安装-1"><a href="#kubebuilder安装-1" class="headerlink" title="kubebuilder安装"></a>kubebuilder安装</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs bash">os=$(go <span class="hljs-built_in">env</span> GOOS)<br><span class="hljs-built_in">arch</span>=$(go <span class="hljs-built_in">env</span> GOARCH)<br><br><span class="hljs-comment"># 下载 kubebuilder 并解压到 tmp 目录中</span><br>curl -L &lt;https://go.kubebuilder.io/dl/2.3.1/<span class="hljs-variable">$&#123;os&#125;</span>/<span class="hljs-variable">$&#123;arch&#125;</span>&gt; | tar -xz -C /tmp/<br><br><span class="hljs-comment"># 将 kubebuilder 移动到一个长期的路径，并将其加入环境变量 path 中</span><br><span class="hljs-comment"># （如果你把 kubebuilder 放在别的地方，你需要额外设置 KUBEBUILDER_ASSETS 环境变量）</span><br><br>sudo <span class="hljs-built_in">mv</span> /tmp/kubebuilder_2.3.1_<span class="hljs-variable">$&#123;os&#125;</span>_<span class="hljs-variable">$&#123;arch&#125;</span> /usr/local/kubebuilder<br><span class="hljs-built_in">export</span> PATH=<span class="hljs-variable">$PATH</span>:/usr/local/kubebuilder/bin<br><span class="hljs-comment"># 或者添加到/etc/profile</span><br></code></pre></td></tr></table></figure>
+
+<h2 id="Demo-实现"><a href="#Demo-实现" class="headerlink" title="Demo 实现"></a>Demo 实现</h2><h3 id="kind-搭建多节点集群"><a href="#kind-搭建多节点集群" class="headerlink" title="kind 搭建多节点集群"></a>kind 搭建多节点集群</h3><figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs yaml"><span class="hljs-comment"># cluster with 1 control-plane nodes and 3 workers</span><br><span class="hljs-attr">kind:</span> <span class="hljs-string">Cluster</span><br><span class="hljs-attr">apiVersion:</span> <span class="hljs-string">kind.x-k8s.io/v1alpha4</span><br><span class="hljs-attr">nodes:</span><br><span class="hljs-bullet">-</span> <span class="hljs-attr">role:</span> <span class="hljs-string">control-plane</span><br><span class="hljs-bullet">-</span> <span class="hljs-attr">role:</span> <span class="hljs-string">worker</span><br><span class="hljs-bullet">-</span> <span class="hljs-attr">role:</span> <span class="hljs-string">worker</span><br><span class="hljs-bullet">-</span> <span class="hljs-attr">role:</span> <span class="hljs-string">worker</span><br><span class="hljs-string">kind</span> <span class="hljs-string">create</span> <span class="hljs-string">cluster</span> <span class="hljs-string">--config</span> <span class="hljs-string">kind-1-3.yaml</span><br></code></pre></td></tr></table></figure>
+
+<p>​	创建好一个单控制节点，多计算节点集群</p>
+<h3 id="创建kubebuilder项目"><a href="#创建kubebuilder项目" class="headerlink" title="创建kubebuilder项目"></a>创建kubebuilder项目</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs bash">kubebuilder init --domain demo.org<br>kubebuilder create api --group system --version v1 --kind Sysctl<br></code></pre></td></tr></table></figure>
+
+<p>​	修改基本的逻辑，我们希望调用api的时候，检测spec数据结构的值，根据值做出相应的系统调用实现，现在做sysctl的系统调用，并且我们把它给打印到日志里边儿。</p>
+<ul>
+<li>数据结构</li>
+</ul>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-comment">// SysctlCall 检查值进行系统调用</span><br>	SysctlCall <span class="hljs-type">string</span> <span class="hljs-string">`json:&quot;sysctl_call,omitempty&quot;`</span><br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>Reconcile</li>
+</ul>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(r *SysctlReconciler)</span></span> Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, <span class="hljs-type">error</span>) &#123;<br>	l := log.FromContext(ctx)<br>	l.V(<span class="hljs-number">0</span>).Info(<span class="hljs-string">&quot;demo start&quot;</span>)<br>	<span class="hljs-keyword">var</span> sysctlCall systemv1.Sysctl<br>	<span class="hljs-keyword">if</span> err := r.Get(ctx, req.NamespacedName, &amp;sysctlCall); err != <span class="hljs-literal">nil</span> &#123;<br>		l.Error(err, <span class="hljs-string">&quot;unable to fetch sysctlCall&quot;</span>)<br>		<span class="hljs-keyword">return</span> ctrl.Result&#123;&#125;, client.IgnoreNotFound(err)<br>	&#125;<br><br>	l.V(<span class="hljs-number">0</span>).Info(<span class="hljs-string">&quot;r.Get returns value&quot;</span>, <span class="hljs-string">&quot;sysctlCall&quot;</span>, sysctlCall)<br>	<span class="hljs-keyword">if</span> strings.EqualFold(sysctlCall.Spec.SysctlCall, <span class="hljs-string">&quot;Y&quot;</span>) &#123;<br>		<span class="hljs-keyword">var</span> whoami []<span class="hljs-type">byte</span><br>		<span class="hljs-keyword">var</span> cmd *exec.Cmd<br>		<span class="hljs-keyword">var</span> err <span class="hljs-type">error</span><br><br>		cmd = exec.Command(<span class="hljs-string">&quot;whoami&quot;</span>)<br>		<span class="hljs-keyword">if</span> whoami, err = cmd.Output(); err != <span class="hljs-literal">nil</span> &#123;<br>			fmt.Println(err)<br>			os.Exit(<span class="hljs-number">1</span>)<br>		&#125;<br>		l.V(<span class="hljs-number">0</span>).Info(<span class="hljs-string">&quot;sysctl called&quot;</span>, <span class="hljs-string">&quot;bash/whoami&quot;</span>, <span class="hljs-type">string</span>(whoami))<br>	&#125; <span class="hljs-keyword">else</span> &#123;<br>		l.V(<span class="hljs-number">0</span>).Info(<span class="hljs-string">&quot;sysctl not called&quot;</span>)<br>	&#125;<br>	l.V(<span class="hljs-number">0</span>).Info(<span class="hljs-string">&quot;demo end&quot;</span>)<br>	<span class="hljs-comment">// your logic here</span><br>	<span class="hljs-keyword">return</span> ctrl.Result&#123;&#125;, <span class="hljs-literal">nil</span><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>system_v1_sysctl.yaml</li>
+</ul>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs yaml"><span class="hljs-attr">apiVersion:</span> <span class="hljs-string">system.demo.org/v1</span><br><span class="hljs-attr">kind:</span> <span class="hljs-string">Sysctl</span><br><span class="hljs-attr">metadata:</span><br>  <span class="hljs-attr">name:</span> <span class="hljs-string">sysctl-sample</span><br><span class="hljs-attr">spec:</span><br>  <span class="hljs-comment"># Add fields here</span><br>  <span class="hljs-attr">sysctl_call:</span> <span class="hljs-string">Y</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="运行结果"><a href="#运行结果" class="headerlink" title="运行结果"></a>运行结果</h3><ul>
+<li>窗口一</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs bash">make<br>make install <br>make run<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>窗口二</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">kubectl apply -f config/samples/system_v1_sysctl.yaml<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>结果</li>
+</ul>
+<p><img src="https://imgs.bencorn.com/imgs/2022/01/22/20220122213329.png" srcset="/img/loading.gif" lazyload alt="实现结果"></p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/OS/" class="category-chain-item">OS</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/K8s/">#K8s</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>Kubebuilder</div>
+      <div>https://www.bencorn.com/2022/01/22/Kubebuilder/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Bencorn</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2022年1月22日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2022/01/22/rpm-build/" title="RPM build">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">RPM build</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2022/01/22/%E5%B7%A5%E5%85%B7%E8%AE%B0%E5%BD%95/" title="工具记录">
+                        <span class="hidden-mobile">工具记录</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  
+  
+    <article id="comments" lazyload>
+      
+  <div id="gitalk-container"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#gitalk-container', function() {
+      Fluid.utils.createCssLink('/css/gitalk.css')
+      Fluid.utils.createScript('https://lib.baomitu.com/gitalk/1.8.0/gitalk.min.js', function() {
+        var options = Object.assign(
+          {"clientID":"c8e51936bf0945ca26ae","clientSecret":"e712730e967ff8834fa267ac7d2a6a11587a35ed","repo":"shatanyumi.github.io","owner":"shatanyumi","admin":["shatanyumi"],"language":"zh-CN","labels":["Gitalk"],"perPage":10,"pagerDirection":"last","distractionFreeMode":false,"createIssueManually":true,"proxy":"https://cloudflare-cors-anywhere.bencorn.com/?https://github.com/login/oauth/access_token"},
+          {
+            id: '6eb9ed6f7391f2e67835717a5e57fb59'
+          }
+        )
+        var gitalk = new Gitalk(options);
+        gitalk.render('gitalk-container');
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+    </article>
+  
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="busuanzi_container_site_pv" style="display: none">
+        总访问量 
+        <span id="busuanzi_value_site_pv"></span>
+         次
+      </span>
+    
+    
+      <span id="busuanzi_container_site_uv" style="display: none">
+        总访客数 
+        <span id="busuanzi_value_site_uv"></span>
+         人
+      </span>
+    
+    
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+
+        Fluid.events.registerRefreshCallback(function() {
+          if ('MathJax' in window && MathJax.startup.document && typeof MathJax.startup.document.state === 'function') {
+            MathJax.startup.document.state(0);
+            MathJax.texReset();
+            MathJax.typeset();
+            MathJax.typesetPromise();
+          }
+        });
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.2/es5/tex-mml-chtml.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

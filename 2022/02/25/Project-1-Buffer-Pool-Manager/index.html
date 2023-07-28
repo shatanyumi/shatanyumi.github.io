@@ -1,0 +1,913 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/browser.png">
+  <link rel="icon" href="/img/browser.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+    <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Bencorn">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="Lab 2 Summary cmu15445第二个项目是关于在内存中实现buffer pool的，通过实现三个部分来加深对缓冲池的实现机制的理解，分别是LRU算法实现frame管理，单个buffer pool的管理，并行多个buffer pool的管理。  实验地址：https:&#x2F;&#x2F;15445.courses.cs.cmu.edu&#x2F;fall2021&#x2F;project1&#x2F;#buffer-pool-in">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Project 1 Buffer Pool Manager">
+<meta property="og:url" content="https://www.bencorn.com/2022/02/25/Project-1-Buffer-Pool-Manager/index.html">
+<meta property="og:site_name" content="Sparkplace">
+<meta property="og:description" content="Lab 2 Summary cmu15445第二个项目是关于在内存中实现buffer pool的，通过实现三个部分来加深对缓冲池的实现机制的理解，分别是LRU算法实现frame管理，单个buffer pool的管理，并行多个buffer pool的管理。  实验地址：https:&#x2F;&#x2F;15445.courses.cs.cmu.edu&#x2F;fall2021&#x2F;project1&#x2F;#buffer-pool-in">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://imgs.bencorn.com/imgs/2021/11/13/20211113141101.png##">
+<meta property="article:published_time" content="2022-02-25T09:25:24.000Z">
+<meta property="article:modified_time" content="2023-04-30T08:50:34.000Z">
+<meta property="article:author" content="Bencorn">
+<meta property="article:tag" content="CMU15445">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://imgs.bencorn.com/imgs/2021/11/13/20211113141101.png##">
+  
+  
+    <meta name="referrer" content="no-referrer-when-downgrade">
+  
+  
+  <title>Project 1 Buffer Pool Manager - Sparkplace</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"www.bencorn.com","root":"/","version":"1.9.4","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":"G-PPB8YXR0QF","gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+
+  
+    <!-- Google Analytics -->
+    <script async>
+      if (!Fluid.ctx.dnt) {
+        Fluid.utils.createScript('https://www.google-analytics.com/analytics.js', function() {
+          window.ga = window.ga || function() { (ga.q = ga.q || []).push(arguments) };
+          ga.l = +new Date;
+          ga('create', 'G-PPB8YXR0QF', 'auto');
+          ga('send', 'pageview');
+        });
+      }
+    </script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>妙想屋</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/links/">
+                <i class="iconfont icon-link-fill"></i>
+                <span>友链</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="Project 1 Buffer Pool Manager"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2022-02-25 17:25" pubdate>
+          2022年2月25日 下午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          15k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          127 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="busuanzi_container_page_pv" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="busuanzi_value_page_pv"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">Project 1 Buffer Pool Manager</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h3 id="Lab-2-Summary"><a href="#Lab-2-Summary" class="headerlink" title="Lab 2 Summary"></a>Lab 2 Summary</h3><p> cmu15445第二个项目是关于在内存中实现buffer pool的，通过实现三个部分来加深对缓冲池的实现机制的理解，分别是LRU算法实现frame管理，单个buffer pool的管理，并行多个buffer pool的管理。</p>
+<p> 实验地址：<a target="_blank" rel="noopener" href="https://15445.courses.cs.cmu.edu/fall2021/project1/#buffer-pool-instance">https://15445.courses.cs.cmu.edu/fall2021/project1/#buffer-pool-instance</a></p>
+<p> 首先谈一谈对整个page在磁盘和内存中的进出过程，理解到这些各部分过后，后续的实验就很好理解了；</p>
+<p> 1、首先就是说DBMS不是直接去disk里拿到存储页儿，这个点儿但凡开始看这个课应该都可以理解；</p>
+<p> 2、当执行某条SQL语句的时候，执行引擎先是去内存中的buffer pool里获取该页儿，这个时候会发生两种情况：</p>
+<ul>
+<li>当buffer pool内存在该页儿的时候，首先我们知道对页儿操作有两种，读和写，<code>但是写仍然是对于内存中buffer内的frame的修改，因此当多个线程操作的时候，有可能该缓存内的页儿没有写到disk内，因此这个时候该该页儿可能是dirty page</code>，所以这个时候就检测，如果该页儿时脏页儿，就先写回disk，然后再进行该页儿的操作，具体的操作由上层决定，返回指向该page的指针；</li>
+<li>当buffer pool内不存在该页儿的时候，这个时候，buffer pool manager会从disk manager内从disk读取需要的page，然后缓存到buffer pool内，缓存进来过后，返回指向该page的指针给执行引擎；</li>
+</ul>
+<p><img src="https://imgs.bencorn.com/imgs/2022/02/28/20220228170529.png" srcset="/img/loading.gif" lazyload alt="DBMS Gets Page"></p>
+<p> 3、如何管理好buffer pool内存中页儿的换进换出，通过策略性的控制，实现线程安全的线程控制：</p>
+<ul>
+<li>buffer pool：内存中的frame数组</li>
+<li>page table：map[page_id] &#x3D; frame_id，page和frame的哈希表</li>
+<li>replacer：控制页儿的置换与否</li>
+<li>pin&#x2F;reference counter：正在使用该page的thread，pin_count为0的才会写回disk</li>
+</ul>
+<p> 当操作某个页儿的时候，不管是添加还是删除，还是从磁盘读取都要对该page进行pin操作，也就是说当前的页再被线程操作，不可以置换，而且这样的操作是原子的，因此得需要进行上锁。</p>
+<p><img src="https://imgs.bencorn.com/imgs/2022/02/28/20220228170604.png" srcset="/img/loading.gif" lazyload alt="Buffer Pool Manager"></p>
+<h3 id="LRU-Replacement-Policy"><a href="#LRU-Replacement-Policy" class="headerlink" title="LRU Replacement Policy"></a>LRU Replacement Policy</h3><h4 id="个人理解"><a href="#个人理解" class="headerlink" title="个人理解"></a>个人理解</h4><p> LRU置换算法，把使用频率最低的置换出去，体现在数据结构上就是队列的队尾给去掉，使用某个页儿时加入到队列的对头，当然再加入的时候得检测队列的大小是否超过容量；<code>LRUReplacer管理的是frame_id也就是确定buffer pool内的page是否可以被置换</code>，当我们把某些页儿给LRUReplacer时，通过lru策略管理他什么时候置换出去，而lru通过自身的算法优势来确定要victim哪些页儿；</p>
+<ul>
+<li>Victim：从buffer pool中置换出某个frame，victim要与buffer pool manager配合使用来置换页儿；</li>
+<li>Pin：page有一个pin_count的数据结构来表示是否被线程使用，因此当某个page被pin的时候，表示正在被线程使用不可以被置换，因此对应到LRU就是这个page对应的frame不应该在可以被置换的队列内；</li>
+<li>Unpin：该页儿可以被置换出去，因此将该page对应的frame加入可被置换的队列内，如果本身在的话就不用管了；</li>
+</ul>
+<p> LRU这个部分总结起来就是，这个部分是一种策略性的东西，是buffer pool manager的一个步骤，自身无法操作page那些的。</p>
+<h4 id="实现细节"><a href="#实现细节" class="headerlink" title="实现细节"></a>实现细节</h4><h5 id="TODO-1-data-structure"><a href="#TODO-1-data-structure" class="headerlink" title="TODO 1 data structure"></a>TODO 1 data structure</h5><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs c++"><span class="hljs-keyword">private</span>:<br> <span class="hljs-comment">// TODO(student): implement me!</span><br> std::mutex lru_latch_;<br> <span class="hljs-type">size_t</span> num_pages_;<br> std::list&lt;<span class="hljs-type">frame_id_t</span>&gt; lru_list_;<br> std::unordered_map&lt;<span class="hljs-type">frame_id_t</span>, std::list&lt;<span class="hljs-type">frame_id_t</span>&gt;::iterator&gt; lru_map_&#123;&#125;;<br></code></pre></td></tr></table></figure>
+
+<h5 id="TODO-2-constructor-and-destructor"><a href="#TODO-2-constructor-and-destructor" class="headerlink" title="TODO 2 constructor and destructor"></a>TODO 2 constructor and destructor</h5><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs c++">LRUReplacer::<span class="hljs-built_in">LRUReplacer</span>(<span class="hljs-type">size_t</span> num_pages) &#123;<br>  <span class="hljs-function">std::lock_guard&lt;std::mutex&gt; <span class="hljs-title">lock_guard</span><span class="hljs-params">(lru_latch_)</span></span>;<br>  num_pages_ = num_pages;<br>&#125;<br><br>LRUReplacer::~<span class="hljs-built_in">LRUReplacer</span>() &#123;<br><span class="hljs-comment">// std::lock_guard&lt;std::mutex&gt; lock_guard(lru_latch_);</span><br>    <span class="hljs-comment">// 我人傻了，搞了2天，好蠢~~~</span><br>  lru_list_.<span class="hljs-built_in">clear</span>();<br>  lru_map_.<span class="hljs-built_in">clear</span>();<br>&#125;;<br></code></pre></td></tr></table></figure>
+
+<h5 id="TODO-3-Victim"><a href="#TODO-3-Victim" class="headerlink" title="TODO 3 Victim"></a>TODO 3 Victim</h5><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs c++"><span class="hljs-function"><span class="hljs-type">bool</span> <span class="hljs-title">LRUReplacer::Victim</span><span class="hljs-params">(<span class="hljs-type">frame_id_t</span> *frame_id)</span> </span>&#123;<br>  <span class="hljs-function">std::lock_guard&lt;std::mutex&gt; <span class="hljs-title">lock_guard</span><span class="hljs-params">(lru_latch_)</span></span>;<br>  <span class="hljs-keyword">if</span> (lru_list_.<span class="hljs-built_in">empty</span>()) &#123;<br>    <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;<br>  &#125;<br>  *frame_id = lru_list_.<span class="hljs-built_in">back</span>();<br>  lru_map_.<span class="hljs-built_in">erase</span>(*frame_id);<br>  lru_list_.<span class="hljs-built_in">pop_back</span>();<br>  <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h5 id="TODO-4-Pin"><a href="#TODO-4-Pin" class="headerlink" title="TODO 4 Pin"></a>TODO 4 Pin</h5><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs c++"><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">LRUReplacer::Pin</span><span class="hljs-params">(<span class="hljs-type">frame_id_t</span> frame_id)</span> </span>&#123;<br>  <span class="hljs-function">std::lock_guard&lt;std::mutex&gt; <span class="hljs-title">lock_guard</span><span class="hljs-params">(lru_latch_)</span></span>;<br>  <span class="hljs-keyword">auto</span> item = lru_map_.<span class="hljs-built_in">find</span>(frame_id);<br>  <span class="hljs-keyword">if</span> (item == lru_map_.<span class="hljs-built_in">end</span>()) &#123;<br>    <span class="hljs-keyword">return</span>;<br>  &#125;<br>  lru_list_.<span class="hljs-built_in">erase</span>(item-&gt;second);<br>  lru_map_.<span class="hljs-built_in">erase</span>(item);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h5 id="TODO-5-Unpin"><a href="#TODO-5-Unpin" class="headerlink" title="TODO 5 Unpin"></a>TODO 5 Unpin</h5><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs c++"><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">LRUReplacer::Unpin</span><span class="hljs-params">(<span class="hljs-type">frame_id_t</span> frame_id)</span> </span>&#123;<br>  <span class="hljs-function">std::lock_guard&lt;std::mutex&gt; <span class="hljs-title">lock_guard</span><span class="hljs-params">(lru_latch_)</span></span>;<br>  <span class="hljs-keyword">if</span> (lru_list_.<span class="hljs-built_in">size</span>() &gt;= num_pages_) &#123;<br>    <span class="hljs-keyword">return</span>;<br>  &#125;<br>  <span class="hljs-keyword">if</span> (lru_map_.<span class="hljs-built_in">count</span>(frame_id) != <span class="hljs-number">0</span>) &#123;<br>    <span class="hljs-keyword">return</span>;<br>  &#125;<br>  lru_list_.<span class="hljs-built_in">push_front</span>(frame_id);<br>  lru_map_[frame_id] = lru_list_.<span class="hljs-built_in">begin</span>();<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h5 id="Test"><a href="#Test" class="headerlink" title="Test"></a>Test</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs bash">make lru_replacer_test<br>./test/lru_replacer_test<br></code></pre></td></tr></table></figure>
+
+<p><img src="https://imgs.bencorn.com/imgs/2022/02/28/20220228170502.png" srcset="/img/loading.gif" lazyload alt="LRU 本地测试"></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">valgrind --leak-check=full --suppressions=../build_support/valgrind.supp ./test/lru_replacer_test --gtest_filter=LRUReplacerTest.SimplePageTest<br></code></pre></td></tr></table></figure>
+
+<p><img src="https://imgs.bencorn.com/imgs/2022/02/28/20220228170438.png" srcset="/img/loading.gif" lazyload alt="LRU 内存检测"></p>
+<h3 id="Buffer-Pool-Manager-Instance"><a href="#Buffer-Pool-Manager-Instance" class="headerlink" title="Buffer Pool Manager Instance"></a>Buffer Pool Manager Instance</h3><h4 id="个人理解-1"><a href="#个人理解-1" class="headerlink" title="个人理解"></a>个人理解</h4><p> Buffer Pool Manager主要实现几个功能，向disk写新的page，从disk里fetch page，刷新page等，这个部分千万千万反复看视频和PPT，当对page进行内容操作的时候会对该page进行pin，跟PPT上所说的一样。</p>
+<h4 id="实现细节-1"><a href="#实现细节-1" class="headerlink" title="实现细节"></a>实现细节</h4><h5 id="Notice"><a href="#Notice" class="headerlink" title="Notice"></a>Notice</h5><h6 id="page-h"><a href="#page-h" class="headerlink" title="page.h"></a>page.h</h6><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs c++"><span class="hljs-keyword">private</span>:<br> <span class="hljs-comment">/** Zeroes out the data that is held within the page. */</span><br> <span class="hljs-function"><span class="hljs-keyword">inline</span> <span class="hljs-type">void</span> <span class="hljs-title">ResetMemory</span><span class="hljs-params">()</span> </span>&#123; <span class="hljs-built_in">memset</span>(data_, OFFSET_PAGE_START, PAGE_SIZE); &#125;<br><br> <span class="hljs-comment">/** The actual data that is stored within a page. */</span><br> <span class="hljs-type">char</span> data_[PAGE_SIZE]&#123;&#125;;<br> <span class="hljs-comment">/** The ID of this page. */</span><br> <span class="hljs-type">page_id_t</span> page_id_ = INVALID_PAGE_ID;<br> <span class="hljs-comment">/** The pin count of this page. */</span><br> <span class="hljs-type">int</span> pin_count_ = <span class="hljs-number">0</span>;<br> <span class="hljs-comment">/** True if the page is dirty, i.e. it is different from its corresponding page on disk. */</span><br> <span class="hljs-type">bool</span> is_dirty_ = <span class="hljs-literal">false</span>;<br> <span class="hljs-comment">/** Page latch. */</span><br> ReaderWriterLatch rwlatch_;<br></code></pre></td></tr></table></figure>
+
+<h6 id="buffer-pool-manager-instance-h"><a href="#buffer-pool-manager-instance-h" class="headerlink" title="buffer_pool_manager_instance.h"></a>buffer_pool_manager_instance.h</h6><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><code class="hljs c++"><span class="hljs-comment">/** Number of pages in the buffer pool. */</span><br>  <span class="hljs-type">const</span> <span class="hljs-type">size_t</span> pool_size_;<br>  <span class="hljs-comment">/** How many instances are in the parallel BPM (if present, otherwise just 1 BPI) */</span><br>  <span class="hljs-type">const</span> <span class="hljs-type">uint32_t</span> num_instances_ = <span class="hljs-number">1</span>;<br>  <span class="hljs-comment">/** Index of this BPI in the parallel BPM (if present, otherwise just 0) */</span><br>  <span class="hljs-type">const</span> <span class="hljs-type">uint32_t</span> instance_index_ = <span class="hljs-number">0</span>;<br>  <span class="hljs-comment">/** Each BPI maintains its own counter for page_ids to hand out, must ensure they mod back to its instance_index_ */</span><br>  std::atomic&lt;<span class="hljs-type">page_id_t</span>&gt; next_page_id_ = instance_index_;<br><br>  <span class="hljs-comment">/** Array of buffer pool pages. */</span><br>  Page *pages_;<br>  <span class="hljs-comment">/** Pointer to the disk manager. */</span><br>  DiskManager *disk_manager_ __attribute__((__unused__));<br>  <span class="hljs-comment">/** Pointer to the log manager. */</span><br>  LogManager *log_manager_ __attribute__((__unused__));<br>  <span class="hljs-comment">/** Page table for keeping track of buffer pool pages. */</span><br>  std::unordered_map&lt;<span class="hljs-type">page_id_t</span>, <span class="hljs-type">frame_id_t</span>&gt; page_table_;<br>  <span class="hljs-comment">/** Replacer to find unpinned pages for replacement. */</span><br>  Replacer *replacer_;<br>  <span class="hljs-comment">/** List of free pages. */</span><br>  std::list&lt;<span class="hljs-type">frame_id_t</span>&gt; free_list_;<br>  <span class="hljs-comment">/** This latch protects shared data structures. We recommend updating this comment to describe what it protects. */</span><br>  std::mutex latch_;<br></code></pre></td></tr></table></figure>
+
+<h6 id="disk-manager-h"><a href="#disk-manager-h" class="headerlink" title="disk_manager.h"></a>disk_manager.h</h6><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs c++"><span class="hljs-comment">/**</span><br><span class="hljs-comment"> * Write a page to the database file.</span><br><span class="hljs-comment"> * @param page_id id of the page</span><br><span class="hljs-comment"> * @param page_data raw page data</span><br><span class="hljs-comment"> */</span><br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">WritePage</span><span class="hljs-params">(<span class="hljs-type">page_id_t</span> page_id, <span class="hljs-type">const</span> <span class="hljs-type">char</span> *page_data)</span></span>;<br><br><span class="hljs-comment">/**</span><br><span class="hljs-comment"> * Read a page from the database file.</span><br><span class="hljs-comment"> * @param page_id id of the page</span><br><span class="hljs-comment"> * @param[out] page_data output buffer</span><br><span class="hljs-comment"> */</span><br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">ReadPage</span><span class="hljs-params">(<span class="hljs-type">page_id_t</span> page_id, <span class="hljs-type">char</span> *page_data)</span></span>;<br></code></pre></td></tr></table></figure>
+
+<h5 id="TODO-1-FlushPgImp"><a href="#TODO-1-FlushPgImp" class="headerlink" title="TODO 1 FlushPgImp"></a>TODO 1 FlushPgImp</h5><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><code class="hljs c++"><span class="hljs-function"><span class="hljs-type">bool</span> <span class="hljs-title">BufferPoolManagerInstance::FlushPgImp</span><span class="hljs-params">(<span class="hljs-type">page_id_t</span> page_id)</span> </span>&#123;<br>  <span class="hljs-comment">// Make sure you call DiskManager::WritePage!</span><br>  <span class="hljs-function">std::lock_guard&lt;std::mutex&gt; <span class="hljs-title">lock_guard</span><span class="hljs-params">(latch_)</span></span>;<br>  <span class="hljs-keyword">if</span> (page_id == INVALID_PAGE_ID) &#123;<br>    <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;<br>  &#125;<br>  <span class="hljs-keyword">auto</span> item = page_table_.<span class="hljs-built_in">find</span>(page_id);<br>  <span class="hljs-keyword">if</span> (item == page_table_.<span class="hljs-built_in">end</span>()) &#123;<br>    <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;<br>  &#125;<br><br>  <span class="hljs-type">frame_id_t</span> frame_id = item-&gt;second;<br>  Page *page = &amp;pages_[frame_id];<br>  disk_manager_-&gt;<span class="hljs-built_in">WritePage</span>(page-&gt;<span class="hljs-built_in">GetPageId</span>(), page-&gt;<span class="hljs-built_in">GetData</span>());<br>  page-&gt;is_dirty_ = <span class="hljs-literal">false</span>;<br><br>  <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h5 id="TODO-2-FlushAllPgsImp"><a href="#TODO-2-FlushAllPgsImp" class="headerlink" title="TODO 2 FlushAllPgsImp"></a>TODO 2 FlushAllPgsImp</h5><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs c++"><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">BufferPoolManagerInstance::FlushAllPgsImp</span><span class="hljs-params">()</span> </span>&#123;<br>  <span class="hljs-comment">// You can do it!</span><br>  <span class="hljs-function">std::lock_guard&lt;std::mutex&gt; <span class="hljs-title">lock_guard</span><span class="hljs-params">(latch_)</span></span>;<br>  <span class="hljs-keyword">for</span> (<span class="hljs-keyword">auto</span> &amp;item : page_table_) &#123;<br>    <span class="hljs-type">frame_id_t</span> frame_id = item.second;<br>    Page *page = &amp;pages_[frame_id];<br>    disk_manager_-&gt;<span class="hljs-built_in">WritePage</span>(page-&gt;<span class="hljs-built_in">GetPageId</span>(), page-&gt;<span class="hljs-built_in">GetData</span>());<br>    page-&gt;is_dirty_ = <span class="hljs-literal">false</span>;<br>  &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h5 id="TODO-3-NewPgImp"><a href="#TODO-3-NewPgImp" class="headerlink" title="TODO 3 NewPgImp"></a>TODO 3 NewPgImp</h5><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><code class="hljs C++"><span class="hljs-function">Page *<span class="hljs-title">BufferPoolManagerInstance::NewPgImp</span><span class="hljs-params">(<span class="hljs-type">page_id_t</span> *page_id)</span> </span>&#123;<br>  <span class="hljs-comment">// 0.   Make sure you call AllocatePage!</span><br>  <span class="hljs-comment">// 1.   If all the pages in the buffer pool are pinned, return nullptr.</span><br>  <span class="hljs-comment">// 2.   Pick a victim page P from either the free list or the replacer. Always pick from the free list first.</span><br>  <span class="hljs-comment">// 3.   Update P&#x27;s metadata, zero out memory and add P to the page table.</span><br>  <span class="hljs-comment">// 4.   Set the page ID output parameter. Return a pointer to P.</span><br>  <span class="hljs-function">std::lock_guard&lt;std::mutex&gt; <span class="hljs-title">lock_guard</span><span class="hljs-params">(latch_)</span></span>;<br><br>  <span class="hljs-type">frame_id_t</span> frame_id;<br>  Page *page = <span class="hljs-literal">nullptr</span>;<br><br>  <span class="hljs-keyword">if</span> (!free_list_.<span class="hljs-built_in">empty</span>()) &#123;<br>    frame_id = free_list_.<span class="hljs-built_in">front</span>();<br>    free_list_.<span class="hljs-built_in">pop_front</span>();<br>    page = &amp;pages_[frame_id];<br>  &#125; <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (replacer_-&gt;<span class="hljs-built_in">Victim</span>(&amp;frame_id)) &#123;<br>    page = &amp;pages_[frame_id];<br>    <span class="hljs-keyword">if</span> (page-&gt;<span class="hljs-built_in">IsDirty</span>()) &#123;<br>      disk_manager_-&gt;<span class="hljs-built_in">WritePage</span>(page-&gt;<span class="hljs-built_in">GetPageId</span>(), page-&gt;<span class="hljs-built_in">GetData</span>());<br>    &#125;<br>    page_table_.<span class="hljs-built_in">erase</span>(page-&gt;<span class="hljs-built_in">GetPageId</span>());<br>  &#125; <span class="hljs-keyword">else</span> &#123;<br>    <span class="hljs-keyword">return</span> <span class="hljs-literal">nullptr</span>;<br>  &#125;<br><br>  <span class="hljs-type">page_id_t</span> new_page_id = <span class="hljs-built_in">AllocatePage</span>();<br>  page-&gt;page_id_ = new_page_id;<br>  page-&gt;is_dirty_ = <span class="hljs-literal">false</span>;<br>  page-&gt;pin_count_ = <span class="hljs-number">1</span>;<br>  page-&gt;<span class="hljs-built_in">ResetMemory</span>();<br><br>  page_table_[page-&gt;<span class="hljs-built_in">GetPageId</span>()] = frame_id;<br>  *page_id = page-&gt;<span class="hljs-built_in">GetPageId</span>();<br>  replacer_-&gt;<span class="hljs-built_in">Pin</span>(frame_id);<br><br>  <span class="hljs-keyword">return</span> page;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h5 id="TODO-4-FetchPgImp"><a href="#TODO-4-FetchPgImp" class="headerlink" title="TODO 4 FetchPgImp"></a>TODO 4 FetchPgImp</h5><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><code class="hljs c++"><span class="hljs-function">Page *<span class="hljs-title">BufferPoolManagerInstance::FetchPgImp</span><span class="hljs-params">(<span class="hljs-type">page_id_t</span> page_id)</span> </span>&#123;<br>  <span class="hljs-comment">// 1.     Search the page table for the requested page (P).</span><br>  <span class="hljs-comment">// 1.1    If P exists, pin it and return it immediately.</span><br>  <span class="hljs-comment">// 1.2    If P does not exist, find a replacement page (R) from either the free list or the replacer.</span><br>  <span class="hljs-comment">//        Note that pages are always found from the free list first.</span><br>  <span class="hljs-comment">// 2.     If R is dirty, write it back to the disk.</span><br>  <span class="hljs-comment">// 3.     Delete R from the page table and insert P.</span><br>  <span class="hljs-comment">// 4.     Update P&#x27;s metadata, read in the page content from disk, and then return a pointer to P.</span><br><br>  <span class="hljs-function">std::lock_guard&lt;std::mutex&gt; <span class="hljs-title">lock_guard</span><span class="hljs-params">(latch_)</span></span>;<br>  <span class="hljs-type">frame_id_t</span> frame_id;<br>  Page *page = <span class="hljs-literal">nullptr</span>;<br><br>  <span class="hljs-keyword">auto</span> item = page_table_.<span class="hljs-built_in">find</span>(page_id);<br>  <span class="hljs-keyword">if</span> (item != page_table_.<span class="hljs-built_in">end</span>()) &#123;<br>    frame_id = item-&gt;second;<br>    page = &amp;pages_[frame_id];<br>    page-&gt;pin_count_++;<br>    replacer_-&gt;<span class="hljs-built_in">Pin</span>(frame_id);<br>    <span class="hljs-keyword">return</span> page;<br>  &#125;<br><br>  <span class="hljs-keyword">if</span> (!free_list_.<span class="hljs-built_in">empty</span>()) &#123;<br>    frame_id = free_list_.<span class="hljs-built_in">front</span>();<br>    free_list_.<span class="hljs-built_in">pop_front</span>();<br>    page = &amp;pages_[frame_id];<br>  &#125; <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (replacer_-&gt;<span class="hljs-built_in">Victim</span>(&amp;frame_id)) &#123;<br>    page = &amp;pages_[frame_id];<br>    <span class="hljs-keyword">if</span> (page-&gt;<span class="hljs-built_in">IsDirty</span>()) &#123;<br>      disk_manager_-&gt;<span class="hljs-built_in">WritePage</span>(page-&gt;<span class="hljs-built_in">GetPageId</span>(), page-&gt;<span class="hljs-built_in">GetData</span>());<br>    &#125;<br>    page_table_.<span class="hljs-built_in">erase</span>(page-&gt;<span class="hljs-built_in">GetPageId</span>());<br>  &#125; <span class="hljs-keyword">else</span> &#123;<br>    <span class="hljs-keyword">return</span> <span class="hljs-literal">nullptr</span>;<br>  &#125;<br><br>  page-&gt;page_id_ = page_id;<br>  page-&gt;pin_count_ = <span class="hljs-number">1</span>;<br>  page-&gt;is_dirty_ = <span class="hljs-literal">false</span>;<br>  disk_manager_-&gt;<span class="hljs-built_in">ReadPage</span>(page-&gt;<span class="hljs-built_in">GetPageId</span>(), page-&gt;<span class="hljs-built_in">GetData</span>());<br>  page_table_[page-&gt;<span class="hljs-built_in">GetPageId</span>()] = frame_id;<br>  replacer_-&gt;<span class="hljs-built_in">Pin</span>(frame_id);<br><br>  <span class="hljs-keyword">return</span> page;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h5 id="TODO-5-DeletePgImp"><a href="#TODO-5-DeletePgImp" class="headerlink" title="TODO 5 DeletePgImp"></a>TODO 5 DeletePgImp</h5><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><code class="hljs C++"><span class="hljs-function"><span class="hljs-type">bool</span> <span class="hljs-title">BufferPoolManagerInstance::DeletePgImp</span><span class="hljs-params">(<span class="hljs-type">page_id_t</span> page_id)</span> </span>&#123;<br>  <span class="hljs-comment">// 0.   Make sure you call DeallocatePage!</span><br>  <span class="hljs-comment">// 1.   Search the page table for the requested page (P).</span><br>  <span class="hljs-comment">// 1.   If P does not exist, return true.</span><br>  <span class="hljs-comment">// 2.   If P exists, but has a non-zero pin-count, return false. Someone is using the page.</span><br>  <span class="hljs-comment">// 3.   Otherwise, P can be deleted. Remove P from the page table, reset its metadata and return it to the free list.</span><br><br>  <span class="hljs-function">std::lock_guard&lt;std::mutex&gt; <span class="hljs-title">lock_guard</span><span class="hljs-params">(latch_)</span></span>;<br><br>  <span class="hljs-built_in">DeallocatePage</span>(page_id);<br><br>  <span class="hljs-keyword">auto</span> item = page_table_.<span class="hljs-built_in">find</span>(page_id);<br>  <span class="hljs-keyword">if</span> (item == page_table_.<span class="hljs-built_in">end</span>()) &#123;<br>    <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;<br>  &#125;<br><br>  <span class="hljs-type">frame_id_t</span> frame_id = item-&gt;second;<br>  Page *page = &amp;pages_[frame_id];<br>  <span class="hljs-keyword">if</span> (page-&gt;<span class="hljs-built_in">GetPinCount</span>() != <span class="hljs-number">0</span>) &#123;<br>    <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;<br>  &#125;<br><br>  <span class="hljs-keyword">if</span> (page-&gt;<span class="hljs-built_in">IsDirty</span>()) &#123;<br>    disk_manager_-&gt;<span class="hljs-built_in">WritePage</span>(page-&gt;<span class="hljs-built_in">GetPageId</span>(), page-&gt;<span class="hljs-built_in">GetData</span>());<br>  &#125;<br><br>  replacer_-&gt;<span class="hljs-built_in">Pin</span>(frame_id);<br>  page_table_.<span class="hljs-built_in">erase</span>(page-&gt;<span class="hljs-built_in">GetPageId</span>());<br>  page-&gt;pin_count_ = <span class="hljs-number">0</span>;<br>  page-&gt;is_dirty_ = <span class="hljs-literal">false</span>;<br>  page-&gt;<span class="hljs-built_in">ResetMemory</span>();<br>  page-&gt;page_id_ = INVALID_PAGE_ID;<br>  free_list_.<span class="hljs-built_in">push_back</span>(frame_id);<br><br>  <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h5 id="TODO-6-UnpinPgImp"><a href="#TODO-6-UnpinPgImp" class="headerlink" title="TODO 6 UnpinPgImp"></a>TODO 6 UnpinPgImp</h5><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><code class="hljs c++"><span class="hljs-function"><span class="hljs-type">bool</span> <span class="hljs-title">BufferPoolManagerInstance::UnpinPgImp</span><span class="hljs-params">(<span class="hljs-type">page_id_t</span> page_id, <span class="hljs-type">bool</span> is_dirty)</span> </span>&#123;<br>  <span class="hljs-function">std::lock_guard&lt;std::mutex&gt; <span class="hljs-title">lock_guard</span><span class="hljs-params">(latch_)</span></span>;<br>  <span class="hljs-keyword">auto</span> item = page_table_.<span class="hljs-built_in">find</span>(page_id);<br>  <span class="hljs-keyword">if</span> (item == page_table_.<span class="hljs-built_in">end</span>()) &#123;<br>    <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;<br>  &#125;<br><br>  <span class="hljs-type">frame_id_t</span> frame_id = item-&gt;second;<br>  Page *page = &amp;pages_[frame_id];<br>  <span class="hljs-keyword">if</span> (page-&gt;<span class="hljs-built_in">GetPinCount</span>() &lt;= <span class="hljs-number">0</span>) &#123;<br>    <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;<br>  &#125;<br><br>  page-&gt;pin_count_--;<br>  <span class="hljs-keyword">if</span> (is_dirty) &#123;<br>    page-&gt;is_dirty_ = <span class="hljs-literal">true</span>;<br>  &#125;<br><br>  <span class="hljs-keyword">if</span> (page-&gt;<span class="hljs-built_in">GetPinCount</span>() &lt;= <span class="hljs-number">0</span>) &#123;<br>    replacer_-&gt;<span class="hljs-built_in">Unpin</span>(frame_id);<br>  &#125;<br><br>  <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h5 id="Test-1"><a href="#Test-1" class="headerlink" title="Test"></a>Test</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs bash">make buffer_pool_manager_instance_test<br>./test/buffer_pool_manager_instance_test<br></code></pre></td></tr></table></figure>
+
+<p><img src="https://imgs.bencorn.com/imgs/2022/02/28/20220228170639.png" srcset="/img/loading.gif" lazyload alt="Buffer Pool Manager Instance 本地测试"></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">valgrind --leak-check=full --suppressions=../build_support/valgrind.supp ./test/buffer_pool_manager_instance_test --gtest_filter=BufferPoolManagerInstanceTest.BinaryDataTest:BufferPoolManagerInstanceTest.SampleTest<br></code></pre></td></tr></table></figure>
+
+<p><img src="https://imgs.bencorn.com/imgs/2022/02/28/20220228170659.png" srcset="/img/loading.gif" lazyload alt="Buffer Pool Manager Instance内存检测"></p>
+<h3 id="Parallel-Buffer-Pool-Manager"><a href="#Parallel-Buffer-Pool-Manager" class="headerlink" title="Parallel Buffer Pool Manager"></a>Parallel Buffer Pool Manager</h3><h4 id="个人理解-2"><a href="#个人理解-2" class="headerlink" title="个人理解"></a>个人理解</h4><p><img src="https://imgs.bencorn.com/imgs/2022/02/28/20220228175932.png" srcset="/img/loading.gif" lazyload alt="multiple buffer pools"></p>
+<p> 并行buffer pool manager，这个部分其实是想让我们实现一个并行的数据库优化，也就是四个数据库优化中的第一个，multiple buffer pools，估计后边儿的实验老师会围绕这几个优化分别进行项目的制作，太牛b啊，这个部分的实现是采用了第二个Hash的方式来实现对每一个page的分配，也就是说当我们拿到一个page的时候，根据page_id来确定该page保存在那个buffer pool，注意：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs c++"><span class="hljs-function"><span class="hljs-type">page_id_t</span> <span class="hljs-title">BufferPoolManagerInstance::AllocatePage</span><span class="hljs-params">()</span> </span>&#123;<br>  <span class="hljs-type">const</span> <span class="hljs-type">page_id_t</span> next_page_id = next_page_id_;<br>  next_page_id_ += num_instances_;<br>  <span class="hljs-built_in">ValidatePageId</span>(next_page_id);<br>  <span class="hljs-keyword">return</span> next_page_id;<br>&#125;<br><br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">BufferPoolManagerInstance::ValidatePageId</span><span class="hljs-params">(<span class="hljs-type">const</span> <span class="hljs-type">page_id_t</span> page_id)</span> <span class="hljs-type">const</span> </span>&#123;<br>  <span class="hljs-built_in">assert</span>(page_id % num_instances_ == instance_index_);  <span class="hljs-comment">// allocated pages mod back to this BPI</span><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p> 通过观察上述的代码跟踪，可以分析得出，每次对page_id的分配就是对其进行hash取模来判断是存在哪个pool；然后为了达到并行，我们直接每个函数内操作该buffer pool instance内地数据就好了，其他的就是分配页儿的策略了，看如何达到比较好的性能，哈哈哈我不会，我就每次newpage的时候去每个instance挨个找，性能可能会极差。</p>
+<h4 id="实现细节-2"><a href="#实现细节-2" class="headerlink" title="实现细节"></a>实现细节</h4><h5 id="TODO-1-Structure"><a href="#TODO-1-Structure" class="headerlink" title="TODO 1 Structure"></a>TODO 1 Structure</h5><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs c++"><span class="hljs-keyword">private</span>:<br> std::mutex parallel_buffer_pool_latch_;<br> <span class="hljs-type">size_t</span> num_instance_;<br> <span class="hljs-type">size_t</span> pool_size_;<br> <span class="hljs-type">size_t</span> start_index_;<br> std::vector&lt;BufferPoolManagerInstance *&gt; buffer_pool_manager_;<br></code></pre></td></tr></table></figure>
+
+<h5 id="TODO-2-Constructor"><a href="#TODO-2-Constructor" class="headerlink" title="TODO 2 Constructor"></a>TODO 2 Constructor</h5><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs c++">ParallelBufferPoolManager::<span class="hljs-built_in">ParallelBufferPoolManager</span>(<span class="hljs-type">size_t</span> num_instances, <span class="hljs-type">size_t</span> pool_size, DiskManager *disk_manager,<br>                                                     LogManager *log_manager) &#123;<br>  <span class="hljs-comment">// Allocate and create individual BufferPoolManagerInstances</span><br>  <span class="hljs-function">std::lock_guard&lt;std::mutex&gt; <span class="hljs-title">lock_guard</span><span class="hljs-params">(parallel_buffer_pool_latch_)</span></span>;<br>  num_instance_ = num_instances;<br>  pool_size_ = pool_size;<br>  start_index_ = <span class="hljs-number">0</span>;<br>  <span class="hljs-keyword">for</span> (<span class="hljs-type">size_t</span> i = <span class="hljs-number">0</span>; i &lt; num_instance_; ++i) &#123;<br>    buffer_pool_manager_.<span class="hljs-built_in">push_back</span>(<br>        <span class="hljs-keyword">new</span> <span class="hljs-built_in">BufferPoolManagerInstance</span>(pool_size_, num_instance_, i, disk_manager, log_manager));<br>  &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h5 id="TODO-3-Destructor"><a href="#TODO-3-Destructor" class="headerlink" title="TODO 3 Destructor"></a>TODO 3 Destructor</h5><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs c++"><span class="hljs-comment">// Update constructor to destruct all BufferPoolManagerInstances and deallocate any associated memory</span><br>ParallelBufferPoolManager::~<span class="hljs-built_in">ParallelBufferPoolManager</span>() &#123;<br>  <span class="hljs-keyword">for</span> (<span class="hljs-type">size_t</span> i = <span class="hljs-number">0</span>; i &lt; num_instance_; ++i) &#123;<br>    <span class="hljs-keyword">delete</span> buffer_pool_manager_[i];<br>  &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h5 id="TODO-4-GetPoolSize"><a href="#TODO-4-GetPoolSize" class="headerlink" title="TODO 4 GetPoolSize"></a>TODO 4 GetPoolSize</h5><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs c++"><span class="hljs-function"><span class="hljs-type">size_t</span> <span class="hljs-title">ParallelBufferPoolManager::GetPoolSize</span><span class="hljs-params">()</span> </span>&#123;<br>  <span class="hljs-comment">// Get size of all BufferPoolManagerInstances</span><br>  <span class="hljs-keyword">return</span> pool_size_ * num_instances_;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h5 id="TODO-5-GetBufferPoolManager"><a href="#TODO-5-GetBufferPoolManager" class="headerlink" title="TODO 5 GetBufferPoolManager"></a>TODO 5 GetBufferPoolManager</h5><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs c++"><span class="hljs-function">BufferPoolManager *<span class="hljs-title">ParallelBufferPoolManager::GetBufferPoolManager</span><span class="hljs-params">(<span class="hljs-type">page_id_t</span> page_id)</span> </span>&#123;<br>  <span class="hljs-comment">// Get BufferPoolManager responsible for handling given page id. You can use this method in your other methods.</span><br>  <span class="hljs-keyword">return</span> buffer_pool_manager_[page_id % num_instance_];<br>&#125;<br><br></code></pre></td></tr></table></figure>
+
+<h5 id="TODO-6-FetchPgImp"><a href="#TODO-6-FetchPgImp" class="headerlink" title="TODO 6 FetchPgImp"></a>TODO 6 FetchPgImp</h5><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs c++"><span class="hljs-function">Page *<span class="hljs-title">ParallelBufferPoolManager::FetchPgImp</span><span class="hljs-params">(<span class="hljs-type">page_id_t</span> page_id)</span> </span>&#123;<br>  <span class="hljs-comment">// Fetch page for page_id from responsible BufferPoolManagerInstance</span><br>  <span class="hljs-keyword">return</span> <span class="hljs-built_in">GetBufferPoolManager</span>(page_id)-&gt;<span class="hljs-built_in">FetchPage</span>(page_id);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h5 id="TODO-7-UnpinPgImp"><a href="#TODO-7-UnpinPgImp" class="headerlink" title="TODO 7 UnpinPgImp"></a>TODO 7 UnpinPgImp</h5><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs c++"><span class="hljs-function"><span class="hljs-type">bool</span> <span class="hljs-title">ParallelBufferPoolManager::UnpinPgImp</span><span class="hljs-params">(<span class="hljs-type">page_id_t</span> page_id, <span class="hljs-type">bool</span> is_dirty)</span> </span>&#123;<br>  <span class="hljs-comment">// Unpin page_id from responsible BufferPoolManagerInstance</span><br>  <span class="hljs-keyword">return</span> <span class="hljs-built_in">GetBufferPoolManager</span>(page_id)-&gt;<span class="hljs-built_in">UnpinPage</span>(page_id, is_dirty);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h5 id="TODO-8-FlushPgImp"><a href="#TODO-8-FlushPgImp" class="headerlink" title="TODO 8 FlushPgImp"></a>TODO 8 FlushPgImp</h5><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs c++"><span class="hljs-function"><span class="hljs-type">bool</span> <span class="hljs-title">ParallelBufferPoolManager::FlushPgImp</span><span class="hljs-params">(<span class="hljs-type">page_id_t</span> page_id)</span> </span>&#123;<br>  <span class="hljs-comment">// Flush page_id from responsible BufferPoolManagerInstance</span><br>  <span class="hljs-keyword">return</span> <span class="hljs-built_in">GetBufferPoolManager</span>(page_id)-&gt;<span class="hljs-built_in">FlushPage</span>(page_id);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h5 id="TODO-9-NewPgImp"><a href="#TODO-9-NewPgImp" class="headerlink" title="TODO 9 NewPgImp"></a>TODO 9 NewPgImp</h5><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><code class="hljs c++"><span class="hljs-function">Page *<span class="hljs-title">ParallelBufferPoolManager::NewPgImp</span><span class="hljs-params">(<span class="hljs-type">page_id_t</span> *page_id)</span> </span>&#123;<br>  <span class="hljs-comment">// create new page. We will request page allocation in a round robin manner from the underlying</span><br>  <span class="hljs-comment">// BufferPoolManagerInstances</span><br>  <span class="hljs-comment">// 1.   From a starting index of the BPMIs, call NewPageImpl until either 1) success and return 2) looped around to</span><br>  <span class="hljs-comment">// starting index and return nullptr</span><br>  <span class="hljs-comment">// 2.   Bump the starting index (mod number of instances) to start search at a different BPMI each time this function</span><br>  <span class="hljs-comment">// is called</span><br><br>  <span class="hljs-function">std::lock_guard&lt;std::mutex&gt; <span class="hljs-title">lock_guard</span><span class="hljs-params">(parallel_buffer_pool_latch_)</span></span>;<br>  <span class="hljs-keyword">for</span> (<span class="hljs-type">size_t</span> i = start_index_; i &lt; start_index_ + num_instance_; ++i) &#123;<br>    BufferPoolManager *manager = buffer_pool_manager_[i % num_instance_];<br>    Page *page = manager-&gt;<span class="hljs-built_in">NewPage</span>(page_id);<br>    <span class="hljs-keyword">if</span> (page != <span class="hljs-literal">nullptr</span>) &#123;<br>      start_index_ = (i + <span class="hljs-number">1</span>) % num_instance_;<br>      <span class="hljs-keyword">return</span> page;<br>    &#125;<br>  &#125;<br>  <span class="hljs-keyword">return</span> <span class="hljs-literal">nullptr</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h5 id="TODO-10-DeletePgImp"><a href="#TODO-10-DeletePgImp" class="headerlink" title="TODO 10 DeletePgImp"></a>TODO 10 DeletePgImp</h5><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs c++"><span class="hljs-function"><span class="hljs-type">bool</span> <span class="hljs-title">ParallelBufferPoolManager::DeletePgImp</span><span class="hljs-params">(<span class="hljs-type">page_id_t</span> page_id)</span> </span>&#123;<br>  <span class="hljs-comment">// Delete page_id from responsible BufferPoolManagerInstance</span><br>  <span class="hljs-keyword">return</span> <span class="hljs-built_in">GetBufferPoolManager</span>(page_id)-&gt;<span class="hljs-built_in">DeletePage</span>(page_id);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h5 id="TODO-11-FlushAllPgsImp"><a href="#TODO-11-FlushAllPgsImp" class="headerlink" title="TODO 11 FlushAllPgsImp"></a>TODO 11 FlushAllPgsImp</h5><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs c++"><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">ParallelBufferPoolManager::FlushAllPgsImp</span><span class="hljs-params">()</span> </span>&#123;<br>  <span class="hljs-comment">// flush all pages from all BufferPoolManagerInstances</span><br>  <span class="hljs-keyword">for</span> (<span class="hljs-type">size_t</span> i = <span class="hljs-number">0</span>; i &lt; num_instance_; ++i) &#123;<br>    buffer_pool_manager_[i]-&gt;<span class="hljs-built_in">FlushAllPages</span>();<br>  &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h5 id="Test-2"><a href="#Test-2" class="headerlink" title="Test"></a>Test</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs bash">make parallel_buffer_pool_manager_test<br>./test/parallel_buffer_pool_manager_test<br></code></pre></td></tr></table></figure>
+
+<p><img src="https://imgs.bencorn.com/imgs/2022/02/28/20220228170750.png" srcset="/img/loading.gif" lazyload alt="Parallel Buffer Pool Manager 本地测试"></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs bash">	valgrind --leak-check=full --suppressions=../build_support/valgrind.supp ./test/parallel_buffer_pool_manager_test --gtest_filter=ParallelBufferPoolManagerTest.BinaryDataTest:ParallelBufferPoolManagerTest.Sample<br>Test<br></code></pre></td></tr></table></figure>
+
+
+
+<p><img src="https://imgs.bencorn.com/imgs/2022/02/28/20220228170817.png" srcset="/img/loading.gif" lazyload alt="Parallel Buffer Pool Manager 内存测试"></p>
+<h4 id="Gradescope"><a href="#Gradescope" class="headerlink" title="Gradescope"></a>Gradescope</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs bash">make format<br>	make check-lint<br>	make check-clang-tidy<br>	<br>zip project1-submission.zip \<br>   src/include/buffer/lru_replacer.h \<br>   src/buffer/lru_replacer.cpp \<br>   src/include/buffer/buffer_pool_manager_instance.h \<br>   src/buffer/buffer_pool_manager_instance.cpp \<br>   src/include/buffer/parallel_buffer_pool_manager.h \<br>   src/buffer/parallel_buffer_pool_manager.cpp	<br></code></pre></td></tr></table></figure>
+
+<p><img src="https://imgs.bencorn.com/imgs/2022/02/28/20220228170844.png" srcset="/img/loading.gif" lazyload alt="Gradescope"></p>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p> 仿佛打开新世界的大门啊，嗯怎么说，总结几点需要注意的吧：</p>
+<ul>
+<li>LRU的析构函数（其他的也是）还是手动释放一下内存比较好，但是不要愚蠢</li>
+<li>并行buffer pool的页分配，参照代码注释采用轮询的时候，可以考虑分配的更加均匀，反正我是上一次分配buffer pool的下一个来，挨着来找；可能一开始会比较均匀，但是最终由于读取那些page每个被访问的概率不一样，其实这也是假想的负载均衡，反正我象不太清楚，能大概的做一个global policy就好了，达到目的</li>
+<li>然后就是反复看视频和PPT，加深理解</li>
+</ul>
+<p> 行，基本Over，继续学习，太菜了~</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/CMU15445/" class="category-chain-item">CMU15445</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/CMU15445/">#CMU15445</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>Project 1 Buffer Pool Manager</div>
+      <div>https://www.bencorn.com/2022/02/25/Project-1-Buffer-Pool-Manager/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Bencorn</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2022年2月25日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2022/03/22/VPP-Labs/" title="VPP Labs">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">VPP Labs</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2022/01/22/sdn-network-orders/" title="sdn network orders">
+                        <span class="hidden-mobile">sdn network orders</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  
+  
+    <article id="comments" lazyload>
+      
+  <div id="gitalk-container"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#gitalk-container', function() {
+      Fluid.utils.createCssLink('/css/gitalk.css')
+      Fluid.utils.createScript('https://lib.baomitu.com/gitalk/1.8.0/gitalk.min.js', function() {
+        var options = Object.assign(
+          {"clientID":"c8e51936bf0945ca26ae","clientSecret":"e712730e967ff8834fa267ac7d2a6a11587a35ed","repo":"shatanyumi.github.io","owner":"shatanyumi","admin":["shatanyumi"],"language":"zh-CN","labels":["Gitalk"],"perPage":10,"pagerDirection":"last","distractionFreeMode":false,"createIssueManually":true,"proxy":"https://cloudflare-cors-anywhere.bencorn.com/?https://github.com/login/oauth/access_token"},
+          {
+            id: '13211153b1151418bd5c0efd50c87dc0'
+          }
+        )
+        var gitalk = new Gitalk(options);
+        gitalk.render('gitalk-container');
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+    </article>
+  
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="busuanzi_container_site_pv" style="display: none">
+        总访问量 
+        <span id="busuanzi_value_site_pv"></span>
+         次
+      </span>
+    
+    
+      <span id="busuanzi_container_site_uv" style="display: none">
+        总访客数 
+        <span id="busuanzi_value_site_uv"></span>
+         人
+      </span>
+    
+    
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+
+        Fluid.events.registerRefreshCallback(function() {
+          if ('MathJax' in window && MathJax.startup.document && typeof MathJax.startup.document.state === 'function') {
+            MathJax.startup.document.state(0);
+            MathJax.texReset();
+            MathJax.typeset();
+            MathJax.typesetPromise();
+          }
+        });
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.2/es5/tex-mml-chtml.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
