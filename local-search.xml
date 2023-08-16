@@ -4,6 +4,31 @@
   
   
   <entry>
+    <title>linux性能分析</title>
+    <link href="/2023/08/16/linux%E6%80%A7%E8%83%BD%E5%88%86%E6%9E%90/"/>
+    <url>/2023/08/16/linux%E6%80%A7%E8%83%BD%E5%88%86%E6%9E%90/</url>
+    
+    <content type="html"><![CDATA[<p>linux 性能分析实例，通过各个命令来进行性能分析。下面列举常用的几个命令，来进行服务的性能问题排查。</p><h1 id="top"><a href="#top" class="headerlink" title="top"></a>top</h1><p><img src="https://imgs.bencorn.com//imgs/linux%E6%80%A7%E8%83%BD%E5%88%86%E6%9E%90-2023-08-16-20-56-20.png" alt="top"></p><p>top 命令查看系统的总体情况。关注一些参数：</p><ul><li>%Cpu： cpu 使用情况<ul><li>us：用户空间使用情况</li><li>sy：内核空间使用情况</li></ul></li><li>Mem：内存使用情况</li><li>Swap：交换区使用情况</li></ul><h1 id="vmstat"><a href="#vmstat" class="headerlink" title="vmstat"></a>vmstat</h1><p><img src="https://imgs.bencorn.com//imgs/linux%E6%80%A7%E8%83%BD%E5%88%86%E6%9E%90-2023-08-16-20-59-41.png" alt="vmstat 1"></p><p>vmstat 1 可以查看一些总体情况：</p><ul><li><p>procs：进程数目，如果是小于 CPU 的数目是较为正常的，如果是大于 CPU 数目，说明 CPU 满负荷状态，太多的话就需要查看占用情况了；</p></li><li><p>memory：内存使用情况等；</p></li><li><p>cpu：查看用户空间、内核空间、IO等待等情况，来查看 CPU 的使用情况。</p></li></ul><h1 id="mpstat"><a href="#mpstat" class="headerlink" title="mpstat"></a>mpstat</h1><p>安装 sysstat 支持 mpstat。</p><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">sudo apt install sysstat -y<br></code></pre></td></tr></table></figure><p><img src="https://imgs.bencorn.com//imgs/linux%E6%80%A7%E8%83%BD%E5%88%86%E6%9E%90-2023-08-16-21-09-18.png" alt="mpstat"></p><p>这个命令可以让我们看到 CPU 的时间使用情况。</p><h1 id="iostat"><a href="#iostat" class="headerlink" title="iostat"></a>iostat</h1><p><img src="https://imgs.bencorn.com//imgs/linux%E6%80%A7%E8%83%BD%E5%88%86%E6%9E%90-2023-08-16-21-15-03.png" alt="iostat"></p><p>这个命令可以让我们看到磁盘使用率情况。</p><h1 id="sar-n-DEV-1"><a href="#sar-n-DEV-1" class="headerlink" title="sar -n DEV 1"></a>sar -n DEV 1</h1><p><img src="https://imgs.bencorn.com//imgs/linux%E6%80%A7%E8%83%BD%E5%88%86%E6%9E%90-2023-08-16-21-20-04.png" alt="sar -n DEV 1"></p><p>通过此命令，查看网络 IO 的使用情况。</p><h1 id="pidstat"><a href="#pidstat" class="headerlink" title="pidstat"></a>pidstat</h1><p><img src="https://imgs.bencorn.com//imgs/linux%E6%80%A7%E8%83%BD%E5%88%86%E6%9E%90-2023-08-16-21-26-10.png" alt="pidstat"></p><h1 id="strace"><a href="#strace" class="headerlink" title="strace"></a>strace</h1><p>…</p>]]></content>
+    
+    
+    <categories>
+      
+      <category>linux</category>
+      
+    </categories>
+    
+    
+    <tags>
+      
+      <tag>linux</tag>
+      
+    </tags>
+    
+  </entry>
+  
+  
+  
+  <entry>
     <title>7-整数反转</title>
     <link href="/2023/08/12/7-%E6%95%B4%E6%95%B0%E5%8F%8D%E8%BD%AC/"/>
     <url>/2023/08/12/7-%E6%95%B4%E6%95%B0%E5%8F%8D%E8%BD%AC/</url>
