@@ -115,7 +115,7 @@
 
 
   
-<meta name="generator" content="Hexo 6.3.0"></head>
+<meta name="generator" content="Hexo 8.1.1"></head>
 
 
 <body>
@@ -334,7 +334,7 @@
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs bash">systemctl <span class="hljs-built_in">cat</span> docker | grep <span class="hljs-string">&#x27;\\-\\-registry\\-mirror&#x27;</span><br>&#123;<br>  <span class="hljs-string">&quot;registry-mirrors&quot;</span>: [<br>    <span class="hljs-string">&quot;&lt;https://hub-mirror.c.163.com&gt;&quot;</span>,<br>    <span class="hljs-string">&quot;&lt;https://mirror.baidubce.com&gt;&quot;</span><br>  ]<br>&#125;<br></code></pre></td></tr></table></figure>
 
 <p>​	然后重启一下docker</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs bash">sudo systemctl daemon-reload<br>sudo systemctl restart docker<br></code></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-built_in">sudo</span> systemctl daemon-reload<br><span class="hljs-built_in">sudo</span> systemctl restart docker<br></code></pre></td></tr></table></figure>
 
 <ul>
 <li>bug-2 Error response from daemon: could not find an available, non-overlapping IPv4 address pool among the defaults to assign to the network</li>

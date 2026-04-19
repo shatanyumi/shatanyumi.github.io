@@ -115,7 +115,7 @@
 
 
   
-<meta name="generator" content="Hexo 6.3.0"></head>
+<meta name="generator" content="Hexo 8.1.1"></head>
 
 
 <body>
@@ -330,36 +330,36 @@
                 <h1 id="环境安装"><a href="#环境安装" class="headerlink" title="环境安装"></a>环境安装</h1><ul>
 <li>Debian 10</li>
 </ul>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">sudo apt install gcc g++ vim cmake curl wget ifconfig bridge-utils -y<br></code></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-built_in">sudo</span> apt install gcc g++ vim cmake curl wget ifconfig bridge-utils -y<br></code></pre></td></tr></table></figure>
 
 
 
 <ul>
 <li>repo添加</li>
 </ul>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">curl -s https://packagecloud.io/install/repositories/fdio/release/script.deb.sh | sudo bash<br></code></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">curl -s https://packagecloud.io/install/repositories/fdio/release/script.deb.sh | <span class="hljs-built_in">sudo</span> bash<br></code></pre></td></tr></table></figure>
 
 <ul>
 <li>安装VPP</li>
 </ul>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs bash">sudo apt-get update<br>sudo apt-get install vpp vpp-plugin-core vpp-plugin-dpdk -y<br><span class="hljs-comment"># 可选择的安装</span><br><span class="hljs-comment"># sudo apt-get install vpp vpp-plugin-core vpp-plugin-dpdk vpp-dbg vpp-dev vpp-ext-deps vpp-api-python vpp-api-java -y</span><br></code></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-built_in">sudo</span> apt-get update<br><span class="hljs-built_in">sudo</span> apt-get install vpp vpp-plugin-core vpp-plugin-dpdk -y<br><span class="hljs-comment"># 可选择的安装</span><br><span class="hljs-comment"># sudo apt-get install vpp vpp-plugin-core vpp-plugin-dpdk vpp-dbg vpp-dev vpp-ext-deps vpp-api-python vpp-api-java -y</span><br></code></pre></td></tr></table></figure>
 
 <h1 id="正式实验"><a href="#正式实验" class="headerlink" title="正式实验"></a>正式实验</h1><h2 id="host-vpp连接实验"><a href="#host-vpp连接实验" class="headerlink" title="host-vpp连接实验"></a>host-vpp连接实验</h2><p>实验链接：<a target="_blank" rel="noopener" href="https://s3-docs.fd.io/vpp/22.06/gettingstarted/progressivevpp/interface.html">https://s3-docs.fd.io/vpp/22.06/gettingstarted/progressivevpp/interface.html</a></p>
 <p><img src="https://imgs.bencorn.com/imgs/2022/03/22/20220322201107.jpeg" srcset="/img/loading.gif" lazyload alt="Figure: Create Interface Topology"></p>
 <p>根据如上的拓扑图，创建veth</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs bash">sudo ip <span class="hljs-built_in">link</span> add name vpp1out <span class="hljs-built_in">type</span> veth peer name vpp1host<br>sudo ip <span class="hljs-built_in">link</span> <span class="hljs-built_in">set</span> dev vpp1out up<br>sudo ip <span class="hljs-built_in">link</span> <span class="hljs-built_in">set</span> dev vpp1host up<br></code></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-built_in">sudo</span> ip <span class="hljs-built_in">link</span> add name vpp1out <span class="hljs-built_in">type</span> veth peer name vpp1host<br><span class="hljs-built_in">sudo</span> ip <span class="hljs-built_in">link</span> <span class="hljs-built_in">set</span> dev vpp1out up<br><span class="hljs-built_in">sudo</span> ip <span class="hljs-built_in">link</span> <span class="hljs-built_in">set</span> dev vpp1host up<br></code></pre></td></tr></table></figure>
 
 <p>添加IP地址</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs bash">sudo ip addr add 10.10.1.1/24 dev vpp1host<br>ip addr show vpp1host<br></code></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-built_in">sudo</span> ip addr add 10.10.1.1/24 dev vpp1host<br>ip addr show vpp1host<br></code></pre></td></tr></table></figure>
 
 <p>创建vpp接口</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs bash">ps -eaf | grep vpp<br>sudo /usr/bin/vpp -c vpp1.conf<br></code></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs bash">ps -eaf | grep vpp<br><span class="hljs-built_in">sudo</span> /usr/bin/vpp -c vpp1.conf<br></code></pre></td></tr></table></figure>
 
 <p>vpp1.conf内容如下</p>
 <figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs json">unix <span class="hljs-punctuation">&#123;</span>cli-listen /run/vpp/cli-vpp1.sock<span class="hljs-punctuation">&#125;</span><br>api-segment <span class="hljs-punctuation">&#123;</span> prefix vpp1 <span class="hljs-punctuation">&#125;</span><br>plugins <span class="hljs-punctuation">&#123;</span> plugin dpdk_plugin.so <span class="hljs-punctuation">&#123;</span> disable <span class="hljs-punctuation">&#125;</span> <span class="hljs-punctuation">&#125;</span><br></code></pre></td></tr></table></figure>
 
 <p>进入vpp1的shell界面</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs bash">sudo vppctl -s /run/vpp/cli-vpp1.sock<br><span class="hljs-comment"># 创建接口</span><br>create host-interface name vpp1out<br>show hardware<br><span class="hljs-built_in">set</span> int state host-vpp1out up<br>show int<br><span class="hljs-comment"># 添加IP</span><br><span class="hljs-built_in">set</span> int ip address host-vpp1out 10.10.1.2/24<br>show int addr<br><br></code></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-built_in">sudo</span> vppctl -s /run/vpp/cli-vpp1.sock<br><span class="hljs-comment"># 创建接口</span><br>create host-interface name vpp1out<br>show hardware<br><span class="hljs-built_in">set</span> int state host-vpp1out up<br>show int<br><span class="hljs-comment"># 添加IP</span><br><span class="hljs-built_in">set</span> int ip address host-vpp1out 10.10.1.2/24<br>show int addr<br><br></code></pre></td></tr></table></figure>
 
 <p>到此就完成了上述的创建链接的实验。</p>
 <h2 id="trace-实验"><a href="#trace-实验" class="headerlink" title="trace 实验"></a>trace 实验</h2><p>实验链接：<a target="_blank" rel="noopener" href="https://s3-docs.fd.io/vpp/22.06/gettingstarted/progressivevpp/traces.html">https://s3-docs.fd.io/vpp/22.06/gettingstarted/progressivevpp/traces.html</a></p>
@@ -387,16 +387,16 @@
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs bash">unix &#123;cli-listen /run/vpp/cli-vpp2.sock&#125;<br>api-segment &#123; prefix vpp2 &#125;<br>plugins &#123; plugin dpdk_plugin.so &#123; <span class="hljs-built_in">disable</span> &#125; &#125;<br></code></pre></td></tr></table></figure>
 
 <p>在host上执行：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">sudo vpp -c vpp2.conf<br></code></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-built_in">sudo</span> vpp -c vpp2.conf<br></code></pre></td></tr></table></figure>
 
 <p>进入vpp2的shell：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment">#host执行</span><br>sudo vppctl -s /run/vpp/cli-vpp2.sock<br><span class="hljs-comment">#vpp shell执行</span><br>show version<br>quit<br></code></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment">#host执行</span><br><span class="hljs-built_in">sudo</span> vppctl -s /run/vpp/cli-vpp2.sock<br><span class="hljs-comment">#vpp shell执行</span><br>show version<br>quit<br></code></pre></td></tr></table></figure>
 
 <h3 id="memif接口创建"><a href="#memif接口创建" class="headerlink" title="memif接口创建"></a>memif接口创建</h3><p>在vpp1端创建memif接口：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># host执行</span><br>sudo vppctl -s /run/vpp/cli-vpp1.sock<br><span class="hljs-comment"># vpp shell执行</span><br>create interface memif <span class="hljs-built_in">id</span> 0 master<br><span class="hljs-built_in">set</span> int state memif0/0 up<br><span class="hljs-built_in">set</span> int ip address memif0/0 10.10.2.1/24<br></code></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># host执行</span><br><span class="hljs-built_in">sudo</span> vppctl -s /run/vpp/cli-vpp1.sock<br><span class="hljs-comment"># vpp shell执行</span><br>create interface memif <span class="hljs-built_in">id</span> 0 master<br><span class="hljs-built_in">set</span> int state memif0/0 up<br><span class="hljs-built_in">set</span> int ip address memif0/0 10.10.2.1/24<br></code></pre></td></tr></table></figure>
 
 <p>在vpp2端创建memif端口：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># host执行</span><br>sudo vppctl -s /run/vpp/cli-vpp2.sock<br><span class="hljs-comment"># vpp shell执行</span><br>create interface memif <span class="hljs-built_in">id</span> 0 slave<br><span class="hljs-built_in">set</span> int state memif0/0 up<br><span class="hljs-built_in">set</span> int ip address memif0/0 10.10.2.2/24<br><br></code></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># host执行</span><br><span class="hljs-built_in">sudo</span> vppctl -s /run/vpp/cli-vpp2.sock<br><span class="hljs-comment"># vpp shell执行</span><br>create interface memif <span class="hljs-built_in">id</span> 0 slave<br><span class="hljs-built_in">set</span> int state memif0/0 up<br><span class="hljs-built_in">set</span> int ip address memif0/0 10.10.2.2/24<br><br></code></pre></td></tr></table></figure>
 
 <p>在vpp1端ping</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># vpp1 shell执行</span><br>ping 10.10.2.2<br></code></pre></td></tr></table></figure>
@@ -407,7 +407,7 @@
 <h2 id="路由实验"><a href="#路由实验" class="headerlink" title="路由实验"></a>路由实验</h2><p>实验链接：<a target="_blank" rel="noopener" href="https://s3-docs.fd.io/vpp/22.06/gettingstarted/progressivevpp/routing.html">https://s3-docs.fd.io/vpp/22.06/gettingstarted/progressivevpp/routing.html</a></p>
 <p><img src="https://imgs.bencorn.com/imgs/2022/03/22/20220322201125.png" srcset="/img/loading.gif" lazyload alt="Connect two FD.io VPP topology"></p>
 <p>实验沿用之前的环境，设置host上的路由</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs bash">sudo ip route add 10.10.2.0/24 via 10.10.1.2<br>ip route<br></code></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-built_in">sudo</span> ip route add 10.10.2.0/24 via 10.10.1.2<br>ip route<br></code></pre></td></tr></table></figure>
 
 <p>在vpp2上设置返回：</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">ip route add 10.10.1.0/24  via 10.10.2.1<br></code></pre></td></tr></table></figure>

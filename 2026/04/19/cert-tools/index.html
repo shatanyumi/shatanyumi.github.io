@@ -18,26 +18,26 @@
   <meta name="author" content="Bencorn">
   <meta name="keywords" content="">
   
-    <meta name="description" content="安装预先准备安装环境ubuntu 9.04（32-bit）   Virtualbox 镜像 ubuntu-9.04-desktop-i386.iso         chronos安装包chronos2.0版本安装包.zip  安装步骤系统安装 正常按照步骤安装系统  安装好系统之后，切换源，教程如下，笔者使用的中科大源： https:&#x2F;&#x2F;mirrors.ustc.edu.cn&#x2F;help&#x2F;ubun">
+    <meta name="description" content="简介本文主要是介绍一些开源的处理 netflow 的工具，关注 CERT NetSA Security Suite 的一些工具。CERT  是从是网络安全的，其主要是联合 CMU 大学做的大规模复杂网络威胁方面的分析。后续还有其他的处理工具，也会考虑更新。 本文测试环境：Ubuntu 22.04.5 LTS YAFYAF 全称 Yet Another Flowmeter，它主要的能力是从 pcap">
 <meta property="og:type" content="article">
-<meta property="og:title" content="chronos和simplescalar安装">
-<meta property="og:url" content="https://www.bencorn.com/2022/09/20/chronos%E5%92%8Csimplescalar%E5%AE%89%E8%A3%85/index.html">
+<meta property="og:title" content="cert-tools">
+<meta property="og:url" content="https://www.bencorn.com/2026/04/19/cert-tools/index.html">
 <meta property="og:site_name" content="Sparkplace">
-<meta property="og:description" content="安装预先准备安装环境ubuntu 9.04（32-bit）   Virtualbox 镜像 ubuntu-9.04-desktop-i386.iso         chronos安装包chronos2.0版本安装包.zip  安装步骤系统安装 正常按照步骤安装系统  安装好系统之后，切换源，教程如下，笔者使用的中科大源： https:&#x2F;&#x2F;mirrors.ustc.edu.cn&#x2F;help&#x2F;ubun">
+<meta property="og:description" content="简介本文主要是介绍一些开源的处理 netflow 的工具，关注 CERT NetSA Security Suite 的一些工具。CERT  是从是网络安全的，其主要是联合 CMU 大学做的大规模复杂网络威胁方面的分析。后续还有其他的处理工具，也会考虑更新。 本文测试环境：Ubuntu 22.04.5 LTS YAFYAF 全称 Yet Another Flowmeter，它主要的能力是从 pcap">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="https://imgs.bencorn.com/imgs/2022/09/20/20220920231458.png">
-<meta property="article:published_time" content="2022-09-20T14:51:24.000Z">
-<meta property="article:modified_time" content="2024-06-17T11:43:30.000Z">
+<meta property="og:image" content="https://imgs.bencorn.com/imgs/2026/04/19/2026-04-19-image-20260419125722006.png">
+<meta property="article:published_time" content="2026-04-19T04:53:45.000Z">
+<meta property="article:modified_time" content="2026-04-19T11:30:16.871Z">
 <meta property="article:author" content="Bencorn">
-<meta property="article:tag" content="WCET">
+<meta property="article:tag" content="netflow">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="https://imgs.bencorn.com/imgs/2022/09/20/20220920231458.png">
+<meta name="twitter:image" content="https://imgs.bencorn.com/imgs/2026/04/19/2026-04-19-image-20260419125722006.png">
   
   
     <meta name="referrer" content="no-referrer-when-downgrade">
   
   
-  <title>chronos和simplescalar安装 - Sparkplace</title>
+  <title>cert-tools - Sparkplace</title>
 
   <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
 
@@ -242,7 +242,7 @@
       <div class="banner-text text-center fade-in-up">
         <div class="h2">
           
-            <span id="subtitle" data-typed-text="chronos和simplescalar安装"></span>
+            <span id="subtitle" data-typed-text="cert-tools"></span>
           
         </div>
 
@@ -253,8 +253,8 @@
     
       <span class="post-meta">
         <i class="iconfont icon-date-fill" aria-hidden="true"></i>
-        <time datetime="2022-09-20 22:51" pubdate>
-          2022年9月20日 晚上
+        <time datetime="2026-04-19 12:53" pubdate>
+          2026年4月19日 下午
         </time>
       </span>
     
@@ -265,7 +265,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          2.5k 字
+          2k 字
         
       </span>
     
@@ -276,7 +276,7 @@
         
         
         
-          22 分钟
+          17 分钟
         
       </span>
     
@@ -322,103 +322,38 @@
         <div id="board">
           <article class="post-content mx-auto">
             <!-- SEO header -->
-            <h1 style="display: none">chronos和simplescalar安装</h1>
+            <h1 style="display: none">cert-tools</h1>
             
             
               <div class="markdown-body">
                 
-                <h1 id="安装预先准备"><a href="#安装预先准备" class="headerlink" title="安装预先准备"></a>安装预先准备</h1><h2 id="安装环境"><a href="#安装环境" class="headerlink" title="安装环境"></a>安装环境</h2><p>ubuntu 9.04（32-bit）   Virtualbox</p>
-<h2 id="镜像"><a href="#镜像" class="headerlink" title="镜像"></a>镜像</h2><p> <a target="_blank" rel="noopener" href="https://uestc.feishu.cn/file/boxcnoDny8joPj3GnKWb2l6vtRe">ubuntu-9.04-desktop-i386.iso</a>        </p>
-<h2 id="chronos安装包"><a href="#chronos安装包" class="headerlink" title="chronos安装包"></a>chronos安装包</h2><p><a target="_blank" rel="noopener" href="https://uestc.feishu.cn/file/boxcnLYNkH68ZIZbNGTtE1uOBCg">chronos2.0版本安装包.zip</a> </p>
-<h1 id="安装步骤"><a href="#安装步骤" class="headerlink" title="安装步骤"></a>安装步骤</h1><h2 id="系统安装"><a href="#系统安装" class="headerlink" title="系统安装"></a>系统安装</h2><p><img src="https://imgs.bencorn.com/imgs/2022/09/20/20220920225317.png" srcset="/img/loading.gif" lazyload alt="虚拟机"></p>
-<p>正常按照步骤安装系统</p>
-<p><img src="https://imgs.bencorn.com/imgs/2022/09/20/20220920225327.png" srcset="/img/loading.gif" lazyload alt="安装系统"></p>
-<p>安装好系统之后，切换源，教程如下，笔者使用的中科大源：</p>
-<p><a target="_blank" rel="noopener" href="https://mirrors.ustc.edu.cn/help/ubuntu-old-releases.html">https://mirrors.ustc.edu.cn/help/ubuntu-old-releases.html</a></p>
-<p><img src="https://imgs.bencorn.com/imgs/2022/09/20/20220920225345.png" srcset="/img/loading.gif" lazyload alt="更换APT源"></p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs Plain">sudo sed -i &#x27;s/cn.archive.ubuntu.com/mirrors.ustc.edu.cn/ubuntu-old-releases/g&#x27; /etc/apt/sources.list<br></code></pre></td></tr></table></figure>
+                <h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><p>本文主要是介绍一些开源的处理 netflow 的工具，关注 CERT NetSA Security Suite 的一些工具。<a target="_blank" rel="noopener" href="https://tools.netsa.cert.org/index.html">CERT </a> 是从是网络安全的，其主要是联合 CMU 大学做的大规模复杂网络威胁方面的分析。后续还有其他的处理工具，也会考虑更新。</p>
+<p>本文测试环境：Ubuntu 22.04.5 LTS</p>
+<h2 id="YAF"><a href="#YAF" class="headerlink" title="YAF"></a>YAF</h2><p><a target="_blank" rel="noopener" href="https://tools.netsa.cert.org/yaf2/index.html">YAF</a> 全称 Yet Another Flowmeter，它主要的能力是从 pcap 文件中提取双向流，或者从实时的网络物理接口上面抓包提取双向流，然后把这些流导出 <a target="_blank" rel="noopener" href="https://www.iana.org/assignments/ipfix/ipfix.xhtml">IPFIX</a>  的格式，并且会生成一个IPFIX-based 格式的文件。然后这些文件可以用于它提到的类似 <a target="_blank" rel="noopener" href="https://tools.netsa.cert.org/silk/index.html">SiLK</a> 的工具，或者 <a target="_blank" rel="noopener" href="https://tools.netsa.cert.org/super_mediator/index.html">super_mediator</a> 工具，<a target="_blank" rel="noopener" href="https://tools.netsa.cert.org/analysis-pipeline5/index.html">Pipeline 5</a> 工具等来进行处理。</p>
+<h3 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h3><p>官网下载：<a target="_blank" rel="noopener" href="https://tools.netsa.cert.org/yaf2/download.html#">yaf-2.18.3.tar.gz</a> </p>
+<p>需要安装部分依赖，参考下面的指令，注意自己所在的目录：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs bash">wget https://tools.netsa.cert.org/releases/p0flib.tar.gz<br>wget https://tools.netsa.cert.org/releases/yaf-2.18.3.tar.gz<br><br>tar -zxvf p0flib.tar.gz<br>tar -zxvf yaf-2.18.3.tar.gz<br><br><span class="hljs-comment"># 安装 p0flib</span><br><span class="hljs-built_in">cd</span> p0flib/libp0lf<br>./configure<br>make<br><span class="hljs-built_in">sudo</span> make install<br></code></pre></td></tr></table></figure>
 
-<p>更换完源后，安装桌面工具,点击虚拟机客户端，生成插件到桌面并执行：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs undefined">sudo sh VBoxLinuxAdditions.run<br></code></pre></td></tr></table></figure>
+<p>configure 的时候，由于使用的版本比较老，需要手动修改一个地方，参考下面的指令：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 修改yaf的configure文件，里面的--date后面的%v格式不对，改成%Y-%M-%D</span><br><br><span class="hljs-built_in">cd</span> yaf<br>./configure \<br>    --enable-applabel \<br>    --enable-p0fprinter \<br>    --enable-plugins \<br>    --enable-mpls \<br>    --enable-entropy \<br>    --enable-fpexport \<br>    --enable-nonip<br>make -j<br><span class="hljs-built_in">sudo</span> make install<br></code></pre></td></tr></table></figure>
 
-<p>安装相关工具包：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs undefined">sudo apt-get install vim<br>sudo apt upgrade<br>sudo apt-get install openssh-server<br></code></pre></td></tr></table></figure>
+<h3 id="使用"><a href="#使用" class="headerlink" title="使用"></a>使用</h3><p>主要是输入有两类，可以自行抓包生成一个 test.pcap，然后进行测试处置：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs bash">yaf --<span class="hljs-keyword">in</span> test.pcap --out flows.ipfix<br>yafscii --<span class="hljs-keyword">in</span> flows.ipfix --out readable_flow.txt<br><br><span class="hljs-comment"># Decode and print IPFIX records using tshark</span><br>tshark -r flows.ipfix -V<br></code></pre></td></tr></table></figure>
 
-<h2 id="Chronos安装"><a href="#Chronos安装" class="headerlink" title="Chronos安装"></a>Chronos安装</h2><p>将chronos传入虚拟机</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs Bash">scp ./chronos2.0.zip chronos@192.168.2.108<br></code></pre></td></tr></table></figure>
+<h3 id="其他"><a href="#其他" class="headerlink" title="其他"></a>其他</h3><p>最新的 prelease 版本有一些依赖，可以支撑 nDPI 等。</p>
+<h2 id="super-mediator"><a href="#super-mediator" class="headerlink" title="super_mediator"></a>super_mediator</h2><p><a target="_blank" rel="noopener" href="https://tools.netsa.cert.org/super_mediator1/index.html">super_mediator</a>  是 IPFIX 处理中间件，将 YAF 处理的内容给 SiLK 工具使用。它可以把 YAF 获取到的 IPFIX 数据，处理成 csv 文件或 json 文件，甚至可以保存到 MySQL 数据库中。</p>
+<h3 id="安装-1"><a href="#安装-1" class="headerlink" title="安装"></a>安装</h3><p>这里我们依然安装稳定版本，有一些坑需要注意，参考下面的指令：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs bash">wget https://tools.netsa.cert.org/releases/super_mediator-1.13.0.tar.gz<br><br>tar -zxvf super_mediator-1.13.0.tar.gz<br><span class="hljs-built_in">sudo</span> apt install libmysqlclient-dev<br><span class="hljs-built_in">sudo</span> <span class="hljs-built_in">touch</span> /usr/include/mysql/my_global.h <span class="hljs-comment"># 老版本有这个，新版本内容移植到了mysql.h中，创建一个支持configure的逻辑</span><br><br>./configure --with-mysql --with-openssl<br>make CPPFLAGS=<span class="hljs-string">&quot;-Dmy_bool=bool&quot;</span><br><span class="hljs-built_in">sudo</span> make install<br></code></pre></td></tr></table></figure>
 
-<p>创建chronos文件夹，simplescalar将安装包内容解压到此</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs Bash"><span class="hljs-built_in">mkdir</span> simplescalar<br>unzip chronos2.0.zip<br><span class="hljs-built_in">mkdir</span> simplescalar<br><span class="hljs-built_in">mv</span> simplesim-3.0.tgz simplescalar/<br></code></pre></td></tr></table></figure>
+<p>注意一下版本，现在的mysql的依赖版本太高了，和原来的版本有所差别，所以需要处置一下。</p>
+<h3 id="使用-1"><a href="#使用-1" class="headerlink" title="使用"></a>使用</h3><h4 id="直接转换"><a href="#直接转换" class="headerlink" title="直接转换"></a>直接转换</h4><p>有两个模式，分别转换成 json 格式或者 csv 格式。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># Convert an existing IPFIX file to JSON format</span><br>super_mediator --<span class="hljs-keyword">in</span> flows.ipfix --out flows.json --output-mode JSON<br><br><span class="hljs-comment"># Convert an existing IPFIX file to CSV format</span><br>super_mediator --<span class="hljs-keyword">in</span> flows.ipfix --out flows.csv --output-mode CSV<br></code></pre></td></tr></table></figure>
 
-<h3 id="安装Chronos2-0分析器"><a href="#安装Chronos2-0分析器" class="headerlink" title="安装Chronos2.0分析器"></a><strong>安装Chronos2.0分析器</strong></h3><p>添加全局路径</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs Bash"><span class="hljs-built_in">export</span> IDIR=<span class="hljs-variable">$HOME</span>/chronos<br></code></pre></td></tr></table></figure>
+<h4 id="守护进程"><a href="#守护进程" class="headerlink" title="守护进程"></a>守护进程</h4><p>设置一个配置文件，例如：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs conf">EXPORTER TEXT<br>    PATH &quot;output.txt&quot;<br>EXPORTER END<br></code></pre></td></tr></table></figure>
 
-<p>安装相关依赖</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs Bash"><span class="hljs-built_in">sudo</span> apt-get install flex-old<br><span class="hljs-built_in">sudo</span> apt-get install bison<br><span class="hljs-built_in">sudo</span> apt-get install openjdk-6-* -y<br></code></pre></td></tr></table></figure>
-
-<p>编译est 分析器</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs Bash"><span class="hljs-built_in">cd</span> est &amp;&amp; make<br><span class="hljs-built_in">cd</span> ..<br><span class="hljs-built_in">cd</span> gui &amp;&amp; make<br></code></pre></td></tr></table></figure>
-
-<h3 id="安装lp-solve"><a href="#安装lp-solve" class="headerlink" title="安装lp_solve"></a><strong>安装lp_solve</strong></h3><p><strong>将其含有文件全部解压</strong></p>
-<p><img src="https://imgs.bencorn.com/imgs/2022/09/20/20220920225400.png" srcset="/img/loading.gif" lazyload alt="解压文件"></p>
-<h3 id="安装simplescalar"><a href="#安装simplescalar" class="headerlink" title="安装simplescalar"></a><strong>安装simplescalar</strong></h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs Bash"><span class="hljs-built_in">cd</span> ..<br><span class="hljs-built_in">cd</span> simplescalar <br><span class="hljs-built_in">sudo</span> apt-get install gcc-3.4<br></code></pre></td></tr></table></figure>
-
-<p>添加simplescalar环境变量</p>
-<p>先查看平台,看是i686或是i386</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs Bash"><span class="hljs-built_in">uname</span> -m<br><span class="hljs-built_in">export</span> CC=<span class="hljs-string">&quot;gcc-3.4&quot;</span><br><span class="hljs-built_in">export</span> HOST=i686-unknown-linux <br><span class="hljs-built_in">export</span> TARGET=sslittle-na-sstrix <br><span class="hljs-built_in">export</span> IDIR=<span class="hljs-variable">$HOME</span>/chronos/simplescalar<br></code></pre></td></tr></table></figure>
-
-<p>解压simplescalar</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs Bash">tar xvf simpletools-2v0.tgz <br><span class="hljs-built_in">rm</span> -rf gcc-2.6.3<br>tar -xvzf simpleutils-990811.tar.gz<br></code></pre></td></tr></table></figure>
-
-<h4 id="Simplescalar-utils编译安装"><a href="#Simplescalar-utils编译安装" class="headerlink" title="Simplescalar utils编译安装"></a><strong>Simplescalar utils编译安装</strong></h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs Bash">./configure --host=<span class="hljs-variable">$HOST</span> --target=<span class="hljs-variable">$TARGET</span> --with-gnu-as --with-gnu-ld --prefix=<span class="hljs-variable">$IDIR</span> <br>make CC=gcc-3.4 <br><span class="hljs-built_in">sudo</span> make install CC=gcc-3.4<br></code></pre></td></tr></table></figure>
-
-<p>到此utils工具包安装完成</p>
-<h4 id="Simplesim-3-0安装"><a href="#Simplesim-3-0安装" class="headerlink" title="Simplesim-3.0安装"></a><strong>Simplesim-3.0安装</strong></h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs Bash">make config-pisa<br>make CC=gcc-3.4<br></code></pre></td></tr></table></figure>
-
-<h4 id="Simplescalar-gcc安装"><a href="#Simplescalar-gcc安装" class="headerlink" title="Simplescalar gcc安装"></a><strong>Simplescalar gcc安装</strong></h4><p>操作目录：gcc-2.7.2.3&#x2F;</p>
-<p>PS:$IDIR&#x3D;&amp;HOME&#x2F;chronos&#x2F;simplescalar此时IDIR已改变</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs Bash">tar xvzf gcc<br><span class="hljs-built_in">export</span> PATH=<span class="hljs-variable">$PATH</span>:<span class="hljs-variable">$IDIR</span>/sslittle-na-sstrix/bin<br>./configure --host=<span class="hljs-variable">$HOST</span> --target=<span class="hljs-variable">$TARGET</span> --with-gnu-as --with-gnu-ld --prefix=<span class="hljs-variable">$IDIR</span>  <br><br>make LANGUAGES=<span class="hljs-string">&quot;c c++&quot;</span> CFLAGS=-O3 CC=gcc-3.4<br></code></pre></td></tr></table></figure>
-
-<p>此时会报错：</p>
-<p><img src="https://imgs.bencorn.com/imgs/2022/09/20/20220920225419.png" srcset="/img/loading.gif" lazyload alt="报错"></p>
-<p>修改cxxmain.c</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs Bash"><span class="hljs-built_in">chmod</span> +w cxxmain.c<br></code></pre></td></tr></table></figure>
-
-<p>在第cxxxmain.c 2978与2979行注释掉,修改后重新make：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs Bash">make clean <br>make <br></code></pre></td></tr></table></figure>
-
-<p>备份相关文件</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs Bash"><span class="hljs-built_in">cd</span> ..<br><span class="hljs-built_in">cd</span> sslittle-na-sstrix/include/sys <span class="hljs-built_in">cp</span> cdefs.h cdefs.h.bak<br><span class="hljs-built_in">cp</span> patched/sys/cdefs.h ../sslittle-na-sstrix/include/sys/<br>make enquire CC=gcc-3.4<br></code></pre></td></tr></table></figure>
-
-<p>测试simlpescalar交叉编译的程序是否能够运行，用编译器运行</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs Bash">../simplesim-3.0/sim-safe ./enquire -f &gt; float.h-cross<br></code></pre></td></tr></table></figure>
-
-<p>出现以下结果则安装成功</p>
-<p><img src="https://imgs.bencorn.com/imgs/2022/09/20/20220920225436.png" srcset="/img/loading.gif" lazyload alt="simplescalar安装成功"></p>
-<p>将编译好的gcc安装到当前目录</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs Bash"><span class="hljs-built_in">sudo</span> make install LANGUAGES=<span class="hljs-string">&quot;c c++&quot;</span> CFLAGS=-O3 CC=gcc-3.4 PATH=<span class="hljs-variable">$PATH</span>:<span class="hljs-variable">$HOME</span>/chronos/simplescalar/bin<br></code></pre></td></tr></table></figure>
-
-<p>测试simplescalar-gcc是否安装成功</p>
-<p>写一个简单的c程序</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs C"><span class="hljs-meta">#<span class="hljs-keyword">include</span><span class="hljs-string">&lt;stido.h&gt;</span></span><br><span class="hljs-type">int</span> <span class="hljs-title function_">main</span><span class="hljs-params">()</span><br>&#123;<br>    <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;hello world!&quot;</span>);<br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br>sudo make install LANGUAGES=<span class="hljs-string">&quot;c c++&quot;</span> CFLAGS=-O3 CC=gcc<span class="hljs-number">-3.4</span> PATH=$PATH:$HOME/chronos/simplescalar/bin<br>simplescalar/simplesim<span class="hljs-number">-3.0</span>/sim-safe a.out <br></code></pre></td></tr></table></figure>
-
-<p>切换命令解释器以适配chronos</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs C">sudo mv /bin/sh sh.bak<br>sudo ln /bin/bash /bin/sh<br></code></pre></td></tr></table></figure>
-
-<p>此环境默认jre为：</p>
-<p><img src="https://imgs.bencorn.com/imgs/2022/09/20/20220920230155.png" srcset="/img/loading.gif" lazyload alt="jre安装"></p>
-<p>运行chronos</p>
-<p>当前路径：chronos</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs Bash"><span class="hljs-built_in">cd</span> gui<br>./gui.sh<br></code></pre></td></tr></table></figure>
-
-<h1 id="软件运行结果"><a href="#软件运行结果" class="headerlink" title="软件运行结果"></a>软件运行结果</h1><p>出现如下界面：</p>
-<p><img src="https://imgs.bencorn.com/imgs/2022/09/20/20220920225446.png" srcset="/img/loading.gif" lazyload alt="chronos运行"></p>
-<p>到此安装成功，配置好相关文件即可运行。</p>
-<p>运行结果展示如下：</p>
-<h2 id="processor配置"><a href="#processor配置" class="headerlink" title="processor配置"></a>processor配置</h2><p><img src="https://imgs.bencorn.com/imgs/2022/09/20/20220920230300.png" srcset="/img/loading.gif" lazyload alt="processor配置"></p>
-<h2 id="循环边界配置"><a href="#循环边界配置" class="headerlink" title="循环边界配置"></a>循环边界配置</h2><p><img src="https://imgs.bencorn.com/imgs/2022/09/20/20220920225505.png" srcset="/img/loading.gif" lazyload alt="insertsort分析"></p>
-<h2 id="WCET分析结果"><a href="#WCET分析结果" class="headerlink" title="WCET分析结果"></a>WCET分析结果</h2><p><img src="https://imgs.bencorn.com/imgs/2022/09/20/20220920225517.png" srcset="/img/loading.gif" lazyload alt="分析结果1"></p>
-<p><img src="https://imgs.bencorn.com/imgs/2022/09/20/20220920225531.png" srcset="/img/loading.gif" lazyload alt="分析结果2"></p>
+<p>更加复杂的使用方式，得参考官方网站给出的示例。</p>
+<h3 id="其他-1"><a href="#其他-1" class="headerlink" title="其他"></a>其他</h3><p>最新的 pre-release 版本里面，进行了一些更新，包括对 DPI 的支持，并且可以把从 YAF 获取到的数据进行 DPI 分析过后发送给其他的 IPFIX 收集器。</p>
 
                 
               </div>
@@ -437,7 +372,7 @@
     
       <span class="category-chain">
         
-  <a href="/categories/WCET/" class="category-chain-item">WCET</a>
+  <a href="/categories/netflow/" class="category-chain-item">netflow</a>
   
   
 
@@ -452,7 +387,7 @@
     <div class="post-meta">
       <i class="iconfont icon-tags"></i>
       
-        <a href="/tags/WCET/">#WCET</a>
+        <a href="/tags/netflow/">#netflow</a>
       
     </div>
   
@@ -464,8 +399,8 @@
 
   <div class="license-box my-3">
     <div class="license-title">
-      <div>chronos和simplescalar安装</div>
-      <div>https://www.bencorn.com/2022/09/20/chronos和simplescalar安装/</div>
+      <div>cert-tools</div>
+      <div>https://www.bencorn.com/2026/04/19/cert-tools/</div>
     </div>
     <div class="license-meta">
       
@@ -477,7 +412,7 @@
       
         <div class="license-meta-item license-meta-date">
           <div>发布于</div>
-          <div>2022年9月20日</div>
+          <div>2026年4月19日</div>
         </div>
       
       
@@ -509,18 +444,12 @@
                   <article class="post-prev col-6">
                     
                     
-                      <a href="/2023/04/25/xv6-Boot/" title="xv6-Boot">
-                        <i class="iconfont icon-arrowleft"></i>
-                        <span class="hidden-mobile">xv6-Boot</span>
-                        <span class="visible-mobile">上一篇</span>
-                      </a>
-                    
                   </article>
                   <article class="post-next col-6">
                     
                     
-                      <a href="/2022/07/11/HW4-xv6-lazy-page-allocation/" title="HW4 xv6 lazy page allocation">
-                        <span class="hidden-mobile">HW4 xv6 lazy page allocation</span>
+                      <a href="/2023/07/22/HW4-lazy-page-allocation/" title="HW4-lazy-page-allocation">
+                        <span class="hidden-mobile">HW4-lazy-page-allocation</span>
                         <span class="visible-mobile">下一篇</span>
                         <i class="iconfont icon-arrowright"></i>
                       </a>
@@ -543,7 +472,7 @@
         var options = Object.assign(
           {"clientID":"c8e51936bf0945ca26ae","clientSecret":"e712730e967ff8834fa267ac7d2a6a11587a35ed","repo":"shatanyumi.github.io","owner":"shatanyumi","admin":["shatanyumi"],"language":"zh-CN","labels":["Gitalk"],"perPage":10,"pagerDirection":"last","distractionFreeMode":false,"createIssueManually":true,"proxy":"https://cloudflare-cors-anywhere.bencorn.com/?https://github.com/login/oauth/access_token"},
           {
-            id: 'd5c5a83ceb19c3ad87aabb6a82f0aa6c'
+            id: '8e2e6257f032d56e9d05dbc01547ac77'
           }
         )
         var gitalk = new Gitalk(options);

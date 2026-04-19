@@ -115,7 +115,7 @@
 
 
   
-<meta name="generator" content="Hexo 6.3.0"></head>
+<meta name="generator" content="Hexo 8.1.1"></head>
 
 
 <body>
@@ -331,7 +331,7 @@
 <p>​	实验链接：<a target="_blank" rel="noopener" href="https://pdos.csail.mit.edu/6.828/2018/labs/lab1/">https://pdos.csail.mit.edu/6.828/2018/labs/lab1/</a></p>
 <h2 id="实验文件安装"><a href="#实验文件安装" class="headerlink" title="实验文件安装"></a>实验文件安装</h2><p>​	实验环境：Ubuntu 20.04 LTS WSL</p>
 <p>​	环境配置：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">sudo apt install gcc g++ build-essential gdb gcc-multilib qemu qemu-system<br></code></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-built_in">sudo</span> apt install gcc g++ build-essential gdb gcc-multilib qemu qemu-system<br></code></pre></td></tr></table></figure>
 
 <p>​	环境检测，查看是否安装成功：</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs bash">objdump -i<br>gcc -m32 -print-libgcc-file-name<br></code></pre></td></tr></table></figure>
@@ -495,7 +495,7 @@
 <p><img src="https://imgs.bencorn.com/imgs/Lab1-Booting-a-PC-2023-04-29-21-32-41.png" srcset="/img/loading.gif" lazyload alt="0x7000 error"></p>
 <p>​我们可以看到在这个情况下边儿，由于 boot loader 加载地址，无法正常启动，导致 BIOS 不断重启去寻找可以启动的盘，此时的 qemu 就陷入了死循环，当我们把地址改为正确的时候，则可以正常启动，不过得执行命令 make clean 再重新编译。</p>
 <h4 id="Exercise-6"><a href="#Exercise-6" class="headerlink" title="Exercise 6"></a>Exercise 6</h4><p>​要求：使用 GDB 中 x 命令来检测地址，其中 x&#x2F;Nx ADDR 命令打印从 ADDR 开始的 N 个字的地址。测试 0x00100000 地址开始的 8 个字的内存，然后再引导程序进入内核时再次检查，他们为什么不同？第二个断点有什么？</p>
-<p><img src="https://imgs.bencorn.com/imgs/Lab1-Booting-a-PC-2023-04-29-21-37-22.png" srcset="/img/loading.gif" lazyload alt="x/Nx ADDR"></p>
+<p><img src="https://imgs.bencorn.com/imgs/Lab1-Booting-a-PC-2023-04-29-21-37-22.png" srcset="/img/loading.gif" lazyload alt="x&#x2F;Nx ADDR"></p>
 <p>​我们知道在 ELF 头中保存了一个叫做 e_entry 的字段，该字段中保存了程序中入口点的地址，也就是 kernel 的入口地址，我们根据要求查看进入内核前后的该处地址情况，发现在运行内核过后，内存 0x0010000 中加载了内核的代码地址。</p>
 <h2 id="Part-3：The-Kernel"><a href="#Part-3：The-Kernel" class="headerlink" title="Part 3：The Kernel"></a>Part 3：The Kernel</h2><p>​第三个部分我们开始研究内核，在将内核加载到内存中，并且根据 e_entry 字段进入内核代码过后，CPU 流水开始执行 kernel，JOS 运行了起来。</p>
 <h3 id="虚拟内存解决位置依赖"><a href="#虚拟内存解决位置依赖" class="headerlink" title="虚拟内存解决位置依赖"></a>虚拟内存解决位置依赖</h3><p>​操作系统的内核通常被链接到非常高的虚拟地址如（0x00100000）下运行，以便留下处理器虚拟地址空间的低地址部分供用户程序使用。</p>
